@@ -23,7 +23,7 @@ class LoginView(APIView):
                     'access': str(refresh.access_token),
                     'user': UserSerializer(user).data
                 })
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             print(f"Errore Login: {e}") 
-            return Response({'error': 'Server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

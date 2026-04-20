@@ -3,8 +3,9 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Image from "next/image";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import LoginButton from "@/components/LoginButton/LoginButton";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,24 +30,46 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+        inter.variable,
+      )}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
         <nav>
           <ul className="flex items-center w-full">
-            <li><a href="/"><Image src="/favicon.ico" alt="VGShop Logo" width={32} height={32} /></a></li>
-            <li><a href="/">Home</a></li>
-            <li><a href="/explore">Esplora</a></li>
-            <li><a href="/library">Libreria</a></li>
-            <li className="ml-auto"><a href="/account">Account</a></li>
+            <li>
+              <a href="/">
+                <Image
+                  src="/favicon.ico"
+                  alt="VGShop Logo"
+                  width={32}
+                  height={32}
+                />
+              </a>
+            </li>
+            <li>
+              <a href="/">Home</a>
+            </li>
+            <li>
+              <a href="/explore">Esplora</a>
+            </li>
+            <li>
+              <a href="/library">Libreria</a>
+            </li>
+            <li className="ml-auto">
+              <LoginButton />
+            </li>
           </ul>
         </nav>
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <footer className="mt-auto bg-zinc-200 dark:bg-zinc-800">
           <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-            &copy; 2023 VGShop. All rights reserved.
+            &copy; {new Date().getFullYear()} VGShop. All rights reserved.
           </p>
         </footer>
       </body>
