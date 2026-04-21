@@ -36,6 +36,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return user
 
+
     def validate_password(self, password):
         try:
             django_validate_password(password=password, user=User(self.initial_data.get("username")))
