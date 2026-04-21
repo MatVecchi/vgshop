@@ -16,7 +16,7 @@ class User(AbstractUser):
 
     piva_validator = RegexValidator(
         regex=r'^\d{11}$',
-        message="La partita iva deve essere composta da 11 cifre numeriche"
+        message="VET Number must consists of 11 digits"
     )
 
     piva = models.CharField(
@@ -24,6 +24,8 @@ class User(AbstractUser):
         validators=[piva_validator], 
         max_length=11, 
         unique=True,
+        blank=True,
+        null=True,
         help_text="Codice di 11 cifre numeriche identificativo dell'azienda o della persona"
     )
 

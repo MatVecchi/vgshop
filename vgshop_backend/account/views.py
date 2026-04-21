@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserRegisterSerializer
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -27,3 +27,20 @@ class LoginView(APIView):
         except Exception as e:
             print(f"Errore Login: {e}") 
             return Response({'message': 'Server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = UserRegisterSerializer(data = request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                {'message':'Registration completed !'},
+                status= status.HTTP_201_CREATED
+            )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

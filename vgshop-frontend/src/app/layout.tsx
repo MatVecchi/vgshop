@@ -4,6 +4,7 @@ import Image from "next/image";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import LoginButton from "@/components/LoginButton/LoginButton";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -31,7 +32,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn(
-        "h-full",
+        "h-full dark",
         "antialiased",
         geistSans.variable,
         geistMono.variable,
@@ -40,38 +41,8 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-        <nav>
-          <ul className="flex items-center w-full">
-            <li>
-              <a href="/">
-                <Image
-                  src="/favicon.ico"
-                  alt="VGShop Logo"
-                  width={32}
-                  height={32}
-                />
-              </a>
-            </li>
-            <li>
-              <a href="/">Home</a>
-            </li>
-            <li>
-              <a href="/explore">Esplora</a>
-            </li>
-            <li>
-              <a href="/library">Libreria</a>
-            </li>
-            <li className="ml-auto">
-              <LoginButton />
-            </li>
-          </ul>
-        </nav>
-        <main>{children}</main>
-        <footer className="mt-auto bg-zinc-200 dark:bg-zinc-800">
-          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-            &copy; {new Date().getFullYear()} VGShop. All rights reserved.
-          </p>
-        </footer>
+        <Toaster />
+        {children}
       </body>
     </html>
   );
