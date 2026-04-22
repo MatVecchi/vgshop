@@ -65,6 +65,14 @@ export default function Account() {
               <p>
                 <strong>Email:</strong> {data.email}
               </p>
+              <Separator />
+              <p>
+                <strong>First Name:</strong> {data.first_name}
+              </p>
+              <Separator />
+              <p>
+                <strong>Last Name:</strong> {data.last_name}
+              </p>
             </CardContent>
           </Card>
           {data.piva ? (

@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 export function RegisterCard() {
   const [isPublisher, setisPublisher] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [piva, setPiva] = useState<string | null>("");
@@ -37,6 +39,8 @@ export function RegisterCard() {
       const response = await api.post("/api/register/", {
         username: username,
         password: password,
+        first_name: firstName,
+        last_name: lastName,
         email: email,
         isPublisher: isPublisher,
         piva: piva,
@@ -80,6 +84,35 @@ export function RegisterCard() {
                 </p>
               )}
             </div>
+
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="name">First Name</Label>
+              <Input
+                id="first_name"
+                placeholder="Mario"
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+              {errors.first_name && (
+                <p className="text-sm text-red-500 text-destructive-foreground">
+                  {errors.first_name[0]}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="name">Last Name</Label>
+              <Input
+                id="last_name"
+                placeholder="Rossi"
+                onChange={(e) => setLastName(e.target.value)}
+              />
+              {errors.last_name && (
+                <p className="text-sm text-red-500 text-destructive-foreground">
+                  {errors.last_name[0]}
+                </p>
+              )}
+            </div>
+
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input

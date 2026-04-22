@@ -15,14 +15,14 @@ from django.db import transaction
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'piva', 'website', 'profile_image']
+        fields = ['username', 'first_name', 'last_name', 'email', 'piva', 'website', 'profile_image']
         
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     isPublisher = serializers.BooleanField(write_only= True)
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'piva', 'website', 'isPublisher']
+        fields = ['username', 'first_name', 'last_name', 'password', 'email', 'piva', 'website', 'isPublisher']
 
     @transaction.atomic
     def create(self, validated_data):
