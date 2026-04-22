@@ -3,6 +3,7 @@ import LoginButton from "@/components/LoginButton/LoginButton";
 import { cookies } from "next/headers";
 import AccountButton from "@/components/AccountButton/AccountButton";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
 
 export default async function MainLayout({
   children,
@@ -36,12 +37,12 @@ export default async function MainLayout({
           </li>
         </ul>
       </nav>
-
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto">{children}</div>
+      <Separator />
+      <main className="flex flex-1">
+        <div className="max-w-7xl flex-1 mx-auto p-4">{children}</div>
       </main>
 
-      <footer className="py-6 bg-zinc-200 dark:bg-zinc-800">
+      <footer className="py-4 bg-zinc-200 dark:bg-zinc-800">
         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
           &copy; {new Date().getFullYear()} VGShop. All rights reserved.
         </p>

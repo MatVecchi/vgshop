@@ -39,17 +39,32 @@ export default function Account() {
   if (!data) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h2 className="uppercase text-2xl">Dettagli dell'account</h2>
-      <Tabs className="mt-6" defaultValue="info" orientation="vertical">
-        <TabsList>
-          <TabsTrigger value="info">Informazioni</TabsTrigger>
-          <TabsTrigger value="payments">Pagamenti</TabsTrigger>
-          <Button className="mt" type="reset" onClick={handleLogout}>
+    <div className="h-full flex flex-col">
+      <h2 className="uppercase text-4xl font-bold">Dettagli dell'account</h2>
+      <Tabs className="mt-6 flex-1" defaultValue="info" orientation="vertical">
+        <TabsList className="h-auto! max-h-96">
+          <TabsTrigger className="hover:cursor-pointer" value="info">
+            Informazioni
+          </TabsTrigger>
+          <TabsTrigger className="hover:cursor-pointer" value="payments">
+            Pagamenti
+          </TabsTrigger>
+          {data.piva ? (
+            <></>
+          ) : (
+            <TabsTrigger className="hover:cursor-pointer" value="orders">
+              Ordini
+            </TabsTrigger>
+          )}
+          <Button
+            className="mt-auto w-full hover:cursor-pointer"
+            variant="destructive"
+            onClick={handleLogout}
+          >
             Logout
           </Button>
         </TabsList>
-        <TabsContent value="info">
+        <TabsContent value="info" className="flex flex-col gap-4">
           <Card>
             <CardHeader>
               <CardTitle>Informazioni dell'account</CardTitle>
@@ -100,12 +115,59 @@ export default function Account() {
                 </p>
               </CardContent>
             </Card>
-          ) : null}
+          ) : (
+            <></>
+          )}
         </TabsContent>
-        <TabsContent value="payments">
-          <h2>Pagamenti</h2>
-          <p>Metodi di pagamento registrati:</p>
+        <TabsContent value="payments" className="flex flex-col gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Saldo VGSHOP</CardTitle>
+              <CardDescription>Gestisci il tuo saldo VGSHOP</CardDescription>
+            </CardHeader>
+            <CardContent className="flex">
+              <p className="text-5xl font-medium">
+                {data.balance?.toFixed(2) || "0.00"} €
+              </p>
+              <div className="ml-auto flex flex-col gap-2">
+                <Button className="w-full hover:cursor-pointer">
+                  Ricarica saldo
+                </Button>
+                <Button variant={"secondary"} className="hover:cursor-pointer">
+                  Cronologia transazioni
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Metodi di pagamento</CardTitle>
+              <CardDescription>
+                Gestisci i tuoi metodi di pagamento
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Mastercard</p>
+            </CardContent>
+          </Card>
         </TabsContent>
+        {data.piva ? (
+          <></>
+        ) : (
+          <TabsContent value="orders">
+            <Card>
+              <CardHeader>
+                <CardTitle>Ordini</CardTitle>
+                <CardDescription>
+                  Visualizza e gestisci i tuoi ordini
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Non hai effettuato ordini recenti.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
