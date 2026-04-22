@@ -15,12 +15,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function LoginCard() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -30,17 +34,16 @@ export function LoginCard() {
         username: username,
         password: password,
       });
-      const { accessToken, refreshToken, user } = response.data;
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
-      localStorage.setItem("user_data", JSON.stringify(user));
+      const { user } = response.data;
 
-      window.location.href = "/";
+      localStorage.setItem("user_data", JSON.stringify(user));
+      toast.success(response.data.message);
+      router.push("/");
     } catch (error: any) {
       if (error.status === 401) {
-        setErrorMessage("Username o password non validi, riprova");
+        setErrorMessage(error.response.data.message);
       } else {
-        setErrorMessage("Login non riuscito, riprova");
+        setErrorMessage("Something went wrong, try again");
       }
     } finally {
       setLoading(false);
@@ -54,16 +57,6 @@ export function LoginCard() {
         <CardDescription>
           Enter your username below to login to your account
         </CardDescription>
-        <CardAction>
-          <Button
-            variant="link"
-            onClick={() => {
-              window.location.href = "/register";
-            }}
-          >
-            Sign Up
-          </Button>
-        </CardAction>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
@@ -101,10 +94,21 @@ export function LoginCard() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter>
-        <p className="text-sm text-red-500 text-destructive-foreground">
-          {errorMessage}
-        </p>
+      <CardFooter className="flex flex-col gap-2">
+        {errorMessage && (
+          <p className="text-sm text-red-500 text-center">{errorMessage}</p>
+        )}
+
+        <div className="flex items-center justify-center text-xs text-gray-500 gap-4">
+          <span>Don't have an account?</span>
+          <Button
+            variant="link"
+            className="p-1 h-auto font-semibold" // Riducendo il padding e l'altezza, sta meglio in linea
+            onClick={() => router.push("/register")}
+          >
+            Register
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

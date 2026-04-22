@@ -1,11 +1,17 @@
 import Image from "next/image";
 import LoginButton from "@/components/LoginButton/LoginButton";
+import { cookies } from "next/headers";
+import LogoutButton from "@/components/LogoutButton/LogoutButton";
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token");
+  const isLogged = token ? true : false;
+
   return (
     <>
       <nav className="p-4 border-b dark:border-zinc-800">
@@ -25,7 +31,11 @@ export default function MainLayout({
             <a href="/library">Libreria</a>
           </li>
           <li className="ml-auto">
-            <LoginButton />
+            {isLogged ? (
+              <LogoutButton></LogoutButton>
+            ) : (
+              <LoginButton></LoginButton>
+            )}
           </li>
         </ul>
       </nav>

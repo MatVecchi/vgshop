@@ -2,60 +2,55 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://localhost:8000",
+  withCredentials: true, // Fondamentale per inviare/ricevere cookie
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Interceptor per le richieste:
+// Se Django usa i cookie, non serve aggiungere l'header Authorization manualmente.
+// Tuttavia, se Django si aspetta il CSRF token, dovresti aggiungerlo qui.
 api.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  // Esempio per CSRF (se necessario)
+  // const csrfToken = Cookies.get('csrftoken');
+  // if (csrfToken) config.headers['X-CSRFToken'] = csrfToken;
   return config;
 });
 
 api.interceptors.response.use(
-  (response) => response, // function fulFilled: ok non fare nulla
+  (response) => response,
   async (error) => {
-    // function notFulFilled: ritprova la richiesta
     const originalRequest = error.config;
 
-    // Se l'errore è 401 e non abbiamo già provato a fare il refresh
+    // Se l'errore è 401 e non è un tentativo di refresh fallito
     if (
       error.response.status === 401 &&
       error.response.data?.message !== "Invalid credentials" &&
       !originalRequest._retry
     ) {
-      originalRequest._retry = true; // Segniamo che stiamo provando il refresh
+      originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
-
-        // Chiamiamo l'endpoint di Django per il refresh e ottenere il nuovo accesso token
-        const res = await axios.post(
+        // Nota: Non passiamo il refresh token nel body.
+        // Se Django è impostato correttamente, lo leggerà dai cookie HttpOnly.
+        await axios.post(
           "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: refreshToken,
-          },
+          {}, // Body vuoto o con dati minimi
+          { withCredentials: true },
         );
 
-        if (res.status === 200) {
-          // Salviamo il nuovo access token
-          localStorage.setItem("access_token", res.data.access);
-
-          // Cambiamo l'header della richiesta fallita con il nuovo token
-          api.defaults.headers.common["Authorization"] =
-            `Bearer ${res.data.access}`;
-
-          // Riprova la richiesta originale
-          return api(originalRequest);
-        }
+        // Se il refresh ha successo, Django avrà inviato un nuovo Set-Cookie
+        // Riprova la richiesta originale (i nuovi cookie verranno inclusi automaticamente)
+        return api(originalRequest);
       } catch (refreshError) {
-        // Se anche il refresh token è scaduto, dobbiamo sloggare l'utente
+        // Se il refresh fallisce (es. refresh token scaduto)
+        console.error("Sessione scaduta. Reindirizzamento al login.");
+
+        // Pulizia lato client (opzionale se gestisci tutto via cookie)
         localStorage.clear();
         window.location.href = "/login";
+
         return Promise.reject(refreshError);
       }
     }

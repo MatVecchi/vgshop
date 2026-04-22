@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export function RegisterCard() {
   const [isPublisher, setisPublisher] = useState<boolean>(false);
@@ -26,6 +27,8 @@ export function RegisterCard() {
   const [website, setWebsite] = useState<string | null>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+
+  const router = useRouter();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -41,7 +44,7 @@ export function RegisterCard() {
       });
 
       toast.success("Registration completed ! ");
-      window.location.href = "/login";
+      router.push("/login");
     } catch (e: any) {
       if (e.response && e.response.data) {
         setErrors(e.response.data);
@@ -158,7 +161,7 @@ export function RegisterCard() {
           <Button
             variant="link"
             onClick={() => {
-              window.location.href = "/login";
+              router.push("/login");
             }}
           >
             Log In

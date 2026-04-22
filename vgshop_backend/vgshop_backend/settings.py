@@ -144,3 +144,16 @@ AUTH_USER_MODEL = "account.User"
 
 MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = 'media/'
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"] 
+
+# settings per la gestione degli access token 
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'access_token',       # Nome access token
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh_token', # Nome del refresh_token
+    'JWT_AUTH_HTTPONLY': True,               # cokie inseiriti come header non usabili da JS
+    'JWT_AUTH_SECURE': False,                
+    'JWT_AUTH_SAMESITE': 'Lax',              # Necessario per gestire i cookie tra domini o navigazione
+}
