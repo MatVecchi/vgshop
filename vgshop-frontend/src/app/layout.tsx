@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import LoginButton from "@/components/LoginButton/LoginButton";
 import { Toaster } from "@/components/ui/sonner";
+import SWRProvider from "@/components/SWRProvider/SWRProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -42,7 +43,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
         <Toaster position="top-center" richColors />
-        {children}
+        <SWRProvider>{children}</SWRProvider>
       </body>
     </html>
   );

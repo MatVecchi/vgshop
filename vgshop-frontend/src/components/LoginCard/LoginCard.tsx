@@ -34,9 +34,7 @@ export function LoginCard() {
         username: username,
         password: password,
       });
-      const { user } = response.data;
 
-      localStorage.setItem("user_data", JSON.stringify(user));
       toast.success(response.data.message);
       router.push("/");
     } catch (error: any) {
