@@ -2,6 +2,7 @@ import Image from "next/image";
 import LoginButton from "@/components/LoginButton/LoginButton";
 import { cookies } from "next/headers";
 import LogoutButton from "@/components/LogoutButton/LogoutButton";
+import Link from "next/link";
 
 export default async function MainLayout({
   children,
@@ -17,18 +18,18 @@ export default async function MainLayout({
       <nav className="p-4 border-b dark:border-zinc-800">
         <ul className="flex items-center w-full gap-6 max-w-7xl mx-auto">
           <li>
-            <a href="/">
+            <Link href="/">
               <Image src="/favicon.ico" alt="Logo" width={32} height={32} />
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
           </li>
           <li>
-            <a href="/explore">Esplora</a>
+            <Link href="/explore">Esplora</Link>
           </li>
           <li>
-            <a href="/library">Libreria</a>
+            <Link href="/library">Libreria</Link>
           </li>
           <li className="ml-auto">
             {isLogged ? (

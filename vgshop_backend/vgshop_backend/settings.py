@@ -59,17 +59,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-# Settings che gestisce l'autenticazione di Django rest framework
 REST_FRAMEWORK = {
-    # Settings specifico che definisce come eseguire una auth e cosa utilizzare (token JWT)
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'account.authenticate.CustomJWTAuthentication', # Percorso alla classe sopra
     ),
-
-    # Settings specifico per definire cosa un utente può fare senza login
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly', # Tutti leggono, solo i loggati scrivono
-    ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 ROOT_URLCONF = 'vgshop_backend.urls'
@@ -146,7 +142,7 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = 'media/'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000"] 
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"] 
 
 # settings per la gestione degli access token 
 REST_AUTH = {

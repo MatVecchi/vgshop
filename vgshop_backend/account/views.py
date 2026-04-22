@@ -37,7 +37,7 @@ class LoginView(APIView):
                     value=str(refresh),
                     httponly=True,
                     samesite='Lax',
-                    path='/api/token/refresh/' 
+                    path='/api/account/refresh/', 
                 )
                 return response
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -62,35 +62,46 @@ class RegisterView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TokenRefreshView(TokenRefreshView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        refresh_token = request.cookies.get('refresh_token')
+        print(f"Cookie ricevuti: {request.COOKIES}")
+        refresh_token = request.COOKIES.get('refresh_token')
         
         if not refresh_token:
+            print("Refresh token mancante nei cookie")
             return Response({"error": "Refresh token missing"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Faccio una nuova richiesta al serializer di simpleJWT per la generazione del nuovo token
         request.data['refresh'] = refresh_token
 
         try:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
         except (InvalidToken, TokenError):
+            print("Token non valido o scaduto")
             return Response({"error": "Token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Il nuovo token è stato generato con successo
         response = Response({"detail": "Token updated"}, status=status.HTTP_200_OK)
         
-        # Settiamo il nuovo access token nel cookie
         response.set_cookie(
             key='access_token',
             value=serializer.validated_data['access'],
             httponly=True,
-            secure=False,
+            secure=False, # In produzione metti True
             samesite='Lax',
-            max_age=3600
+            path='/',
         )
+
+        if 'refresh' in serializer.validated_data:
+            response.set_cookie(
+                key='refresh_token',
+                value=serializer.validated_data['refresh'],
+                httponly=True,
+                secure=False,
+                samesite='Lax',
+                path='/api/account/refresh/',
+            )
+
         return response
     
 class LogoutView(APIView):
@@ -101,4 +112,12 @@ class LogoutView(APIView):
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
         return response
+    
+class AccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
