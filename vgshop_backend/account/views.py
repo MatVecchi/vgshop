@@ -6,7 +6,9 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserSerializer, UserRegisterSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from .models import User
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -119,11 +121,44 @@ class LogoutView(APIView):
         response.delete_cookie("refresh_token")
         return response
     
-class AccountView(APIView):
+
+def get_user_from_token(raw_token):
+    try:
+        token = AccessToken(raw_token)
+        return User.objects.get(id=token['user_id'])
+    except (User.DoesNotExist, Exception):
+        return None
+        
+
+class UsernameView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
         
+        raw_token = request.COOKIES.get('access_token')
+        if not raw_token:
+            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user = get_user_from_token(raw_token=raw_token)
+        if user:
+            return Response({'username':user.username, 'profile_image':user.profile_image if user.profile_image else None}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        raw_token = request.COOKIES.get('access_token')
+        if not raw_token:
+            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+          
+        user = get_user_from_token(raw_token=raw_token)
+        serializer = UserSerializer(user)
+        if user:
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+    
