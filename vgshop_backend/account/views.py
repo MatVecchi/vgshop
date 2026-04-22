@@ -24,11 +24,13 @@ class LoginView(APIView):
                     'message': 'Login successful !'
                 })
                 
-                
+                print(refresh.access_token)
                 response.set_cookie(
                     key='access_token', 
                     value=str(refresh.access_token),
                     httponly=True, 
+                    secure=False, # In produzione metti True
+                    max_age=60*15, # 15 minuti
                     samesite='Lax',
                     path='/',
                 )
@@ -36,8 +38,10 @@ class LoginView(APIView):
                     key='refresh_token',
                     value=str(refresh),
                     httponly=True,
+                    secure=False,
+                    max_age=60*60*24*30, # 30 giorni
                     samesite='Lax',
-                    path='/api/account/refresh/', 
+                    path='/api/token/refresh/', 
                 )
                 return response
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -88,6 +92,7 @@ class TokenRefreshView(TokenRefreshView):
             value=serializer.validated_data['access'],
             httponly=True,
             secure=False, # In produzione metti True
+            max_age=60*15, # 15 minuti
             samesite='Lax',
             path='/',
         )
@@ -98,8 +103,9 @@ class TokenRefreshView(TokenRefreshView):
                 value=serializer.validated_data['refresh'],
                 httponly=True,
                 secure=False,
+                max_age=60*60*24*30, # 30 giorni
                 samesite='Lax',
-                path='/api/account/refresh/',
+                path='/api/token/refresh/',
             )
 
         return response
