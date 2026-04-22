@@ -1,7 +1,7 @@
 import Image from "next/image";
 import LoginButton from "@/components/LoginButton/LoginButton";
 import { cookies } from "next/headers";
-import LogoutButton from "@/components/LogoutButton/LogoutButton";
+import AccountButton from "@/components/AccountButton/AccountButton";
 import Link from "next/link";
 
 export default async function MainLayout({
@@ -32,16 +32,14 @@ export default async function MainLayout({
             <Link href="/library">Libreria</Link>
           </li>
           <li className="ml-auto">
-            {isLogged ? (
-              <LogoutButton></LogoutButton>
-            ) : (
-              <LoginButton></LoginButton>
-            )}
+            {isLogged ? <AccountButton /> : <LoginButton />}
           </li>
         </ul>
       </nav>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto">{children}</div>
+      </main>
 
       <footer className="py-6 bg-zinc-200 dark:bg-zinc-800">
         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
