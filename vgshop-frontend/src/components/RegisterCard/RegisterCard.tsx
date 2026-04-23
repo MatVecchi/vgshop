@@ -76,7 +76,7 @@ export function RegisterCard() {
               <Label htmlFor="name">Username</Label>
               <Input
                 id="name"
-                placeholder="Mario Rossi"
+                placeholder="Mario.Rossi"
                 onChange={(e) => setUsername(e.target.value)}
               />
               {errors.username && (
@@ -133,6 +133,7 @@ export function RegisterCard() {
               <Input
                 id="password"
                 type="password"
+                placeholder="esempio123"
                 onChange={(e) => setPassword(e.target.value)}
               />
               {errors.password && (

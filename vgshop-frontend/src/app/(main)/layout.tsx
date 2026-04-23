@@ -33,7 +33,7 @@ export default async function MainLayout({
           <li>
             <Link href="/library">Libreria</Link>
           </li>
-          <li className="ml-auto flex">
+          <li className="ml-auto flex gap-2 items-center">
             {isLogged ? (
               <>
                 <FriendList />

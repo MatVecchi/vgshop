@@ -6,16 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import useSWR from "swr";
 import Link from "next/dist/client/link";
 import { Separator } from "@/components/ui/separator";
+import {
+  CreditCard,
+  Clock,
+  User,
+  Mail,
+  NotebookPen,
+  Info,
+  Package,
+  LogOut,
+  Megaphone,
+  Landmark,
+  Globe,
+  Building,
+} from "lucide-react";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -44,15 +56,18 @@ export default function Account() {
       <Tabs className="mt-6 flex-1" defaultValue="info" orientation="vertical">
         <TabsList className="h-auto! max-h-96">
           <TabsTrigger className="hover:cursor-pointer" value="info">
+            <Info className="inline-block mr-2" />
             Informazioni
           </TabsTrigger>
           <TabsTrigger className="hover:cursor-pointer" value="payments">
+            <CreditCard className="inline-block mr-2" />
             Pagamenti
           </TabsTrigger>
           {data.piva ? (
             <></>
           ) : (
             <TabsTrigger className="hover:cursor-pointer" value="orders">
+              <Package className="inline-block mr-2" />
               Ordini
             </TabsTrigger>
           )}
@@ -61,31 +76,39 @@ export default function Account() {
             variant="destructive"
             onClick={handleLogout}
           >
+            <LogOut className="inline-block mr-2" />
             Logout
           </Button>
         </TabsList>
         <TabsContent value="info" className="flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>Informazioni dell'account</CardTitle>
+              <CardTitle>
+                <Info className="inline-block mr-2" />
+                Informazioni dell'account
+              </CardTitle>
               <CardDescription>
                 Dati personali e dettagli dell'account dell'utente
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <p>
+                <User className="inline-block mr-1" />
                 <strong>Username:</strong> {data.username}
               </p>
               <Separator />
               <p>
+                <Mail className="inline-block mr-1" />
                 <strong>Email:</strong> {data.email}
               </p>
               <Separator />
               <p>
+                <NotebookPen className="inline-block mr-1" />
                 <strong>Nome:</strong> {data.first_name}
               </p>
               <Separator />
               <p>
+                <NotebookPen className="inline-block mr-1" />
                 <strong>Cognome:</strong> {data.last_name}
               </p>
             </CardContent>
@@ -93,17 +116,22 @@ export default function Account() {
           {data.piva ? (
             <Card>
               <CardHeader>
-                <CardTitle>Informazioni Publisher</CardTitle>
+                <CardTitle>
+                  <Megaphone className="inline-block mr-2" />
+                  Informazioni Publisher
+                </CardTitle>
                 <CardDescription>
                   Informazioni riservate agli account publisher
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <p>
+                  <Building className="inline-block mr-2" />
                   <strong>Partita IVA:</strong> {data.piva}
                 </p>
                 <Separator />
                 <p>
+                  <Globe className="inline-block mr-2" />
                   <strong>Sito web:</strong>{" "}
                   <Button className="p-0" variant="link" asChild>
                     <Link href={data.website} target="_blank">
@@ -120,7 +148,10 @@ export default function Account() {
         <TabsContent value="payments" className="flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>Saldo VGSHOP</CardTitle>
+              <CardTitle>
+                <Landmark className="inline-block mr-2" />
+                Saldo VGSHOP
+              </CardTitle>
               <CardDescription>Gestisci il tuo saldo VGSHOP</CardDescription>
             </CardHeader>
             <CardContent className="flex">
@@ -129,17 +160,20 @@ export default function Account() {
               </p>
               <div className="ml-auto flex flex-col gap-2">
                 <Button className="w-full hover:cursor-pointer">
-                  Ricarica saldo
+                  Ricarica saldo <CreditCard className="ml-1" />
                 </Button>
                 <Button variant={"secondary"} className="hover:cursor-pointer">
-                  Cronologia transazioni
+                  Cronologia transazioni <Clock className="ml-1" />
                 </Button>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Metodi di pagamento</CardTitle>
+              <CardTitle>
+                <CreditCard className="inline-block mr-2" />
+                Metodi di pagamento
+              </CardTitle>
               <CardDescription>
                 Gestisci i tuoi metodi di pagamento
               </CardDescription>
@@ -155,7 +189,10 @@ export default function Account() {
           <TabsContent value="orders">
             <Card>
               <CardHeader>
-                <CardTitle>Ordini</CardTitle>
+                <CardTitle>
+                  <Package className="inline-block mr-2" />
+                  Ordini
+                </CardTitle>
                 <CardDescription>
                   Visualizza e gestisci i tuoi ordini
                 </CardDescription>

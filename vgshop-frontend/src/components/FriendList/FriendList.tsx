@@ -19,17 +19,28 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { UsersRound } from "lucide-react";
 
 export default function DrawerScrollableContent() {
   const { data, error } = useSWR("/api/friends");
 
-  if (error) return <Button variant="outline">Amici</Button>;
-  if (!data) return <Button variant="outline">Amici</Button>;
+  if (error)
+    return (
+      <Button variant="outline" className="hover:cursor-pointer">
+        <UsersRound />
+      </Button>
+    );
+  if (!data)
+    return (
+      <Button variant="outline" className="hover:cursor-pointer">
+        <UsersRound />
+      </Button>
+    );
 
   return (
     <Drawer direction="right">
-      <DrawerTrigger asChild>
-        <Button variant="outline">Amici</Button>
+      <DrawerTrigger className="hover:cursor-pointer">
+        <UsersRound />
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
