@@ -13,10 +13,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import Link from "next/dist/client/link";
 
 export function RegisterCard() {
   const [isPublisher, setisPublisher] = useState<boolean>(false);
@@ -63,9 +64,9 @@ export function RegisterCard() {
   return (
     <Card className="w-full mx-auto my-28 max-w-sm">
       <CardHeader>
-        <CardTitle>Register your account</CardTitle>
+        <CardTitle>Registrati</CardTitle>
         <CardDescription>
-          Enter your datas below to register to your account
+          Inserisci i tuoi dati qui sotto per registrarti
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -86,7 +87,7 @@ export function RegisterCard() {
             </div>
 
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">First Name</Label>
+              <Label htmlFor="name">Nome</Label>
               <Input
                 id="first_name"
                 placeholder="Mario"
@@ -100,7 +101,7 @@ export function RegisterCard() {
             </div>
 
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Last Name</Label>
+              <Label htmlFor="name">Cognome</Label>
               <Input
                 id="last_name"
                 placeholder="Rossi"
@@ -151,7 +152,7 @@ export function RegisterCard() {
             {isPublisher ? (
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="piva">VAT Number</Label>
+                  <Label htmlFor="piva">Partita IVA</Label>
                   <Input
                     id="piva"
                     onChange={(e) =>
@@ -165,7 +166,7 @@ export function RegisterCard() {
                   )}
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email">Website</Label>
+                  <Label htmlFor="email">Sito web</Label>
                   <Input
                     id="website"
                     placeholder="www.website.it"
@@ -183,21 +184,16 @@ export function RegisterCard() {
             ) : null}
           </div>
           <Button className="w-full" type="submit">
-            {loading ? "Registering ..." : "Register"}
+            {loading ? "Registering ..." : "Registrati"}
             {loading && <Spinner className="ml-2" data-icon="inline-start" />}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex flex-col">
         <p className="text-xs text-center text-gray-500">
-          Already have an account?{" "}
-          <Button
-            variant="link"
-            onClick={() => {
-              router.push("/login");
-            }}
-          >
-            Log In
+          Hai già un account?{" "}
+          <Button variant="link" className="p-1 h-auto font-semibold" asChild>
+            <Link href="/login">Effettua il Login</Link>
           </Button>
         </p>
       </CardFooter>

@@ -82,11 +82,11 @@ export default function Account() {
               </p>
               <Separator />
               <p>
-                <strong>First Name:</strong> {data.first_name}
+                <strong>Nome:</strong> {data.first_name}
               </p>
               <Separator />
               <p>
-                <strong>Last Name:</strong> {data.last_name}
+                <strong>Cognome:</strong> {data.last_name}
               </p>
             </CardContent>
           </Card>
@@ -105,13 +105,11 @@ export default function Account() {
                 <Separator />
                 <p>
                   <strong>Sito web:</strong>{" "}
-                  <Link
-                    className="underline"
-                    href={data.website}
-                    target="_blank"
-                  >
-                    {data.website}
-                  </Link>
+                  <Button className="p-0" variant="link" asChild>
+                    <Link href={data.website} target="_blank">
+                      {data.website}
+                    </Link>
+                  </Button>
                 </p>
               </CardContent>
             </Card>

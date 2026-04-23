@@ -161,4 +161,3 @@ class ProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    

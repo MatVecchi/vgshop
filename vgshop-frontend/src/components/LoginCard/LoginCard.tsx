@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -17,6 +16,7 @@ import { useState } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/dist/client/link";
 
 export function LoginCard() {
   const [username, setUsername] = useState<string>("");
@@ -51,9 +51,9 @@ export function LoginCard() {
   return (
     <Card className="w-full mx-auto my-28 max-w-sm">
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle>Effettua il login</CardTitle>
         <CardDescription>
-          Enter your username below to login to your account
+          Inserisci il tuo username qui sotto per accedere al tuo account
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,15 +69,7 @@ export function LoginCard() {
             />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-              <a
-                href="#"
-                className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-              >
-                Forgot your password?
-              </a>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input
               onChange={(e) => setPassword(e.target.value)}
               id="password"
@@ -98,13 +90,13 @@ export function LoginCard() {
         )}
 
         <div className="flex items-center justify-center text-xs text-gray-500 gap-4">
-          <span>Don't have an account?</span>
+          <span>Non hai un account?</span>
           <Button
             variant="link"
             className="p-1 h-auto font-semibold" // Riducendo il padding e l'altezza, sta meglio in linea
-            onClick={() => router.push("/register")}
+            asChild
           >
-            Register
+            <Link href="/register">Registrati</Link>
           </Button>
         </div>
       </CardFooter>
