@@ -7,6 +7,7 @@ from .serializers import GameRegisterSerializer, GameSerializer, TagSerializer
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class GameModelViewSet(viewsets.ModelViewSet):
@@ -41,6 +42,9 @@ class GameModelViewSet(viewsets.ModelViewSet):
     search_fields = ["title"]
     ordering_fields = ["price", "release_date", "title"]
     ordering = ["-release_date"]
+
+    parser_classes = (MultiPartParser, FormParser)
+
 
     # definisce il serializer in base all'utente che accede all'endpoint
     def get_serializer_class(self):

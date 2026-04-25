@@ -4,7 +4,7 @@ from django.urls import path, include
 
 
 router = routers.SimpleRouter()
-router.register("catalouge", GameModelViewSet)
+router.register("catalogue", GameModelViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

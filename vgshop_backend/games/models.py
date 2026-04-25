@@ -18,8 +18,12 @@ class Tag(models.Model):
 
 class GameImage(models.Model):
     image = models.ImageField(
-        verbose_name="game_image", upload_to="game_images/", null=False, blank=False
+        verbose_name="game_image",
+        upload_to="game_images/content",
+        null=False,
+        blank=False,
     )
+
     game = models.ForeignKey(
         "Game", verbose_name="game", on_delete=models.CASCADE, null=False, blank=False
     )
@@ -47,6 +51,14 @@ class Game(models.Model):
     )
 
     video = EmbedVideoField(verbose_name="video", null=False, blank=False)
+
+    cover = models.ImageField(
+        verbose_name="cover",
+        upload_to="game_images/covers",
+        null=False,
+        blank=False,
+        default="game_images/covers/default.png",
+    )
 
     price = models.FloatField(verbose_name="price", null=False, blank=False)
 

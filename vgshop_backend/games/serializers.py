@@ -7,7 +7,7 @@ import datetime
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["id", "name"]
+        fields = ["name"]
 
 
 class GameImageSerializer(serializers.ModelSerializer):
@@ -32,6 +32,7 @@ class GameSerializer(serializers.ModelSerializer):
             "tag_list",
             "publisher",
             "images",
+            "cover",
         ]
 
 
@@ -50,15 +51,20 @@ class GameRegisterSerializer(serializers.ModelSerializer):
             "price",
             "description",
             "video",
-            "publisher",
             "tag_list",
+            "cover",
             "uploaded_images",
         ]
+        extra_kwargs = {
+            'publisher': {'read_only': True}
+        }
 
     @transaction.atomic
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
         tags = validated_data.pop("tag_list", [])
+        publisher = self.context["request"].user
+        validated_data["publisher"] = publisher
 
         game = Game.objects.create(**validated_data)
         for image in uploaded_images:
