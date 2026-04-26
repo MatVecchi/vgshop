@@ -2,13 +2,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import GameRegisterSerializer, GameSerializer, TagSerializer
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
+import datetime
 
+
+class CataloguePaginator(PageNumberPagination):
+    page_size=9
 
 class GameModelViewSet(viewsets.ModelViewSet):
     """
@@ -20,7 +25,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated, IsInPublisherGroup]
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "tag_list"]:
+        if self.action in ["list", "retrieve", "tag_list", "recent"]:
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsAuthenticated, IsInPublisherGroup]
@@ -45,6 +50,21 @@ class GameModelViewSet(viewsets.ModelViewSet):
     ordering = ["-release_date"]
 
     parser_classes = (MultiPartParser, FormParser)
+    pagination_class = CataloguePaginator
+
+    @action(detail=False, methods=['GET'])
+    def recent(self, request):
+        tag = request.GET.get('tag_list', None)
+        end = datetime.date.today()
+        start = end - datetime.timedelta(30)
+
+        if tag:
+            games = Game.objects.filter(tag_list = tag, release_date__gte=start, release_date__lte=end)[:5]
+        else:
+            games = Game.objects.filter(release_date__gte=start, release_date__lte=end)[:5]
+
+        serializer = GameSerializer(games, many = True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     # definisce il serializer in base all'utente che accede all'endpoint

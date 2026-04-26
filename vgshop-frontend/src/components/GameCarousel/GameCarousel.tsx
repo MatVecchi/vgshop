@@ -10,26 +10,29 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import useSWR from "swr";
-
+import { Spinner } from "../ui/spinner";
 import { Game, Tag, GameImage } from "../GameAddModal/GameAddModal";
 import { Separator } from "../ui/separator";
+import ReactPlayer from "react-player";
+import Image from "next/image";
 
-export function GameCarousel() {
-  const {
-    data: games,
-    error,
-    isLoading,
-  } = useSWR<[Game | undefined]>(() => {
-    const end = new Date();
-    const start = new Date();
-    end.setDate(end.getDate() - 30);
+interface Props {
+  params: {
+    games: Game[] | undefined;
+    error: string;
+    isLoading: boolean;
+  };
+}
 
-    // Formattiamo entrambe le date
-    const dateEnd = end.toISOString().split("T")[0]; // Oggi
-    const dateStart = start.toISOString().split("T")[0]; // 30 giorni fa
-
-    return `games/catalogue/?release_date__gte=${dateEnd}&release_date__lte=${dateStart}`;
-  });
+export function GameCarousel({ params }: Props) {
+  if (params.isLoading) return <Spinner />;
+  if (params.error)
+    return (
+      <div className="text-center text-red-500">
+        Errore nel caricamento dei giochi
+      </div>
+    );
+  if (params.games?.length == 0) return <p>Nessun Gioco disponibile.</p>;
 
   return (
     <Carousel
@@ -37,7 +40,7 @@ export function GameCarousel() {
       style={{ maxWidth: "90%", margin: "0 auto" }}
     >
       <CarouselContent>
-        {games
+        {params.games
           ?.filter((game): game is Game => !!game)
           .map((game: Game) => (
             <CarouselItem key={game.id}>
@@ -45,16 +48,20 @@ export function GameCarousel() {
                 <Card className="overflow-hidden p-0 ">
                   <CardContent className="p-0" style={{ height: "20rem" }}>
                     <div className="flex flex-row w-full h-full">
-                      <div className="shrink-0 h-full" style={{ width: "60%" }}>
-                        <img
+                      <div
+                        className="relative shrink-0 h-full"
+                        style={{ width: "60%" }}
+                      >
+                        <Image
                           src={game.images[0]?.image}
                           alt={game.title}
-                          className="w-full h-full object-cover "
+                          fill
+                          className="object-cover"
+                          loading="eager"
                         />
                       </div>
 
                       <div className="flex flex-col justify-center w-full px-4">
-                        {/* Sezione Titolo + Prezzo */}
                         <div
                           className="flex items-baseline"
                           style={{ gap: "10rem" }}
@@ -76,24 +83,26 @@ export function GameCarousel() {
                             {game.images.slice(0, 2).map((img) => (
                               <div
                                 key={img.id}
-                                className="relative overflow-hidden rounded-md border"
+                                className="relative overflow-hidden border"
                                 style={{
                                   height: "6rem",
                                   width: "10rem",
                                   borderRadius: "0.5rem",
                                 }}
                               >
-                                <img
+                                <Image
                                   src={img.image}
                                   alt="game preview"
-                                  className="object-cover w-full h-full "
+                                  fill
+                                  className="object-cover"
+                                  sizes="160px" // 10rem sono 160px, aiuta l'ottimizzazione
+                                  loading="eager"
                                 />
                               </div>
                             ))}
                           </div>
                         )}
 
-                        {/* Riga Inferiore: Lista dei Tag */}
                         <div className="flex flex-wrap gap-2 mt-6">
                           {game.tag_list?.map((tag) => (
                             <span

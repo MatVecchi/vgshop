@@ -10,6 +10,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import useSWR from "swr";
+import Link from "next/link";
+import { Spinner } from "../ui/spinner";
 
 type Tag = {
   name: string;
@@ -20,9 +22,9 @@ export function TagCarousel() {
     data: tag_list,
     error,
     isLoading: isTagListLoading,
-  } = useSWR<[Tag]>("/games/catalogue/tag_list/");
+  } = useSWR<Tag[]>("/games/catalogue/tag_list/");
 
-  if (isTagListLoading) return <p>Caricamento tag...</p>;
+  if (isTagListLoading) return <Spinner />;
   if (error) return <p>Errore nel caricamento dei tag.</p>;
   if (!tag_list?.length) return <p>Nessun tag disponibile.</p>;
 
@@ -45,17 +47,19 @@ export function TagCarousel() {
                   boxShadow: "None",
                 }}
               >
-                <CardContent
-                  className="flex items-center justify-center p-8"
-                  style={{ height: "8rem" }}
-                >
-                  <span
-                    className="text-4xl font-semibold"
-                    style={{ color: "#e5ecf4" }}
+                <Link href={`/explore/${tag.name}`}>
+                  <CardContent
+                    className="flex items-center justify-center p-8"
+                    style={{ height: "8rem" }}
                   >
-                    {tag.name}
-                  </span>
-                </CardContent>
+                    <span
+                      className="text-4xl font-semibold"
+                      style={{ color: "#e5ecf4" }}
+                    >
+                      {tag.name}
+                    </span>
+                  </CardContent>
+                </Link>
               </Card>
             </div>
           </CarouselItem>

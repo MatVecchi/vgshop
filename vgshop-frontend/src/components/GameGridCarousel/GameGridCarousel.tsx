@@ -16,22 +16,31 @@ import { GameCard } from "../GameCard/GameCard";
 import { Button } from "../ui/button";
 import { Game } from "../GameAddModal/GameAddModal";
 import useSWR from "swr";
+import Image from "next/image";
+import { Spinner } from "../ui/spinner";
 
-export function GameGridCarousel() {
-  const { data: games, error, isLoading } = useSWR<Game[]>("games/catalogue"); // Tipizzato come array di Game
+interface Props {
+  params: {
+    games: Game[] | undefined;
+    error: string;
+    isLoading: boolean;
+  };
+}
 
+export function GameGridCarousel({ params }: Props) {
   // Gestione caricamento ed errori
-  if (isLoading) return <div className="text-center">Caricamento...</div>;
-  if (error)
+  if (params.isLoading) return <Spinner />;
+  if (params.error)
     return (
       <div className="text-center text-red-500">
         Errore nel caricamento dei giochi
       </div>
     );
+  if (params.games?.length == 0) return <p>Nessun Gioco disponibile.</p>;
 
   // Funzione per raggruppare i games a blocchi di 6
   // Usiamo un fallback all'array vuoto se games non è ancora disponibile
-  const itemsToProcess = games ?? [];
+  const itemsToProcess = params.games ?? [];
   const chunkedItems = [];
 
   for (let i = 0; i < itemsToProcess.length; i += 6) {
@@ -43,28 +52,9 @@ export function GameGridCarousel() {
       <CarouselContent>
         {chunkedItems.map((group, index) => (
           <CarouselItem key={index}>
-            <div className="grid grid-cols-3 grid-rows-2 gap-4 p-1">
+            <div className="grid grid-cols-4 grid-rows-2 gap-6 p-4">
               {group.map((game) => (
-                <Card
-                  key={game.id} // Aggiunta la chiave univoca
-                  className="relative mx-auto w-full"
-                  style={{ paddingTop: 0 }}
-                >
-                  <img
-                    src={game.cover || "https://avatar.vercel.sh/shadcn1"} // Dinamico
-                    alt={game.title}
-                    className="relative z-20 w-full object-cover"
-                    style={{ maxHeight: "15rem" }}
-                  />
-                  <CardHeader>
-                    <CardAction>
-                      <Button className="w-full text-xs">Visualizza</Button>
-                    </CardAction>
-                    <CardTitle className="truncate text-lg">
-                      {game.title}
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
+                <GameCard key={game.id} params={{ game }} />
               ))}
             </div>
           </CarouselItem>
