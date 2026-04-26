@@ -12,6 +12,7 @@ class Tag(models.Model):
         max_length=50,
     )
 
+
     class Meta:
         verbose_name_plural = "Tags"
 
@@ -25,7 +26,7 @@ class GameImage(models.Model):
     )
 
     game = models.ForeignKey(
-        "Game", verbose_name="game", on_delete=models.CASCADE, null=False, blank=False
+        "Game", verbose_name="game", on_delete=models.CASCADE, null=False, blank=False, related_name="images"
     )
 
     class Meta:

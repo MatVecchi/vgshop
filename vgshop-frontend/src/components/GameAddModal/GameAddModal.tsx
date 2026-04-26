@@ -32,6 +32,28 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+export interface Tag {
+  name: string;
+}
+
+export interface GameImage {
+  id: number;
+  image: string;
+}
+
+export interface Game {
+  id: number;
+  title: string;
+  release_date: string;
+  price: number;
+  description: string;
+  video: string;
+  tag_list: Tag[];
+  publisher: number;
+  images: GameImage[];
+  cover: string;
+}
+
 export default function GameAddModal() {
   const {
     data: tag_list,
@@ -93,7 +115,7 @@ export default function GameAddModal() {
       });
 
       toast.success("Gioco aggiunto con successo !");
-      router.push("/explore");
+      window.location.href = "/explore";
     } catch (e: any) {
       if (e.response && e.response.data) {
         setErrorMessage(e.response.data);

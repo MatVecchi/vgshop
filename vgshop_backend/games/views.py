@@ -37,6 +37,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
         "publisher": ["exact"],
         "price": ["gte", "lte"],
         "tag_list": ["exact"],
+        "release_date": ["exact", "gte", "lte"],
     }
 
     search_fields = ["title"]
