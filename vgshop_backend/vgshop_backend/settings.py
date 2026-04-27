@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt', # app specifica per la gestione dei toke di auth
     'account',
+    'friends',
     'corsheaders',
 ]
 
@@ -62,7 +63,7 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'account.authenticate.CustomJWTAuthentication', # Percorso alla classe sopra
+        'vgshop_backend.authenticate.CustomJWTAuthentication', # Percorso alla classe sopra
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
