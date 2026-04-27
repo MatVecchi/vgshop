@@ -5,6 +5,7 @@ import AccountButton from "@/components/AccountButton/AccountButton";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import FriendList from "@/components/FriendList/FriendList";
+import GameAddModal from "@/components/GameAddModal/GameAddModal";
 
 export default async function MainLayout({
   children,
@@ -33,9 +34,11 @@ export default async function MainLayout({
           <li>
             <Link href="/library">Libreria</Link>
           </li>
+
           <li className="ml-auto flex gap-2 items-center">
             {isLogged ? (
               <>
+                <GameAddModal />
                 <FriendList />
                 <AccountButton />
               </>

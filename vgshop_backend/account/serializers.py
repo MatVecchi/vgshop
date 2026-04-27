@@ -28,7 +28,18 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         is_publisher_value = validated_data.pop('isPublisher')
         password_value = validated_data.pop('password')
-        
+
+        piva = validated_data.get("piva", None)
+        website = validated_data.get("website", None)
+
+        if is_publisher_value:
+            if not piva or piva == "":
+                raise serializers.ValidationError("Non puoi essere publisher senza la partita iva")
+        else:
+            validated_data['piva'] = None
+            if website:
+                validated_data['website'] = None
+            
         user = User.objects.create_user(**validated_data, password= password_value)
 
         group, _ = Group.objects.get_or_create( name = "Publisher" if is_publisher_value else "Customer")
@@ -48,3 +59,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if piva == "" or piva is None:
             return None
         return piva
+    
+    def validate_website(self, value):
+        if value == "" or value is None:
+            return None
+        return value
