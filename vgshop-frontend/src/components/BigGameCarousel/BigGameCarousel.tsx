@@ -63,18 +63,22 @@ export function BigGameCarousel({ params }: Props) {
         className="sm:max-w-xs "
         style={{ maxWidth: "100%", margin: "0 auto" }}
       >
+        <div
+          className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-24 
+                   bg-violet-600/50 rounded-[100%] blur-[40px] z-0"
+          aria-hidden="true"
+        ></div>
         <CarouselContent className="ml-0">
           {params.games
             ?.filter((game): game is Game => !!game)
             .map((game: Game) => (
               <CarouselItem key={game.id} className="p-4">
                 <Card
-                  className="p-0 overflow-hidden "
+                  className="p-0 overflow-hidden duration-300 group-hover:scale-105"
                   style={{ width: "90%", margin: "auto" }}
                 >
                   <CardContent className="flex p-0" style={{ height: "460px" }}>
-                    {/* Left 3/4 — YouTube video */}
-                    <div className="w-3/4 h-full flex-shrink-0 bg-black">
+                    <div className="w-3/4 h-full flex-shrink-0 bg-black ">
                       <iframe
                         src={getYouTubeEmbedUrl(game.video, origin)}
                         title={`Trailer di ${game.title}`}
@@ -85,9 +89,7 @@ export function BigGameCarousel({ params }: Props) {
                       />
                     </div>
 
-                    {/* Right 1/4 — details panel */}
                     <div className="w-1/4 flex flex-col bg-zinc-900 border-l border-zinc-800 overflow-hidden">
-                      {/* Thumbnail */}
                       <div className="relative w-full aspect-video flex-shrink-0">
                         <Image
                           src={game.images[0]?.image || game.cover}
@@ -98,7 +100,6 @@ export function BigGameCarousel({ params }: Props) {
                         />
                       </div>
 
-                      {/* Testo sotto la thumbnail */}
                       <div className="flex flex-col flex-1 justify-between p-4 overflow-hidden">
                         <div className="space-y-2 overflow-hidden">
                           <h3 className="text-lg font-bold leading-snug line-clamp-2">
@@ -128,7 +129,7 @@ export function BigGameCarousel({ params }: Props) {
                               "it-IT",
                             )}
                           </span>
-                          <span className="text-2xl font-bold text-green-400">
+                          <span className="text-gray-900 w-min bg-white p-1 rounded-lg text-lg font-bold whitespace-nowrap">
                             {game.price === 0
                               ? "Gratis"
                               : `${game.price.toFixed(2)} €`}

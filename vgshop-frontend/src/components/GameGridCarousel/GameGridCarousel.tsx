@@ -28,7 +28,6 @@ interface Props {
 }
 
 export function GameGridCarousel({ params }: Props) {
-  // Gestione caricamento ed errori
   if (params.isLoading) return <Spinner />;
   if (params.error)
     return (

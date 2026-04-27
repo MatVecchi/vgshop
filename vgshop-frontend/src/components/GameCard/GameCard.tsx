@@ -20,6 +20,7 @@ export function GameCard({ params }: Prop) {
         src={game.cover}
         alt={`Cover di ${game.title}`}
         fill
+        priority
         className="object-cover transition-transform duration-300 group-hover:scale-105"
       />
 
@@ -27,7 +28,7 @@ export function GameCard({ params }: Prop) {
         <span className="text-white text-xl font-semibold leading-tight line-clamp-2 flex-1  p-1 min-w-0">
           {game.title}
         </span>
-        <span className="text-black! bg-white p-1 rounded-lg text-lg font-bold whitespace-nowrap">
+        <span className="text-gray-900! bg-white p-1 rounded-lg text-lg font-bold whitespace-nowrap">
           {game.price === 0 ? "Gratis" : `${game.price.toFixed(2)} €`}
         </span>
       </div>

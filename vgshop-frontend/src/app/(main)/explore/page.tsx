@@ -46,14 +46,14 @@ export default function Explore() {
         />
       </div>
 
-      <div className="mt-6">
+      <div className="my-8">
         <h2 className="uppercase text-2xl font-bold">
           Esplora le nostra categorie
         </h2>
         <TagCarousel />
       </div>
 
-      <div className="mt-6">
+      <div className="my-6">
         <h2 className="uppercase text-2xl font-bold">Uscite recenti</h2>
         <GameGridCarousel
           params={{

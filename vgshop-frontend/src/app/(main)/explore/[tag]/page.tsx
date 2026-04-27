@@ -39,7 +39,7 @@ export default function TagPage({ params }: Props) {
           I giochi del nostro catalogo: {tagName}
         </h2>
 
-        <GameList params={{ tag_list: tagName }} />
+        <GameList params={{ query: `tag_list=${tagName}` }} />
       </div>
     </div>
   );

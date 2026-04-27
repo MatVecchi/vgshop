@@ -31,6 +31,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Router } from "next/router";
+import { useRouter } from "next/navigation";
 
 export function GameFilters() {
   const {
@@ -38,9 +40,44 @@ export function GameFilters() {
     error,
     isLoading: isTagListLoading,
   } = useSWR("/games/catalogue/tag_list/");
-  const [price, setPrice] = useState<number[]>([0.0, 10.0]);
+
+  const router = useRouter();
+
+  const [price, setPrice] = useState<number[]>([10.0, 70.0]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [publisher, setPublisher] = useState<string>("");
+
+  const handleSubmit = () => {
+    const URLparams = new URLSearchParams();
+
+    if (price.length !== 0) {
+      URLparams.append("price__gte", price[0].toString());
+      URLparams.append("price__lte", price[1].toString());
+    }
+
+    if (selectedTags.length !== 0) {
+      selectedTags.forEach((tag) => {
+        URLparams.append("tag_list", tag);
+      });
+    }
+
+    if (date) {
+      URLparams.append("date", date.toDateString());
+    }
+    if (publisher && publisher !== "") {
+      URLparams.append("publisher__name", publisher);
+    }
+
+    router.push(`/explore/filter_result?${URLparams.toString()}`);
+  };
+
+  const resetFilters = () => {
+    setPrice([10.0, 70.0]);
+    setSelectedTags([]);
+    setDate(new Date());
+    setPublisher("");
+  };
 
   return (
     <Card className="w-full border-none shadow-none bg-secondary/10">
@@ -52,7 +89,7 @@ export function GameFilters() {
       </CardHeader>
 
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldSet className="space-y-8 w-full">
             <FieldGroup>
               <div className="grid grid-cols-3 gap-4">
@@ -61,7 +98,13 @@ export function GameFilters() {
                     Nome del Publisher
                   </FieldLabel>
                   <InputGroup>
-                    <InputGroupInput id="publisher" placeholder="Search..." />
+                    <InputGroupInput
+                      id="publisher"
+                      name="publisher"
+                      value={publisher}
+                      onChange={(e) => setPublisher(e.target.value)}
+                      placeholder="Search..."
+                    />
                     <InputGroupAddon align="inline-start">
                       <SearchIcon className="text-muted-foreground" />
                     </InputGroupAddon>
@@ -149,9 +192,9 @@ export function GameFilters() {
 
             <FieldGroup>
               <Field orientation="horizontal">
-                <Button type="submit">Submit</Button>
-                <Button variant="outline" type="button">
-                  Cancel
+                <Button type="submit">Cerca</Button>
+                <Button variant="outline" type="button" onClick={resetFilters}>
+                  Annulla filtri
                 </Button>
               </Field>
             </FieldGroup>

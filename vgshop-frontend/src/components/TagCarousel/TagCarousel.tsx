@@ -41,6 +41,7 @@ export function TagCarousel() {
           <CarouselItem key={tag.name} style={{ flexBasis: "25%" }}>
             <div className="p-3">
               <Card
+                className="duration-300 hover:scale-105"
                 style={{
                   background: "#5a189a",
                   border: "None",

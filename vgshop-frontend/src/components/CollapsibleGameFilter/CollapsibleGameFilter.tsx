@@ -36,7 +36,6 @@ export default function CollapsibleGameFilter() {
           </CollapsibleTrigger>
 
           <GameSearch />
-          <Button type="submit">Cerca</Button>
         </div>
       </div>
 

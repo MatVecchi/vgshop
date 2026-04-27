@@ -21,7 +21,7 @@ import { Spinner } from "../ui/spinner";
 
 interface Props {
   params: {
-    tag_list: string | undefined;
+    query: string | undefined;
   };
 }
 
@@ -29,7 +29,7 @@ export default function GameList({ params }: Props) {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const { data, error, isLoading } = useSWR(
-    `/games/catalogue/?page=${currentPage}${params.tag_list ? `&tag_list=${params.tag_list}` : ""}`,
+    `/games/catalogue/?page=${currentPage}${params.query ? `&${params.query}` : ""}`,
 
     { keepPreviousData: true },
   );
