@@ -26,7 +26,6 @@ class LoginView(APIView):
                     'message': 'Login successful !'
                 })
                 
-                print(refresh.access_token)
                 response.set_cookie(
                     key='access_token', 
                     value=str(refresh.access_token),
@@ -71,7 +70,6 @@ class TokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(f"Cookie ricevuti: {request.COOKIES}")
         refresh_token = request.COOKIES.get('refresh_token')
         
         if not refresh_token:
