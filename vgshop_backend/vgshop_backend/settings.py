@@ -66,7 +66,7 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "account.authenticate.CustomJWTAuthentication",  # Classe custom per l'autenticazione (guarda anche nei COOKIES)
+        "vgshop_backend.authenticate.CustomJWTAuthentication",  # Classe custom per l'autenticazione (guarda anche nei COOKIES)
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
