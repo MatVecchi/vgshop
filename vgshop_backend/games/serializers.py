@@ -40,7 +40,7 @@ class GameRegisterSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
-        required=False,
+        required=True,
     )
 
     class Meta:

@@ -85,9 +85,9 @@ class GameModelViewSet(viewsets.ModelViewSet):
         start = end - datetime.timedelta(30)
 
         if tag:
-            games = Game.objects.filter(tag_list = tag, release_date__gte=start, release_date__lte=end)[:5]
+            games = Game.objects.filter(tag_list = tag, release_date__gte=start, release_date__lte=end)[:12]
         else:
-            games = Game.objects.filter(release_date__gte=start, release_date__lte=end)[:5]
+            games = Game.objects.filter(release_date__gte=start, release_date__lte=end)[:12]
 
         serializer = GameSerializer(games, many = True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

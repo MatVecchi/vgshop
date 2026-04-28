@@ -99,13 +99,13 @@ export default function GameAddModal() {
       formData.append("price", price.toString());
       formData.append("description", description);
       formData.append("video", video);
-      formData.append("release_date", date ? date.toISOString() : "");
+      formData.append("release_date", date ? format(date, "yyyy-MM-dd") : "");
       formData.append("publisher", user.id);
 
       selectedTags.forEach((tag) => formData.append("tag_list", tag));
 
-      formData.append("cover", images[0].file);
       if (images.length > 0) {
+        formData.append("cover", images[0].file);
         images
           .slice(1)
           .forEach((img) => formData.append("uploaded_images", img.file));
@@ -120,7 +120,7 @@ export default function GameAddModal() {
       if (e.response && e.response.data) {
         setErrorMessage(e.response.data);
       } else {
-        toast.error("Something went wrong, try again !");
+        setErrorMessage(e.message);
       }
     } finally {
       setSubmitLoading(false);
@@ -134,7 +134,7 @@ export default function GameAddModal() {
           <Button variant="outline">Pubblica Gioco</Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-md max-h-3/4 overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-w-xl max-h-3/4 overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>Registra il nuovo gioco</DialogTitle>
@@ -296,9 +296,9 @@ export default function GameAddModal() {
                   Immagini (La prima è la copertina){" "}
                 </Label>
                 <ImagesDropZone files={images} onFilesChange={setImages} />
-                {errorMessage.images && (
+                {errorMessage.uploaded_images && (
                   <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.images[0]}
+                    {errorMessage.uploaded_images[0]}
                   </p>
                 )}
               </Field>

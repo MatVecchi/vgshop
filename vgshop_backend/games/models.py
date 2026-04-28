@@ -40,7 +40,7 @@ class Game(models.Model):
     release_date = models.DateField(
         verbose_name="release_date",
         auto_now=False,
-        auto_now_add=True,
+        auto_now_add=False,
         null=False,
         blank=False,
     )

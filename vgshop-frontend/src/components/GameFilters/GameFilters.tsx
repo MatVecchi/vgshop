@@ -63,7 +63,7 @@ export function GameFilters() {
     }
 
     if (date) {
-      URLparams.append("date", date.toDateString());
+      URLparams.append("release_date", format(date, "yyyy-MM-dd"));
     }
     if (publisher && publisher !== "") {
       URLparams.append("publisher__name", publisher);
