@@ -75,6 +75,9 @@ class GameModelViewSet(viewsets.ModelViewSet):
     ordering_fields = ["price", "release_date", "title"]
     ordering = ["-release_date"]
 
+    # il retireve non usa la pk, ma usa il titolo (è unique)
+    lookup_field = "title"
+
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = CataloguePaginator
 

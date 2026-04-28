@@ -21,9 +21,11 @@ export default function ExploreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex-1">
-      <CollapsibleGameFilter />
-      <div className="mt-6">{children}</div>
+    <div className="max-w-7xl flex-1 mx-auto p-4">
+      <div className="flex-1">
+        <CollapsibleGameFilter />
+        <div className="mt-6">{children}</div>
+      </div>
     </div>
   );
 }

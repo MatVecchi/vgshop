@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Game } from "../GameAddModal/GameAddModal";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Prop {
   params: {
@@ -18,13 +19,15 @@ export function GameCard({ params }: Prop) {
         className="relative overflow-hidden border-zinc-800 bg-zinc-900 duration-300 group-hover:scale-105"
         style={{ aspectRatio: "2/3" }}
       >
-        <Image
-          src={game.cover}
-          alt={`Cover di ${game.title}`}
-          fill
-          priority
-          className="object-cover"
-        />
+        <Link href={`game_info/${game.title}`}>
+          <Image
+            src={game.cover}
+            alt={`Cover di ${game.title}`}
+            fill
+            priority
+            className="object-cover"
+          />
+        </Link>
       </Card>
 
       <div className="mt-3 mx-auto w-[90%] flex items-start justify-between gap-3 px-1">

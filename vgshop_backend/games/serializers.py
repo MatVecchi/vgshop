@@ -19,6 +19,7 @@ class GameImageSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     tag_list = TagSerializer(many=True, read_only=True)
     images = GameImageSerializer(many=True, read_only=True)
+    publisher = serializers.CharField(source="publisher.username", read_only = True)
 
     class Meta:
         model = Game
