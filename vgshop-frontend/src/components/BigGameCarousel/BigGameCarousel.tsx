@@ -89,7 +89,7 @@ export function BigGameCarousel({ params }: Props) {
             ?.filter((game): game is Game => !!game)
             .map((game: Game) => (
               <CarouselItem key={game.id} className="p-4">
-                <Link href={`game_info/${game.title}`}>
+                <Link href={`/game_info/${game.title}`}>
                   <Card
                     className="p-0 overflow-hidden duration-300 group-hover:scale-105"
                     style={{ width: "90%", margin: "auto" }}
