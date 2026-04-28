@@ -15,11 +15,12 @@ export function GameCard({ params }: Prop) {
   return (
     <div className="w-[90%] group cursor-pointer">
       {/* Container Immagine */}
+      <Link href={`/game_info/${game.title}`}>
       <Card
         className="relative overflow-hidden border-zinc-800 bg-zinc-900 duration-300 group-hover:scale-105"
         style={{ aspectRatio: "2/3" }}
       >
-        <Link href={`game_info/${game.title}`}>
+        
           <Image
             src={game.cover}
             alt={`Cover di ${game.title}`}
@@ -27,8 +28,9 @@ export function GameCard({ params }: Prop) {
             priority
             className="object-cover"
           />
-        </Link>
+        
       </Card>
+      </Link>
 
       <div className="mt-3 mx-auto w-[90%] flex items-start justify-between gap-3 px-1">
         <span className="text-white py-0.5 text-lg font-semibold leading-tight line-clamp-2 flex-1 min-w-0">

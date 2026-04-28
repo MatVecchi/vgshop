@@ -159,6 +159,7 @@ export default function GameInfo({ params }: Props) {
                           src={image?.image || game.cover}
                           alt={`Galleria ${index}`}
                           fill
+                          priority
                           className="object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
