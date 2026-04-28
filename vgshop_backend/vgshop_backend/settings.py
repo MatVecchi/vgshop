@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "embed_video",
     "friends",
     "games",
+    "cart",
     "django_filters",
 ]
 
@@ -68,8 +69,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "vgshop_backend.authenticate.CustomJWTAuthentication",  # Classe custom per l'autenticazione (guarda anche nei COOKIES)
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'vgshop_backend.authenticate.CustomJWTAuthentication', # Percorso alla classe sopra
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "vgshop_backend.authenticate.CustomJWTAuthentication",  # Percorso alla classe sopra
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
