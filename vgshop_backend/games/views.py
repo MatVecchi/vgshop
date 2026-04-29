@@ -73,6 +73,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
 
     # il retireve non usa la pk, ma usa il titolo (è unique)
     lookup_field = "title"
+    lookup_url_kwarg = "title"
 
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = CataloguePaginator
@@ -114,27 +115,20 @@ class GameModelViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         game = self.get_object()
+        partial = kwargs.get("partial", False)
         if not self._verify_publisher(request.user.username, game=game):
             return Response(
                 {"message": "Non puoi modificare un gioco non tuo"},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        serializer = self.get_serializer(game, data=request.data)
+        serializer = self.get_serializer(game, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
-        game = self.get_object()
-        if not self._verify_publisher(request.user.username, game=game):
-            return Response(
-                {"message": "Non puoi modificare un gioco non tuo"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        serializer = self.get_serializer(game, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
 
     def destroy(self, request, title=None):
         game = self.get_object()
