@@ -42,8 +42,8 @@ export function GameGridCarousel({ params }: Props) {
   const itemsToProcess = params.games ?? [];
   const chunkedItems = [];
 
-  for (let i = 0; i < itemsToProcess.length; i += 6) {
-    chunkedItems.push(itemsToProcess.slice(i, i + 6));
+  for (let i = 0; i < itemsToProcess.length; i += 12) {
+    chunkedItems.push(itemsToProcess.slice(i, i + 12));
   }
 
   return (
