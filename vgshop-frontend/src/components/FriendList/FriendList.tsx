@@ -57,12 +57,17 @@ export default function FriendList() {
   const [sendingRequest, setSendingRequest] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Record<string, boolean>>({});
   const [debouncedValue, setDebouncedValue] = useState("");
-  const { data, error, mutate } = useSWR(`/api/friends?page=${page}`, {
-    keepPreviousData: true,
-  });
+  const { data, error, mutate, isLoading } = useSWR(
+    `/api/friends?page=${page}`,
+    {
+      keepPreviousData: true,
+    },
+  );
   const { data: friends, error: errFriends } = useSWR(
     debouncedValue ? `/api/friends?search=${debouncedValue}` : null,
   );
+
+  console.log(isLoading, error);
 
   const isSearching = debouncedValue.trim() !== "";
   const displayList = isSearching ? friends : data?.results;
@@ -106,13 +111,8 @@ export default function FriendList() {
     };
   }, [searchTerm]);
 
-  if (error)
-    return (
-      <Button variant="outline" className="hover:cursor-pointer">
-        <UsersRound />
-      </Button>
-    );
-  if (!data)
+  if (error) return <></>;
+  if (isLoading)
     return (
       <Button variant="outline" className="hover:cursor-pointer">
         <UsersRound />
@@ -134,7 +134,7 @@ export default function FriendList() {
           </DrawerHeader>
           <InputGroup className="max-w-xs">
             <InputGroupInput
-              placeholder="Cerca un amico..."
+              placeholder="Aggiungi un amico..."
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <InputGroupAddon>

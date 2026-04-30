@@ -18,28 +18,24 @@ import CartInfiniteScroller from "../CartInfiniteScroller/CartInfiniteScroller";
 
 export function CartShowDialog() {
   const {
-    data: user,
-    error: userError,
-    isLoading,
-    mutate,
-  } = useSWR("api/profile");
-
-  const {
     data: cartData,
     error: cartError,
     isLoading: isLoadingCart,
   } = useSWR("/shopping_cart/");
 
-  if (user?.piva) return null;
-  if (userError) return null;
-  if (isLoading) return <Spinner />;
+  if (cartError) return <></>;
+  if (isLoadingCart)
+    return (
+      <Button variant="outline" className="hover:cursor-pointer">
+        <ShoppingCart />
+      </Button>
+    );
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          {" "}
-          <ShoppingCart />{" "}
+        <Button variant="outline" className="hover:cursor-pointer">
+          <ShoppingCart />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
