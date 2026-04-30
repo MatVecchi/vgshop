@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import FriendList from "@/components/FriendList/FriendList";
 import GameAddModal from "@/components/GameAddModal/GameAddModal";
+import { CartShowDialog } from "@/components/CartShowDialog/CartShowDialog";
 
 export default async function MainLayout({
   children,
@@ -40,6 +41,7 @@ export default async function MainLayout({
               <>
                 <GameAddModal />
                 <FriendList />
+                <CartShowDialog />
                 <AccountButton />
               </>
             ) : (
