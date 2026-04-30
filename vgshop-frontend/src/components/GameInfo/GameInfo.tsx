@@ -26,6 +26,11 @@ import {
 import { Separator } from "../ui/separator";
 import { getYouTubeEmbedUrl } from "../BigGameCarousel/BigGameCarousel";
 import Image from "next/image";
+import { useState } from "react";
+import { Input } from "../ui/input";
+import api from "@/lib/api";
+import { toast } from "sonner";
+import useSWR from "swr";
 
 interface Props {
   params: {
@@ -37,6 +42,15 @@ interface Props {
 
 export default function GameInfo({ params }: Props) {
   const { game, error, isLoading } = params;
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const {
+    data: library,
+    error: libraryError,
+    isLoading: libraryLoading,
+  } = useSWR(`library/${game?.title}/`);
 
   if (isLoading) return <Spinner />;
   if (error)
@@ -45,6 +59,39 @@ export default function GameInfo({ params }: Props) {
         Errore nel caricamento
       </div>
     );
+
+  const handleSubmit = async (title: string) => {
+    setSubmitLoading(true);
+    setErrorMessage(""); // Resetta l'errore precedente
+
+    try {
+      const formData = new FormData();
+      formData.append("game", title);
+
+      await api.post("shopping_cart/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Gioco aggiunto con successo !");
+    } catch (e: any) {
+      const errorData = e.response?.data;
+
+      if (errorData) {
+        const firstKey = Object.keys(errorData)[0];
+        const message = Array.isArray(errorData[firstKey])
+          ? errorData[firstKey][0]
+          : errorData[firstKey];
+
+        setErrorMessage(message);
+        toast.error(message);
+      } else {
+        setErrorMessage("Errore imprevisto dal server");
+        toast.error("Errore imprevisto");
+      }
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-900 p-0 text-foreground font-sans">
@@ -110,21 +157,31 @@ export default function GameInfo({ params }: Props) {
             </div>
 
             <div>
-              <Button
-                size="lg"
-                className="h-14 px-8 text-lg font-bold gap-3 group transition-all hover:scale-105 shadow-lg shadow-primary/20"
-              >
-                <span className="tracking-tight">
-                  {game.price == 0 ? "GRATIS" : `${game.price}€`}
-                </span>
+              {libraryError?.status == 404 && !libraryLoading ? (
+                <Button
+                  size="lg"
+                  className="h-14 px-8 text-lg font-bold gap-3 group transition-all hover:scale-105 shadow-lg shadow-primary/20"
+                  type="submit"
+                  onClick={() => {
+                    if (libraryError?.status == 401) {
+                      window.location.href = "/login";
+                    } else {
+                      handleSubmit(game.title);
+                    }
+                  }}
+                >
+                  <span className="tracking-tight">
+                    {game.price == 0 ? "GRATIS" : `${game.price}€`}
+                  </span>
 
-                <div className="w-px h-6 bg-primary-foreground/20" />
+                  <div className="w-px h-6 bg-primary-foreground/20" />
 
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
-                  <span>Aggiungi al carrello</span>
-                </div>
-              </Button>
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
+                    Aggiungi al carrello
+                  </div>
+                </Button>
+              ) : null}
             </div>
           </div>
         </div>

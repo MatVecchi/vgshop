@@ -14,11 +14,21 @@ from friends.models import Friend
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
+class CartOrderPaginator(PageNumberPagination):
+    page_size = 12
 
-class CartModelViewSet(viewsets.ModelViewSet):
+
+class CartModelViewSet(viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin):
+    
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
+    pagination_class = CartOrderPaginator
 
     def get_queryset(self):
         return CartItem.objects.filter(user=self.request.user)
