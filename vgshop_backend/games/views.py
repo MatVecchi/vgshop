@@ -1,4 +1,3 @@
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
@@ -10,11 +9,9 @@ from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.exceptions import ValidationError
+from .permissions import IsOwnerPublisher
 import django_filters
 import datetime
-import django_filters
-from .models import Game
-from django.shortcuts import get_object_or_404
 
 
 class GameFilters(django_filters.FilterSet):
@@ -54,8 +51,11 @@ class GameModelViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve", "tag_list", "recent"]:
             permission_classes = [AllowAny]
-        else:
+        elif self.action == "create":
             permission_classes = [IsAuthenticated, IsInPublisherGroup]
+        else:
+            permission_classes = [IsAuthenticated, IsInPublisherGroup, IsOwnerPublisher]
+
         return [permission() for permission in permission_classes]
 
     # filtri utili per le get specifiche, tra cui filtro esatto, di ordinamento
@@ -107,35 +107,3 @@ class GameModelViewSet(viewsets.ModelViewSet):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def _verify_publisher(self, username, game: Game):
-        if username != game.publisher.username:
-            return False
-        return True
-
-    def update(self, request, *args, **kwargs):
-        game = self.get_object()
-        partial = kwargs.get("partial", False)
-        if not self._verify_publisher(request.user.username, game=game):
-            return Response(
-                {"message": "Non puoi modificare un gioco non tuo"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        serializer = self.get_serializer(game, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs["partial"] = True
-        return self.update(request, *args, **kwargs)
-
-    def destroy(self, request, title=None):
-        game = self.get_object()
-        if not self._verify_publisher(request.user.username, game=game):
-            return Response(
-                {"message": "Non puoi eliminare un gioco non tuo"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        game.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

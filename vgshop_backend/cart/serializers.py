@@ -3,7 +3,6 @@ from .models import Library, CartItem, Order, OrderItem
 from games.serializers import GameSerializer
 from games.models import Game
 from django.shortcuts import get_object_or_404
-from django.db import IntegrityError
 from django.db import transaction
 
 
@@ -103,3 +102,11 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             return order
         else:
             raise serializers.ValidationError({"cart": "Il carrello è vuoto"})
+
+
+class LibrarySerializer(serializers.ModelSerializer):
+    game = GameSerializer(read_only=True)
+
+    class Meta:
+        model = Library
+        fields = ["game"]

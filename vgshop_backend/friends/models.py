@@ -1,12 +1,11 @@
-from random import choices
 from django.db import models
 from account.models import User
 
 
 class Friend(models.Model):
     class Status(models.TextChoices):
-        PENDING = "P",
-        ACCEPTED = "A",
+        PENDING = ("P",)
+        ACCEPTED = ("A",)
         DECLINED = "D"
 
     first_friend = models.ForeignKey(
@@ -21,7 +20,8 @@ class Friend(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["first_friend", "second_friend", "date"], name="unique_friendship"
+                fields=["first_friend", "second_friend", "date"],
+                name="unique_friendship",
             )
         ]
         verbose_name_plural = "Friends"
