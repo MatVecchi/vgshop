@@ -4,15 +4,16 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from account.serializers import UserProfileSerializer
+from account.permissions import IsInCustomerGroup
 from .models import Friend
 from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer
 
 class CataloguePaginator(PageNumberPagination):
-    page_size=10
+    page_size=15
 
 class FriendsModelViewSet(viewsets.ModelViewSet):
     
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInCustomerGroup]
     pagination_class = CataloguePaginator
     search_fields = ["first_friend__username", "second_friend__username"]
     lookup_field = "username"
