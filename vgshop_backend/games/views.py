@@ -16,18 +16,10 @@ import datetime
 
 class GameFilters(django_filters.FilterSet):
     publisher_name = django_filters.CharFilter(
-        field_name="publisher__name", lookup_expr="icontains"
+        field_name="publisher__username", lookup_expr="icontains"
     )
 
-    tag_list = django_filters.BaseInFilter(field_name="tag_list", method="intersect")
-
-    def intersect(self, queryset, name, value):
-        if not value:
-            raise ValidationError("Must be given a list of tags")
-
-        for tag in value:
-            queryset = queryset.filter(tag_list=tag)
-        return queryset
+    tag_list = django_filters.BaseInFilter(field_name="tag_list", lookup_expr="in")
 
     class Meta:
         model = Game

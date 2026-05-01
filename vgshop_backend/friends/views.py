@@ -62,7 +62,7 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
             friends_1 = Friend.objects.filter(first_friend=user).values_list('second_friend', flat=True)
             friends_2 = Friend.objects.filter(second_friend=user).values_list('first_friend', flat=True)
             
-            users_not_friends = User.objects.filter(username__icontains=search) \
+            users_not_friends = User.objects.filter(username__icontains=search, groups__name="Customer") \
                 .exclude(id=user.id) \
                 .exclude(id__in=friends_1) \
                 .exclude(id__in=friends_2)[:5]
@@ -73,7 +73,6 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         return super().list(request)
 
     def update(self, request, *args, **kwargs):
-        # We block PUT but allow PATCH (which passes partial=True)
         if not kwargs.get('partial', False):
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().update(request, *args, **kwargs)

@@ -45,7 +45,7 @@ export function GameFilters() {
 
   const [price, setPrice] = useState<number[]>([10.0, 70.0]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>();
   const [publisher, setPublisher] = useState<string>("");
 
   const handleSubmit = (e: any) => {
@@ -58,16 +58,14 @@ export function GameFilters() {
     }
 
     if (selectedTags.length !== 0) {
-      selectedTags.forEach((tag) => {
-        URLparams.append("tag_list", tag);
-      });
+      URLparams.append("tag_list", selectedTags.join(","));
     }
 
     if (date) {
       URLparams.append("release_date", format(date, "yyyy-MM-dd"));
     }
     if (publisher && publisher !== "") {
-      URLparams.append("publisher__name", publisher);
+      URLparams.append("publisher_name", publisher);
     }
 
     router.push(`/explore/filter_result?${URLparams.toString()}`);
@@ -76,7 +74,7 @@ export function GameFilters() {
   const resetFilters = () => {
     setPrice([10.0, 70.0]);
     setSelectedTags([]);
-    setDate(new Date());
+    setDate(undefined);
     setPublisher("");
   };
 

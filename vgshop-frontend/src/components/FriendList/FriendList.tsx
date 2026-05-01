@@ -9,7 +9,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-
 import {
   Pagination,
   PaginationContent,
@@ -19,14 +18,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-import { Search } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-
 import {
   Empty,
   EmptyContent,
@@ -38,10 +34,11 @@ import {
 
 import { UsersRound } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { UserPlus, Check, X, MessagesSquare } from "lucide-react";
+import { UserPlus, Check, X, MessagesSquare, Search } from "lucide-react";
 import api from "@/lib/api";
+import Chat from "@/components/Chat/Chat";
 
 enum Status {
   PENDING = "P",
@@ -172,7 +169,7 @@ export default function FriendList() {
                         {user?.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <p className="font-semibold">{user.username}</p>
+                    <p className="font-semibold uppercase">{user.username}</p>
                     {user.status &&
                     user.status === Status.PENDING &&
                     user.is_sender ? (
@@ -218,9 +215,12 @@ export default function FriendList() {
                         >
                           Rimuovi
                         </Button>
-                        <Button className="hover:cursor-pointer">
+                        <Chat
+                          profile_image={user?.profile_image}
+                          username={user!.username}
+                        >
                           <MessagesSquare />
-                        </Button>
+                        </Chat>
                       </>
                     ) : sentRequests[user.username] ? (
                       <Button className="ml-auto" disabled variant="outline">
@@ -280,7 +280,7 @@ export default function FriendList() {
                                 isButton
                                 disabled={elPage === "..."}
                                 onClick={() =>
-                                  typeof page === "number" && setPage(elPage)
+                                  typeof elPage === "number" && setPage(elPage)
                                 }
                                 isActive={page === elPage}
                               >

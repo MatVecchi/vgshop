@@ -13,9 +13,7 @@ export default function LogoutButton() {
   return (
     <div className="flex items-center gap-4">
       <Link href="/account" className=" flex items-center gap-1">
-        <strong className="capitalize">
-          {user ? user.username : "Utente"}
-        </strong>
+        <strong className="uppercase">{user ? user.username : "Utente"}</strong>
         <Avatar>
           <AvatarImage src={user?.profile_image} />
           <AvatarFallback>
