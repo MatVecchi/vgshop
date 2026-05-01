@@ -57,6 +57,7 @@ export default function GameList({ params }: Props) {
   }
 
   const currentGames: Game[] = data?.results || [];
+  console.log(currentGames);
 
   return (
     <div className="space-y-8" style={{ width: "90%", margin: "auto" }}>
@@ -76,7 +77,7 @@ export default function GameList({ params }: Props) {
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={(e) => {
+                onClick={(e: any) => {
                   e.preventDefault();
                   if (currentPage > 1) setCurrentPage(currentPage - 1);
                 }}
@@ -97,7 +98,7 @@ export default function GameList({ params }: Props) {
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={(e) => {
+                onClick={(e: any) => {
                   e.preventDefault();
                   if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                 }}

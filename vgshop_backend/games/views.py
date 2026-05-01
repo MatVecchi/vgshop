@@ -15,7 +15,7 @@ import datetime
 
 
 class GameFilters(django_filters.FilterSet):
-    publisher = django_filters.CharFilter(
+    publisher_name = django_filters.CharFilter(
         field_name="publisher__name", lookup_expr="icontains"
     )
 

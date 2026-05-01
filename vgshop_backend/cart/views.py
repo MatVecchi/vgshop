@@ -34,7 +34,7 @@ class CartModelViewSet(viewsets.GenericViewSet,
         return CartItem.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
+        if self.action in ["create"]:
             return CartItemCreateSerializer
         else:
             return CartItemSerializer
@@ -76,8 +76,16 @@ class LibraryModelViewSet(
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
     serializer_class = LibrarySerializer
 
+    lookup_url_kwarg = "game_title"
+
     def get_queryset(self):
         return Library.objects.filter(user=self.request.user)
+    
+    def get_object(self):
+        queryset = self.get_queryset()
+        title = self.kwargs.get("game_title", None)
+        game = get_object_or_404(queryset, game__title=title)
+        return game
 
     @action(
         detail=False, methods=["GET"], url_path="friend/(?P<friend_username>[^/.]+)"

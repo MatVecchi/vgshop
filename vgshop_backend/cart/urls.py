@@ -10,4 +10,5 @@ router.register("shopping_cart", CartModelViewSet, basename="shopping_cart")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("library/<str:game_title>/", LibraryModelViewSet.as_view({'get':'retrieve'}), name="library-detail"),
 ]
