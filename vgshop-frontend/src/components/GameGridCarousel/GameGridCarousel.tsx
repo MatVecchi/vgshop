@@ -42,8 +42,8 @@ export function GameGridCarousel({ params }: Props) {
   const itemsToProcess = params.games ?? [];
   const chunkedItems = [];
 
-  for (let i = 0; i < itemsToProcess.length; i += 6) {
-    chunkedItems.push(itemsToProcess.slice(i, i + 6));
+  for (let i = 0; i < itemsToProcess.length; i += 12) {
+    chunkedItems.push(itemsToProcess.slice(i, i + 12));
   }
 
   return (
@@ -51,7 +51,7 @@ export function GameGridCarousel({ params }: Props) {
       <CarouselContent>
         {chunkedItems.map((group, index) => (
           <CarouselItem key={index}>
-            <div className="grid grid-cols-4 grid-rows-2 gap-6 p-4">
+            <div className="grid grid-cols-4 grid-rows-2 gap-2 gap-y-3 p-4">
               {group.map((game) => (
                 <GameCard key={game.id} params={{ game }} />
               ))}

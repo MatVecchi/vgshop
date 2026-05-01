@@ -12,20 +12,22 @@ import {
 
 export default function Library() {
   return (
-    <div className="flex-1">
-      <h2 className="uppercase text-4xl font-bold">I tuoi giochi</h2>
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>Non hai nessun gioco nella tua libreria</EmptyTitle>
-          <EmptyDescription>
-            Acquista un gioco per vederlo qui. Visita il nostro catalogo per
-            scoprire i giochi disponibili.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent className="flex-row justify-center gap-2">
-          <Button>Create Project</Button>
-        </EmptyContent>
-      </Empty>
+    <div className="max-w-7xl flex-1 mx-auto p-4">
+      <div className="flex-1">
+        <h2 className="uppercase text-4xl font-bold">I tuoi giochi</h2>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>Non hai nessun gioco nella tua libreria</EmptyTitle>
+            <EmptyDescription>
+              Acquista un gioco per vederlo qui. Visita il nostro catalogo per
+              scoprire i giochi disponibili.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button>Create Project</Button>
+          </EmptyContent>
+        </Empty>
+      </div>
     </div>
   );
 }

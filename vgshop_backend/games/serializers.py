@@ -19,6 +19,7 @@ class GameImageSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     tag_list = TagSerializer(many=True, read_only=True)
     images = GameImageSerializer(many=True, read_only=True)
+    publisher = serializers.CharField(source="publisher.username", read_only = True)
 
     class Meta:
         model = Game
@@ -40,7 +41,7 @@ class GameRegisterSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
-        required=False,
+        required=True,
     )
 
     class Meta:

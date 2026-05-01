@@ -6,21 +6,38 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
 export function GameSearch() {
   const [title, setTitle] = useState<string>("");
+
   const router = useRouter();
 
-  const handleSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
+  const search = (title: string) => {
     const URLparams = new URLSearchParams();
     if (title && title !== "") {
       URLparams.append("search", title);
     }
     router.push(`/explore/filter_result?${URLparams.toString()}`);
+  };
+
+  useEffect(() => {
+    if (title.trim() === "") return;
+
+    const handler = setTimeout(() => {
+      search(title);
+    }, 500); // timer che setta il valore di timerTitle ogni 500ms dopo che l'utente ha cambiato il termine di ricerca
+
+    return () => {
+      clearTimeout(handler); // Cancella il timer se l'utente digita di nuovo prima dei 500ms
+    };
+  }, [title]);
+
+  const handleSubmit = (e: React.SubmitEvent) => {
+    e.preventDefault();
+    search(title);
   };
 
   return (
