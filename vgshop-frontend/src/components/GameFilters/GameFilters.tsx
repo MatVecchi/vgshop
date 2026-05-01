@@ -48,7 +48,8 @@ export function GameFilters() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [publisher, setPublisher] = useState<string>("");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
     const URLparams = new URLSearchParams();
 
     if (price.length !== 0) {
