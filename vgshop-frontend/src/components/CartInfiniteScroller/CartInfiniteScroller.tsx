@@ -125,7 +125,7 @@ export default function CartInfiniteScroller({
           <Card
             className={`flex my-3 flex-row items-center p-3 gap-4 w-full shadow-none! border-zinc-800! ${cardClassName}`}
           >
-            <div className="relative w-24 h-full flex-shrink-0 overflow-hidden rounded-md">
+            <div className="relative w-24 h-full shrink-0 overflow-hidden rounded-md">
               <Image
                 src={item.game.cover}
                 alt={item.game.title}
@@ -135,7 +135,7 @@ export default function CartInfiniteScroller({
               />
             </div>
 
-            <div className="flex flex-col justify-between flex-grow h-full py-1">
+            <div className="flex flex-col justify-between grow h-full py-1">
               <div>
                 <div className="flex items-center gap-2">
                   <Gamepad2 className="w-5 h-5 text-primary" />

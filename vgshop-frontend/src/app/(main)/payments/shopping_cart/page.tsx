@@ -1,7 +1,7 @@
 "use client";
 
 import { SubmitEvent, useEffect, useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { Spinner } from "@/components/ui/spinner";
 import CartInfiniteScroller from "@/components/CartInfiniteScroller/CartInfiniteScroller";
 import {
@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ShoppingCartDisplay() {
   const [paymentMethod, setPaymentMethod] = useState<string>("C");
@@ -38,6 +40,8 @@ export default function ShoppingCartDisplay() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      await mutate("/library/list_titles");
+      await mutate("/shopping_cart/");
       toast.success("Acquisto completato con successo !");
       router.push("/explore/");
     } catch (e: any) {
@@ -89,35 +93,75 @@ export default function ShoppingCartDisplay() {
           />
         </div>
 
-        <aside className="w-full md:w-[400px]">
+        <aside className="w-full md:w-100">
           <form onSubmit={handleSubmit}>
             <Card className="sticky top-8 shadow-xl">
               <CardHeader>
                 <CardTitle>Dettagli Pagamento</CardTitle>
                 <CardDescription>
-                  Inserisci i dati della tua carta per procedere.
+                  {paymentMethod === "C"
+                    ? "Inserisci i dati della tua carta per procedere."
+                    : "Paga dal tuo deposito Wallet VGSHOP"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="card-name">Nome sulla carta</Label>
-                  <Input id="card-name" placeholder="Mario Rossi" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="card-number">Numero carta</Label>
-                  <Input id="card-number" placeholder="0000 0000 0000 0000" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">Scadenza</Label>
-                    <Input id="expiry" placeholder="MM/YY" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvc">CVC</Label>
-                    <Input id="cvc" placeholder="123" />
-                  </div>
-                </div>
-                <Button className="w-full mt-4">Conferma Pagamento</Button>
+              <CardContent>
+                <Tabs
+                  defaultValue="C"
+                  value={paymentMethod}
+                  onValueChange={setPaymentMethod}
+                >
+                  <TabsList className="grid w-full py-0! grid-cols-2">
+                    <TabsTrigger value="C">Carta di Credito</TabsTrigger>
+                    <TabsTrigger value="W">Wallet VGSHOP</TabsTrigger>
+                  </TabsList>
+
+                  {/* Form Carta */}
+                  <TabsContent value="C" className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="card-name">Nome sulla carta</Label>
+                      <Input id="card-name" placeholder="Mario Rossi" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="card-number">Numero carta</Label>
+                      <Input
+                        id="card-number"
+                        placeholder="0000 0000 0000 0000"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="expiry">Scadenza</Label>
+                        <Input id="expiry" placeholder="MM/YY" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cvc">CVC</Label>
+                        <Input id="cvc" placeholder="123" />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="W" className="space-y-4 pt-4">
+                    <div className="p-4 border rounded-md bg-muted/50 flex flex-col gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        Saldo disponibile:
+                      </span>
+                      <span className="text-4xl font-bold">20,00 €</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Il pagamento verrà scalato direttamente dal tuo saldo
+                      Wallet.
+                    </p>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Bottone di conferma fuori dai Tabs */}
+                <Button
+                  type="submit"
+                  className="w-full mt-6"
+                  disabled={isPaymentLoading}
+                >
+                  {isPaymentLoading ? "Elaborazione..." : "Conferma Pagamento"}
+                </Button>
               </CardContent>
             </Card>
           </form>

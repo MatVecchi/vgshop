@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import FriendList from "@/components/FriendList/FriendList";
 import GameAddModal from "@/components/GameAddModal/GameAddModal";
 import { CartShowDialog } from "@/components/CartShowDialog/CartShowDialog";
+import LibraryButton from "@/components/LibraryButton/LibraryButon";
 
 export default async function MainLayout({
   children,
@@ -33,7 +34,7 @@ export default async function MainLayout({
             <Link href="/explore">Esplora</Link>
           </li>
           <li>
-            <Link href="/library">Libreria</Link>
+            <LibraryButton />
           </li>
 
           <li className="ml-auto flex gap-2 items-center">

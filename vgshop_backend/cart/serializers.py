@@ -68,7 +68,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["date", "order_items", "total", "payment_method"]
+        fields = ["id", "date", "order_items", "total", "payment_method"]
 
     def get_total_cost(self, order):
         return sum(row_order.game.price for row_order in order.order_items.all())
