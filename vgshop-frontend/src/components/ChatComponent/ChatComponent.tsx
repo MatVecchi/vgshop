@@ -72,6 +72,8 @@ export default function ChatComponent({
                   <p>{elem.message}</p>
                   <p>{elem.status}</p>
                   <p>{elem.date}</p>
+                  <p>{elem.sender}</p>
+                  <p>{elem.receiver}</p>
                 </div>
               )}
               components={{

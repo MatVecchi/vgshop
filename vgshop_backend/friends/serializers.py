@@ -84,9 +84,15 @@ class FriendGetSerializer(serializers.ModelSerializer):
         return representation
 
 class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.CharField(
+        source="sender.username", read_only=True
+    )
+    receiver = serializers.CharField(
+        source="receiver.username", read_only=True
+    )
     class Meta:
         model = Message
-        fields = ["date", "status", "message"]
+        fields = ["date", "status", "message", "receiver", "sender"]
 
 class MessageCreateSerializer(serializers.ModelSerializer):
     receiver = serializers.SlugRelatedField(
