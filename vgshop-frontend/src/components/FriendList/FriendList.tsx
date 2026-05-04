@@ -64,8 +64,6 @@ export default function FriendList() {
     debouncedValue ? `/api/friends?search=${debouncedValue}` : null,
   );
 
-  console.log(isLoading, error);
-
   const isSearching = debouncedValue.trim() !== "";
   const displayList = isSearching ? friends : data?.results;
   const isLoadingSearch = isSearching && !friends && !errFriends;
@@ -95,9 +93,6 @@ export default function FriendList() {
   };
 
   const pageNumbers = calculatePages();
-
-  console.log(data);
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(searchTerm);
