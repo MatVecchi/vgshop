@@ -28,6 +28,7 @@ import {
   Globe,
   Building,
 } from "lucide-react";
+import OrderList from "@/components/OrderList/OrderList";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -206,7 +207,7 @@ export default function Account() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>Non hai effettuato ordini recenti.</p>
+                  <OrderList />
                 </CardContent>
               </Card>
             </TabsContent>

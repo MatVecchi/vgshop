@@ -3,7 +3,7 @@ from account.serializers import UserSerializer, UserProfileSerializer
 from django.db import transaction
 from rest_framework import serializers
 from account.models import User
-from .models import Friend
+from .models import Friend, Message
 
 
 class FriendSerializer(serializers.ModelSerializer):
@@ -26,7 +26,6 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        print(validated_data["second_friend"])
         friend, success = Friend.objects.get_or_create(
             first_friend=self.context["request"].user,
             second_friend=User.objects.get(
@@ -83,3 +82,33 @@ class FriendGetSerializer(serializers.ModelSerializer):
         representation["is_sender"] = is_sender
 
         return representation
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.CharField(
+        source="sender.username", read_only=True
+    )
+    receiver = serializers.CharField(
+        source="receiver.username", read_only=True
+    )
+    class Meta:
+        model = Message
+        fields = ["date", "status", "message", "receiver", "sender"]
+
+class MessageCreateSerializer(serializers.ModelSerializer):
+    receiver = serializers.SlugRelatedField(
+        slug_field="username", 
+        queryset=User.objects.all()
+    )
+    class Meta:
+        model = Message
+        fields = ["receiver", "message"]
+
+    @transaction.atomic
+    def create(self, validated_data):
+        print(validated_data)
+        message, success = Message.objects.get_or_create(
+            sender=self.context["request"].user,
+            receiver=validated_data["receiver"],
+            message=validated_data["message"]
+        )
+        return message

@@ -16,9 +16,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
+from rest_framework.filters import OrderingFilter
 
-class CartOrderPaginator(PageNumberPagination):
+class CartPaginator(PageNumberPagination):
     page_size = 12
+
+class OrderPaginator(PageNumberPagination):
+    page_size = 5
 
 
 class CartModelViewSet(viewsets.GenericViewSet,
@@ -28,7 +32,7 @@ class CartModelViewSet(viewsets.GenericViewSet,
     mixins.DestroyModelMixin):
     
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
-    pagination_class = CartOrderPaginator
+    pagination_class = CartPaginator
 
     def get_queryset(self):
         return CartItem.objects.filter(user=self.request.user)
@@ -56,6 +60,10 @@ class OrderModelViewSet(
 ):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
     parser_classes = (MultiPartParser, FormParser)
+    pagination_class = OrderPaginator
+    filter_backends = [OrderingFilter]
+    ordering_fields =["date", "total"]
+    ordering = ["-date"]
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).prefetch_related(
@@ -86,6 +94,12 @@ class LibraryModelViewSet(
         title = self.kwargs.get("game_title", None)
         game = get_object_or_404(queryset, game__title=title)
         return game
+    
+    @action(detail=False, methods=["GET"])
+    def list_titles(self, request):
+        queryset = self.get_queryset()
+        titles = [ item.game.title for item in queryset]
+        return Response( {"titles":titles}, status=status.HTTP_200_OK)
 
     @action(
         detail=False, methods=["GET"], url_path="friend/(?P<friend_username>[^/.]+)"

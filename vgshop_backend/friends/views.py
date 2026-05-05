@@ -1,12 +1,14 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from account.serializers import UserProfileSerializer
 from account.permissions import IsInCustomerGroup
-from .models import Friend
-from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer
+from .models import Friend, Message
+from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer
+from rest_framework.filters import OrderingFilter
+
 
 class CataloguePaginator(PageNumberPagination):
     page_size=15
@@ -76,3 +78,34 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         if not kwargs.get('partial', False):
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().update(request, *args, **kwargs)
+
+class MessagesPaginator(PageNumberPagination):
+    page_size = 15
+
+class ChatModelViewSet(viewsets.GenericViewSet,  
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+):
+    permission_classes = [IsAuthenticated, IsInCustomerGroup]
+    paginator_class = MessagesPaginator
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["date"]
+    ordering = ["-date"]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(sender=user) | Message.objects.filter(receiver=user)
+    
+    def get_serializer_class(self):
+        if self.action == "create":
+            return MessageCreateSerializer
+        elif self.action == "list":
+            return MessageSerializer
+
+    def list(self, request):
+        friend = request.GET.get("friend", None)
+        if not Friend:
+            return Response({"msg": "friend field not found"}, status=status.HTTP_400_BAD_REQUEST)
+        messages = self.get_queryset().filter(sender__username=friend) | self.get_queryset().filter(receiver__username=friend)
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)        

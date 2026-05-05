@@ -31,6 +31,7 @@ import { Input } from "../ui/input";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { useSWRConfig } from "swr";
 
 interface Props {
   params: {
@@ -45,11 +46,14 @@ export default function GameInfo({ params }: Props) {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { mutate: mutateCart } = useSWRConfig();
 
+  // verifico che non sia già in libreria
   const {
     data: library,
     error: libraryError,
     isLoading: libraryLoading,
+    mutate,
   } = useSWR(`library/${game?.title}/`);
 
   if (isLoading) return <Spinner />;
@@ -72,6 +76,8 @@ export default function GameInfo({ params }: Props) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      mutate();
+      mutateCart("/shopping_cart/?page=1", undefined, { revalidate: true });
       toast.success("Gioco aggiunto con successo !");
     } catch (e: any) {
       const errorData = e.response?.data;

@@ -1,9 +1,10 @@
 from rest_framework import routers
 from django.urls import path, include
-from .views import FriendsModelViewSet
+from .views import FriendsModelViewSet, ChatModelViewSet
 
 router = routers.SimpleRouter()
 router.register("friends", FriendsModelViewSet, basename="friends")
+router.register("messages", ChatModelViewSet, basename="messages")
 
 urlpatterns = [
     path("", include(router.urls)),
