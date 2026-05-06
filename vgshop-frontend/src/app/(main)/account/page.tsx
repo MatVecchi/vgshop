@@ -30,6 +30,8 @@ import {
   Users,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
+import CreditCardList from "@/components/CreditCardList/CreditCardList";
+import { CreditCardRegister } from "@/components/CreditCardRegister/CreditCardRegister";
 import FamilyTab from "@/components/FamilyTab/FamilyTab";
 
 export default function Account() {
@@ -185,16 +187,19 @@ export default function Account() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>
-                  <CreditCard className="inline-block mr-2" />
-                  Metodi di pagamento
+                <CardTitle className="flex flex-row justify-between">
+                  <div>
+                    <CreditCard className="inline-block mr-2 " />
+                    Metodi di pagamento
+                  </div>
+                  <CreditCardRegister />
                 </CardTitle>
                 <CardDescription>
                   Gestisci i tuoi metodi di pagamento
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Mastercard</p>
+                <CreditCardList />
               </CardContent>
             </Card>
           </TabsContent>

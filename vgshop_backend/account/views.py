@@ -9,6 +9,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from .models import User
+from wallet.models import Wallet
+from django.db import transaction
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -62,11 +64,13 @@ class LoginView(APIView):
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
+    @transaction.atomic
     def post(self, request):
         serializer = UserRegisterSerializer(data = request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            Wallet.objects.create(user = user)
 
             return Response(
                 {'message':'Registration completed !'},

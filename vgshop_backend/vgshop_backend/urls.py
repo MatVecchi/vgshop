@@ -28,6 +28,7 @@ urlpatterns = [
     path("games/", include("games.urls")),
     path('api/', include('friends.urls')),
     path("", include('cart.urls')),
+    path("", include('wallet.urls')),
 ]
 
 if settings.DEBUG:
