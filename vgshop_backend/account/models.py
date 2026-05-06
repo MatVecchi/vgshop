@@ -9,6 +9,16 @@ class User(AbstractUser):
         verbose_name=_("Immagine Profilo"), upload_to="profiles/", null=True, blank=True
     )
 
+    # Customer only
+    
+    family = models.ForeignKey(
+        "family.Family",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name="family",
+    )
+
     # Publisher only
 
     piva_validator = RegexValidator(

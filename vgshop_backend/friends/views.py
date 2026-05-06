@@ -6,7 +6,7 @@ from account.models import User
 from account.serializers import UserProfileSerializer
 from account.permissions import IsInCustomerGroup
 from .models import Friend, Message
-from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer
+from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer, MessageReadSerializer
 from rest_framework.filters import OrderingFilter
 
 
@@ -85,9 +85,10 @@ class MessagesPaginator(PageNumberPagination):
 class ChatModelViewSet(viewsets.GenericViewSet,  
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
 ):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
-    paginator_class = MessagesPaginator
+    pagination_class = MessagesPaginator
     filter_backends = [OrderingFilter]
     ordering_fields = ["date"]
     ordering = ["-date"]
@@ -101,6 +102,8 @@ class ChatModelViewSet(viewsets.GenericViewSet,
             return MessageCreateSerializer
         elif self.action == "list":
             return MessageSerializer
+        elif self.action == "partial_update":
+            return MessageReadSerializer
 
     def list(self, request):
         friend = request.GET.get("friend", None)
@@ -109,3 +112,8 @@ class ChatModelViewSet(viewsets.GenericViewSet,
         messages = self.get_queryset().filter(sender__username=friend) | self.get_queryset().filter(receiver__username=friend)
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)        
+    
+    def update(self, request, *args, **kwargs):
+        if not kwargs.get('partial', False):
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)

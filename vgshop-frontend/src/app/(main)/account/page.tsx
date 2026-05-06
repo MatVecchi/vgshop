@@ -27,8 +27,10 @@ import {
   Landmark,
   Globe,
   Building,
+  Users,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
+import FamilyTab from "@/components/FamilyTab/FamilyTab";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -69,13 +71,17 @@ export default function Account() {
               <CreditCard className="inline-block mr-2" />
               Pagamenti
             </TabsTrigger>
-            {data.piva ? (
-              <></>
-            ) : (
-              <TabsTrigger className="hover:cursor-pointer" value="orders">
-                <Package className="inline-block mr-2" />
-                Ordini
-              </TabsTrigger>
+            {!data.piva && (
+              <>
+                <TabsTrigger className="hover:cursor-pointer" value="orders">
+                  <Package className="inline-block mr-2" />
+                  Ordini
+                </TabsTrigger>
+                <TabsTrigger className="hover:cursor-pointer" value="family">
+                  <Users className="inline-block mr-2" />
+                  Famiglia
+                </TabsTrigger>
+              </>
             )}
             <Button
               className="mt-auto w-full hover:cursor-pointer"
@@ -192,25 +198,28 @@ export default function Account() {
               </CardContent>
             </Card>
           </TabsContent>
-          {data.piva ? (
-            <></>
-          ) : (
-            <TabsContent value="orders">
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    <Package className="inline-block mr-2" />
-                    Ordini
-                  </CardTitle>
-                  <CardDescription>
-                    Visualizza e gestisci i tuoi ordini
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <OrderList />
-                </CardContent>
-              </Card>
-            </TabsContent>
+          {!data.piva && (
+            <>
+              <TabsContent value="orders">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <Package className="inline-block mr-2" />
+                      Ordini
+                    </CardTitle>
+                    <CardDescription>
+                      Visualizza e gestisci i tuoi ordini
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <OrderList />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="family" className="flex flex-col gap-4">
+                <FamilyTab />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </div>

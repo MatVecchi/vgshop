@@ -1,4 +1,4 @@
-from typing import ReadOnly
+from django.db import IntegrityError
 from account.serializers import UserSerializer, UserProfileSerializer
 from django.db import transaction
 from rest_framework import serializers
@@ -92,7 +92,7 @@ class MessageSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Message
-        fields = ["date", "status", "message", "receiver", "sender"]
+        fields = ["id","date", "status", "message", "receiver", "sender"]
 
 class MessageCreateSerializer(serializers.ModelSerializer):
     receiver = serializers.SlugRelatedField(
@@ -105,10 +105,36 @@ class MessageCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        print(validated_data)
-        message, success = Message.objects.get_or_create(
-            sender=self.context["request"].user,
-            receiver=validated_data["receiver"],
-            message=validated_data["message"]
-        )
-        return message
+        try:
+            message = Message.objects.create(
+                sender=self.context["request"].user,
+                receiver=validated_data["receiver"],
+                message=validated_data["message"]
+            )
+            return message
+        except IntegrityError:
+            raise serializers.ValidationError("Messaggio già inviato")
+            
+        
+
+class MessageReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ["id", "status"]
+
+    def validate_status(self, value):
+        if not self.instance:
+            return
+
+        status = self.instance.status
+        if status != Message.Status.SENT:
+            raise serializers.ValidationError("Azione status non consentita")
+        return value
+
+    def update(self, instance, validated_data):
+        if self.context["request"].user != instance.receiver:
+            raise serializers.ValidationError("Azione non consentita")
+
+        instance.status = validated_data["status"]
+        instance.save()
+        return instance

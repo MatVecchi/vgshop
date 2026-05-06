@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "friends",
     "games",
     "cart",
+    "family",
     "django_filters",
 ]
 

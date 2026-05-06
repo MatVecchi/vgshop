@@ -16,7 +16,8 @@ export default async function MainLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token");
-  const isLogged = token ? true : false;
+  const isLoggedFlag = cookieStore.get("is_logged_in");
+  const isLogged = token || isLoggedFlag?.value === "true" ? true : false;
 
   return (
     <>
@@ -33,9 +34,11 @@ export default async function MainLayout({
           <li>
             <Link href="/explore">Esplora</Link>
           </li>
-          <li>
-            <LibraryButton />
-          </li>
+          {isLogged && (
+            <li>
+              <LibraryButton />
+            </li>
+          )}
 
           <li className="ml-auto flex gap-2 items-center">
             {isLogged ? (

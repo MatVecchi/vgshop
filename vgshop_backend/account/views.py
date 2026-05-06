@@ -44,6 +44,15 @@ class LoginView(APIView):
                     samesite='Lax',
                     path='/api/token/refresh/', 
                 )
+                response.set_cookie(
+                    key='is_logged_in',
+                    value='true',
+                    httponly=False, # accessibile dal frontend se serve
+                    secure=False,
+                    max_age=60*60*24*30, # 30 giorni
+                    samesite='Lax',
+                    path='/', 
+                )
                 return response
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -117,6 +126,7 @@ class LogoutView(APIView):
         response = Response({'message':'Logout successful !'}, status=status.HTTP_200_OK)
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
+        response.delete_cookie("is_logged_in")
         return response
     
 

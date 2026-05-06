@@ -30,7 +30,7 @@ class GameFilters(django_filters.FilterSet):
 
 
 class CataloguePaginator(PageNumberPagination):
-    page_size = 9
+    page_size = 12
 
 
 class GameModelViewSet(viewsets.ModelViewSet):
