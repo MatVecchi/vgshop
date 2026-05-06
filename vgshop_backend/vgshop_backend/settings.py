@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-9mx0(&inb)zfl1l131e-yjplz31us_m(_$1*q7_6&olwk5+ck1"
+SECRET_KEY = os.environ['SECRET_KEY']
+
+SALT_KEY = os.environ['SALT_KEY']  
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,6 +52,7 @@ INSTALLED_APPS = [
     "friends",
     "games",
     "cart",
+    "wallet",
     "django_filters",
 ]
 

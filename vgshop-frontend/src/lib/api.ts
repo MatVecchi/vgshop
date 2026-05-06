@@ -8,6 +8,10 @@ const api = axios.create({
   },
 });
 
+
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+
 // Interceptor per le richieste:
 // Se Django usa i cookie, non serve aggiungere l'header Authorization manualmente.
 // Tuttavia, se Django si aspetta il CSRF token, dovresti aggiungerlo qui.
