@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner";
 import GameInfo from "@/components/GameInfo/GameInfo";
 import { Game } from "@/components/GameAddModal/GameAddModal";
 import { use } from "react";
+import Link from "next/link";
 
 interface Props {
   params: Promise<{ title: string }>;
@@ -53,7 +54,9 @@ export default function Library({ params }: Props) {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent className="flex-row justify-center gap-2">
-                <Button>Create Project</Button>
+                <Link href={"/explore/"}>
+                  <Button>Esplora il catalogo</Button>
+                </Link>
               </EmptyContent>
             </Empty>
           </div>

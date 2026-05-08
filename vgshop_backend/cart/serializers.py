@@ -4,6 +4,8 @@ from games.serializers import GameSerializer
 from games.models import Game
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.core.validators import RegexValidator
+import datetime
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -75,9 +77,27 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
+    number_validator = RegexValidator(
+        regex=r"^\d+$", message="Il numero deve avere 16 cifre"
+    )
+
+    number = serializers.CharField(
+        write_only=True, min_length=16, max_length=16, validators=[number_validator]
+    )
+
+    cvv_validator = RegexValidator(
+        regex=r"^\d+$", message="Il cvv deve avere solo 3 cifre"
+    )
+    cvv = serializers.CharField(
+        write_only=True, min_length=3, max_length=3, validators=[cvv_validator]
+    )
+
+    expiration_date = serializers.DateField(write_only=True)
+    name = serializers.CharField(write_only=True)
+
     class Meta:
         model = Order
-        fields = ["payment_method"]
+        fields = ["payment_method", "number", "cvv", "expiration_date", "name"]
 
     @transaction.atomic
     def create(self, validated_data):
@@ -102,6 +122,12 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             return order
         else:
             raise serializers.ValidationError({"cart": "Il carrello è vuoto"})
+
+    def validate_expiration_date(self, value):
+        today = datetime.date.today()
+        if value < today:
+            raise serializers.ValidationError("La carta è scaduta")
+        return value
 
 
 class LibrarySerializer(serializers.ModelSerializer):

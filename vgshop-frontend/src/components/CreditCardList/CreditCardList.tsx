@@ -26,7 +26,7 @@ import { toast } from "sonner";
 
 interface CreditCard {
   id: number;
-  encrypted_number: string;
+  number: string;
   name: string;
   expiration_date: Date;
 }
@@ -112,7 +112,8 @@ export default function CreditCardList() {
             </CardHeader>
 
             <CardContent className="text-lg font-mono tracking-widest pt-2">
-              {card.encrypted_number || "**** **** **** XXXX"}
+              {"**** **** ****" + card.number.slice(13) ||
+                "**** **** **** XXXX"}
             </CardContent>
 
             <CardFooter className="flex justify-between items-end pt-0 text-slate-400">

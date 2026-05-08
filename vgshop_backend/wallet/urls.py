@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import WalletModelViewset, CreditCardModelViewSet
+from .views import WalletModelViewset, CreditCardModelViewSet, DepositView
 from django.urls import path, include
 
 
@@ -10,4 +10,5 @@ router.register("transactions", WalletModelViewset, basename="wallet")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("transactions/deposit", DepositView.as_view(), name="deposit"),
 ]

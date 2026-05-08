@@ -9,11 +9,13 @@ from .serializers import (
     CreditCardSerializer,
     DepositSerializer,
 )
-from .models import Transaction, CreditCard, WalletCard
+from .models import Transaction, CreditCard, WalletCard, Wallet
 from account.permissions import IsInCustomerGroup
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter
 from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework import serializers
 
 
 class TransactionPaginator(PageNumberPagination):
@@ -41,8 +43,8 @@ class WalletModelViewset(
         return Transaction.objects.filter(wallet__user=user)
 
     @action(detail=False, methods=["GET"], url_path="wallet/credit")
-    def get_credit(self):
-        wallet = self.get_queryset()[0]
+    def get_credit(self, request):
+        wallet = Wallet.objects.get(user = request.user)
         return Response({"credit": wallet.credit})
 
 
@@ -92,3 +94,15 @@ class CreditCardModelViewSet(
                 {"messge": "Errore nella rimozione della carta"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class DepositView(APIView):
+    permission_classes = [IsAuthenticated, IsInCustomerGroup] 
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        serializer = DepositSerializer(data = request.data, context = {"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Deposito effettuato con successo !"} , status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

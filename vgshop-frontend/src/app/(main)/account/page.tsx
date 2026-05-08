@@ -33,9 +33,15 @@ import OrderList from "@/components/OrderList/OrderList";
 import CreditCardList from "@/components/CreditCardList/CreditCardList";
 import { CreditCardRegister } from "@/components/CreditCardRegister/CreditCardRegister";
 import FamilyTab from "@/components/FamilyTab/FamilyTab";
+import { DepositDialog } from "@/components/DepositDialog/DepositDialog";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
+  const {
+    data: creditValue,
+    error: creditError,
+    isLoading: isLoadingCredit,
+  } = useSWR("/transactions/wallet/credit");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -170,12 +176,10 @@ export default function Account() {
               </CardHeader>
               <CardContent className="flex">
                 <p className="text-5xl font-medium">
-                  {data.balance?.toFixed(2) || "0.00"} €
+                  {creditValue?.credit.toFixed(2) || "0.00"} €
                 </p>
                 <div className="ml-auto flex flex-col gap-2">
-                  <Button className="w-full hover:cursor-pointer">
-                    Ricarica saldo <CreditCard className="ml-1" />
-                  </Button>
+                  <DepositDialog />
                   <Button
                     variant={"secondary"}
                     className="hover:cursor-pointer"

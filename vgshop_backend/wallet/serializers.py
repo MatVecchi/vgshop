@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Wallet, WalletCard, CreditCard, Transaction
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.core.validators import RegexValidator
 from django.db import IntegrityError
 import datetime
 import hashlib
@@ -14,17 +15,9 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class CreditCardSerializer(serializers.ModelSerializer):
-    encrypted_number = serializers.SerializerMethodField(
-        method_name="get_encrypted_number"
-    )
-
     class Meta:
         model = CreditCard
-        fields = ["id", "encrypted_number", "name", "expiration_date"]
-
-    def get_encrypted_number(self, obj):
-        number = obj.number
-        return f"**** **** **** {number[-4:]}"
+        fields = ["id", "number", "name", "expiration_date"]
 
 
 class CardRegisterSerializer(serializers.ModelSerializer):
@@ -47,13 +40,12 @@ class CardRegisterSerializer(serializers.ModelSerializer):
             ).first()
 
             if credit_card:
-                if ( credit_card.name != validated_data["name"].upper() or credit_card.expiration_date != validated_data["expiration_date"] ):
+                if (
+                    credit_card.name != validated_data["name"].upper()
+                    or credit_card.expiration_date != validated_data["expiration_date"]
+                ):
                     raise serializers.ValidationError(
-                        {
-                            "number": [
-                                "Credenziali della carta non valide"
-                            ]
-                        }
+                        {"number": ["Credenziali della carta non valide"]}
                     )
             else:
                 validated_data["name"] = validated_data["name"].upper()
@@ -69,7 +61,9 @@ class CardRegisterSerializer(serializers.ModelSerializer):
 
             return credit_card
         except IntegrityError as e:
-            raise serializers.ValidationError({"number": ["Errore nella registrazione della carta"]})
+            raise serializers.ValidationError(
+                {"number": ["Errore nella registrazione della carta"]}
+            )
 
     def validate_expiration_date(self, value):
         today = datetime.date.today()
@@ -87,9 +81,27 @@ class DepositSerializer(serializers.ModelSerializer):
         required=True,
     )
 
+    number_validator = RegexValidator(
+        regex=r"^\d+$", message="Il numero deve avere 16 cifre"
+    )
+
+    number = serializers.CharField(
+        write_only=True, min_length=16, max_length=16, validators=[number_validator]
+    )
+
+    cvv_validator = RegexValidator(
+        regex=r"^\d+$", message="Il cvv deve avere solo 3 cifre"
+    )
+    cvv = serializers.CharField(
+        write_only=True, min_length=3, max_length=3, validators=[cvv_validator]
+    )
+
+    expiration_date = serializers.DateField(write_only=True)
+    name = serializers.CharField(write_only=True)
+
     class Meta:
         model = Transaction
-        fields = ["deposit"]
+        fields = ["deposit", "number", "name", "expiration_date", "cvv"]
 
     @transaction.atomic
     def create(self, validated_data):
@@ -101,9 +113,17 @@ class DepositSerializer(serializers.ModelSerializer):
             transaction, _ = Transaction.objects.get_or_create(
                 wallet=wallet, movement=movement
             )
+            wallet.credit += movement
+            wallet.save()
             return transaction
         except Exception as e:
             raise serializers.ValidationError("Errore nel deposito, riprova")
+
+    def validate_expiration_date(self, value):
+        today = datetime.date.today()
+        if value < today:
+            raise serializers.ValidationError("La carta è scaduta")
+        return value
 
     def validate_deposit(self, value):
         if value > 0:
