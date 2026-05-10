@@ -15,6 +15,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,12 +40,15 @@ import { mutate } from "swr";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
 import { Spinner } from "../ui/spinner";
+import { CreditCard } from "@/components/CreditCardList/CreditCardList";
+import useSWR from "swr";
+import { useRef } from "react";
 
 export function DepositDialog() {
   const [name, setName] = useState<string>("");
   const [number, setNumber] = useState<string>("");
   const [depositValue, setDepositValue] = useState<number>(0);
-  const [cvv, setCvv] = useState<string>("")
+  const [cvv, setCvv] = useState<string>("");
   const [exprDate, setExprDate] = useState<Date | undefined>(new Date());
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<Record<string, string[]>>(
@@ -45,6 +57,29 @@ export function DepositDialog() {
   const { mutate: mutateCredit } = useSWRConfig();
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(
+    undefined,
+  );
+  const isAutoCompleting = useRef(false);
+
+  const {
+    data: cardsList,
+    error: cardsError,
+    isLoading: isLoadingCards,
+  } = useSWR("/credit_cards/");
+
+  const handleCardSelect = (id: string) => {
+    const selectedCard: CreditCard = cardsList.find(
+      (card: CreditCard) => card.id.toString() === id,
+    );
+
+    if (selectedCard != undefined) {
+      isAutoCompleting.current = true;
+      setNumber(selectedCard.number);
+      setName(selectedCard.name);
+      setExprDate(selectedCard.expiration_date);
+    }
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -54,12 +89,12 @@ export function DepositDialog() {
       const formData = new FormData();
       formData.append("deposit", depositValue.toString());
       formData.append("name", name);
-        formData.append("number", number);
-        formData.append(
-          "expiration_date",
-          exprDate ? format(exprDate, "yyyy-MM-dd") : "",
-        );
-        formData.append("cvv", cvv);
+      formData.append("number", number);
+      formData.append(
+        "expiration_date",
+        exprDate ? format(exprDate, "yyyy-MM-dd") : "",
+      );
+      formData.append("cvv", cvv);
 
       const response = await api.post("/transactions/deposit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -240,6 +275,35 @@ export function DepositDialog() {
               </div>
             </CardContent>
           </Card>
+
+          {isLoadingCards ? (
+            <Spinner />
+          ) : cardsError ? (
+            "Errore nel caricamento delle carte"
+          ) : cardsList?.length === 0 ? (
+            "Non hai care salvate"
+          ) : (
+            <Select
+              value={selectedCardId || ""}
+              onValueChange={handleCardSelect}
+              key={selectedCardId || "reset-select"}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleziona una carta esistente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {cardsList.map((card: CreditCard) => {
+                    return (
+                      <SelectItem key={card.id} value={card.id.toString()}>
+                        **** **** *{card.number.slice(13)}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
 
           <DialogFooter className="sm:justify-between flex-row gap-2">
             <DialogClose asChild>

@@ -5,6 +5,8 @@ from games.models import Game
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.core.validators import RegexValidator
+from wallet.models import Wallet, Transaction
+from decimal import Decimal
 import datetime
 
 
@@ -82,22 +84,50 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     )
 
     number = serializers.CharField(
-        write_only=True, min_length=16, max_length=16, validators=[number_validator]
+        write_only=True,
+        min_length=16,
+        max_length=16,
+        validators=[number_validator],
+        required=False,
     )
 
     cvv_validator = RegexValidator(
         regex=r"^\d+$", message="Il cvv deve avere solo 3 cifre"
     )
     cvv = serializers.CharField(
-        write_only=True, min_length=3, max_length=3, validators=[cvv_validator]
+        write_only=True,
+        min_length=3,
+        max_length=3,
+        validators=[cvv_validator],
+        required=False,
     )
 
-    expiration_date = serializers.DateField(write_only=True)
-    name = serializers.CharField(write_only=True)
+    expiration_date = serializers.DateField(write_only=True, required=False)
+    name = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
         fields = ["payment_method", "number", "cvv", "expiration_date", "name"]
+
+    def validate(self, attrs):
+        payment_method = attrs.get("payment_method", None)
+
+        if not payment_method:
+            raise serializers.ValidationError(
+                {"payment_method": "Metodo di pagamento non valido"}
+            )
+
+        if payment_method == "C":
+            required_fields = ["number", "cvv", "expiration_date", "name"]
+            missing_fields = {}
+
+            for field in required_fields:
+                if not attrs.get(field):
+                    missing_fields[field] = field + " mancante !"
+
+            if missing_fields:
+                raise serializers.ValidationError(missing_fields)
+        return attrs
 
     @transaction.atomic
     def create(self, validated_data):
@@ -105,6 +135,20 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         cart_items = CartItem.objects.filter(user=user)
 
         if cart_items.exists():
+            total = Decimal(sum(item.game.price for item in cart_items))
+
+            if validated_data["payment_method"] == "C":
+                print("Il numero della carta è: ", validated_data["number"])
+
+            else:
+                wallet = get_object_or_404(Wallet, user=user)
+                if wallet.credit < total:
+                    raise serializers.ValidationError(
+                        {"message": ["Non hai credito sufficiente per l'acquisto !"]}
+                    )
+                wallet.credit = wallet.credit - total
+                wallet.save()
+
             order = Order.objects.create(
                 user=user, payment_method=validated_data["payment_method"]
             )
@@ -112,6 +156,9 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             order_items = [
                 OrderItem(order=order, game=item.game) for item in cart_items
             ]
+
+            if validated_data["payment_method"] == "W":
+                transaction = Transaction.objects.create(wallet=wallet, movement=-total)
 
             library_items = [Library(user=user, game=item.game) for item in cart_items]
 

@@ -24,7 +24,7 @@ import { useState } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 
-interface CreditCard {
+export interface CreditCard {
   id: number;
   number: string;
   name: string;

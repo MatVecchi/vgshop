@@ -1,6 +1,6 @@
 "use client";
 
-import { SubmitEvent, useEffect, useState } from "react";
+import { SubmitEvent, useEffect, useRef, useState } from "react";
 import useSWR, { mutate } from "swr";
 import { Spinner } from "@/components/ui/spinner";
 import CartInfiniteScroller from "@/components/CartInfiniteScroller/CartInfiniteScroller";
@@ -12,6 +12,15 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -28,6 +37,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { CreditCard } from "@/components/CreditCardList/CreditCardList";
 
 export default function ShoppingCartDisplay() {
   const [paymentMethod, setPaymentMethod] = useState<string>("C");
@@ -40,6 +50,11 @@ export default function ShoppingCartDisplay() {
   const [errorMessage, setErrorMessage] = useState<Record<string, string[]>>(
     {},
   );
+  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(
+    undefined,
+  );
+
+  const isAutoCompleting = useRef(false);
   const router = useRouter();
 
   const { error: cartError, isLoading: isLoadingCart } =
@@ -50,6 +65,25 @@ export default function ShoppingCartDisplay() {
     error: creditError,
     isLoading: isLoadingCredit,
   } = useSWR("/transactions/wallet/credit");
+
+  const {
+    data: cardsList,
+    error: cardsError,
+    isLoading: isLoadingCards,
+  } = useSWR("/credit_cards/");
+
+  const handleCardSelect = (id: string) => {
+    const selectedCard: CreditCard = cardsList.find(
+      (card: CreditCard) => card.id.toString() === id,
+    );
+
+    if (selectedCard != undefined) {
+      isAutoCompleting.current = true;
+      setNumber(selectedCard.number);
+      setName(selectedCard.name);
+      setExprDate(selectedCard.expiration_date);
+    }
+  };
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -97,6 +131,14 @@ export default function ShoppingCartDisplay() {
       setIsPaymentLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAutoCompleting.current) {
+      isAutoCompleting.current = false;
+      return;
+    }
+    setSelectedCardId(undefined);
+  }, [number, name, exprDate]);
 
   useEffect(() => {
     if (cartError) {
@@ -265,6 +307,38 @@ export default function ShoppingCartDisplay() {
                         </div>
                       </CardContent>
                     </Card>
+
+                    {isLoadingCards ? (
+                      <Spinner />
+                    ) : cardsError ? (
+                      "Errore nel caricamento delle carte"
+                    ) : cardsList?.length === 0 ? (
+                      "Non hai care salvate"
+                    ) : (
+                      <Select
+                        value={selectedCardId || ""}
+                        onValueChange={handleCardSelect}
+                        key={selectedCardId || "reset-select"}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Seleziona una carta esistente" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {cardsList.map((card: CreditCard) => {
+                              return (
+                                <SelectItem
+                                  key={card.id}
+                                  value={card.id.toString()}
+                                >
+                                  **** **** *{card.number.slice(13)}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="W" className="space-y-4 pt-4">
