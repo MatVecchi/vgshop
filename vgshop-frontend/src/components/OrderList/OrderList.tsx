@@ -48,11 +48,11 @@ export default function OrderList() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const {
     data: orders,
-    error: orderErros,
+    error: orderError,
     isLoading: isLoadingOrder,
   } = useSWR(`/payments/?page=${currentPage}`, { keepPreviousData: true });
 
-  if (orderErros?.status == 404) {
+  if (orderError?.status == 404) {
     return (
       <>
         <Empty>
@@ -72,7 +72,7 @@ export default function OrderList() {
       </>
     );
   }
-  if (orderErros) return <div>Errore nel caricamento degli ordini </div>;
+  if (orderError) return <div>Errore nel caricamento degli ordini </div>;
   if (isLoadingOrder) return <Spinner />;
 
   const totalPages = orders ? Math.ceil(orders.count / ORDER_PER_PAGE) : 0;

@@ -110,7 +110,7 @@ class DepositSerializer(serializers.ModelSerializer):
         wallet = get_object_or_404(Wallet, user=user)
 
         try:
-            transaction, _ = Transaction.objects.get_or_create(
+            transaction = Transaction.objects.create(
                 wallet=wallet, movement=movement
             )
             wallet.credit += movement

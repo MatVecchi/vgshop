@@ -34,6 +34,7 @@ import CreditCardList from "@/components/CreditCardList/CreditCardList";
 import { CreditCardRegister } from "@/components/CreditCardRegister/CreditCardRegister";
 import FamilyTab from "@/components/FamilyTab/FamilyTab";
 import { DepositDialog } from "@/components/DepositDialog/DepositDialog";
+import TransactionList from "@/components/TransactionList/TransactionList";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -180,12 +181,7 @@ export default function Account() {
                 </p>
                 <div className="ml-auto flex flex-col gap-2">
                   <DepositDialog />
-                  <Button
-                    variant={"secondary"}
-                    className="hover:cursor-pointer"
-                  >
-                    Cronologia transazioni <Clock className="ml-1" />
-                  </Button>
+                  <TransactionList />
                 </div>
               </CardContent>
             </Card>

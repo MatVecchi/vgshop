@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Game, GameImage, Tag
+from reviews.models import Review
 from django.db import transaction
+from statistics import mean
 import datetime
 
 
@@ -20,7 +22,7 @@ class GameSerializer(serializers.ModelSerializer):
     tag_list = TagSerializer(many=True, read_only=True)
     images = GameImageSerializer(many=True, read_only=True)
     publisher = serializers.CharField(source="publisher.username", read_only = True)
-
+    stars = serializers.SerializerMethodField(method_name="calculate_rating")
     class Meta:
         model = Game
         fields = [
@@ -34,7 +36,15 @@ class GameSerializer(serializers.ModelSerializer):
             "publisher",
             "images",
             "cover",
+            "stars"
         ]
+
+    def calculate_rating(self, game):
+        reviews =  Review.objects.filter(game__title=game.title)
+        if len(reviews) == 0:
+            return 0
+        return round(mean((r.stars for r in reviews) ),2)
+
 
 
 class GameRegisterSerializer(serializers.ModelSerializer):

@@ -11,7 +11,7 @@ from rest_framework.exceptions import ValidationError
 
 
 class ReviewPaginator(PageNumberPagination):
-    max_page_size = 12
+    page_size = 12
 
 
 class ReviewViewSet(

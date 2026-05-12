@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { useSWRConfig } from "swr";
+import ReviewSection from "../ReviewSection/ReviewSection";
 
 interface Props {
   params: {
@@ -150,7 +151,7 @@ export default function GameInfo({ params }: Props) {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <span className="font-bold uppercase tracking-wider text-xl">
-                      5.0
+                      {game.stars === 0 ? "NR (Not Rated)" : game.stars}
                     </span>
                     <span className="text-foreground/80">
                       <Star />
@@ -296,9 +297,18 @@ export default function GameInfo({ params }: Props) {
                 <div className="my-5">
                   <div className="flex gap-5">
                     <h1 className="text-xl md:text-xl font-black text-foreground mb-1 drop-shadow-lg">
-                      5.0
+                      {game.stars === 0 ? "NR" : game.stars}
                     </h1>
-                    <Star />
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-5 h-5 ${
+                          i + 1 < game.stars
+                            ? "fill-violet-500 text-violet-500"
+                            : "text-slate-300 dark:text-zinc-700"
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
               </CardContent>
@@ -307,9 +317,11 @@ export default function GameInfo({ params }: Props) {
         </div>
 
         <div className="mt-10">
-          <h1 className="text-xl md:text-xl font-black text-foreground mb-1 drop-shadow-lg">
+          <h1 className="text-2xl font-medium  uppercase tracking-wider">
             Recensioni & Commenti
           </h1>
+
+          <ReviewSection params={{ gameTitle: game.title }} />
         </div>
       </div>
     </div>

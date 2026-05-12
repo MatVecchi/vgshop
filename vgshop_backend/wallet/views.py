@@ -19,7 +19,7 @@ from rest_framework import serializers
 
 
 class TransactionPaginator(PageNumberPagination):
-    max_page_size = 5
+    page_size = 4
 
 
 class WalletModelViewset(

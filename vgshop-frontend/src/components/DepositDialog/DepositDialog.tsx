@@ -54,6 +54,7 @@ export function DepositDialog() {
   const [errorMessage, setErrorMessage] = useState<Record<string, string[]>>(
     {},
   );
+
   const { mutate: mutateCredit } = useSWRConfig();
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -81,6 +82,14 @@ export function DepositDialog() {
     }
   };
 
+  const handleReset = () => {
+    setName("");
+    setNumber("");
+    setExprDate(undefined);
+    setCvv("");
+    setDepositValue(0.0);
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setSubmitLoading(true);
@@ -102,6 +111,8 @@ export function DepositDialog() {
 
       toast.success("Deposito avvenuto con successo !");
       mutateCredit("/transactions/wallet/credit");
+      mutateCredit("/transactions/?page=1");
+      handleReset();
       setIsDialogOpen(false);
       router.push("/account/");
     } catch (e: any) {
@@ -281,7 +292,11 @@ export function DepositDialog() {
           ) : cardsError ? (
             "Errore nel caricamento delle carte"
           ) : cardsList?.length === 0 ? (
-            "Non hai care salvate"
+            <Select disabled>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Non hai carte salvate" />
+              </SelectTrigger>
+            </Select>
           ) : (
             <Select
               value={selectedCardId || ""}

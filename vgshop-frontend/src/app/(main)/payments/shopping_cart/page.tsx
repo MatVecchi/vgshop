@@ -313,7 +313,13 @@ export default function ShoppingCartDisplay() {
                     ) : cardsError ? (
                       "Errore nel caricamento delle carte"
                     ) : cardsList?.length === 0 ? (
-                      "Non hai care salvate"
+                      <Select
+                        disabled
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Non hai carte salvate" />
+                        </SelectTrigger>
+                      </Select>
                     ) : (
                       <Select
                         value={selectedCardId || ""}

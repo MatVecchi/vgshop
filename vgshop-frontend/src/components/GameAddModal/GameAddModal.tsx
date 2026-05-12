@@ -52,6 +52,7 @@ export interface Game {
   publisher: number;
   images: GameImage[];
   cover: string;
+  stars: number;
 }
 
 export default function GameAddModal() {
