@@ -33,6 +33,9 @@ class Wallet(models.Model):
         verbose_name = _("Wallet")
         verbose_name_plural = _("Wallets")
 
+    def __str__(self):
+        return "Wallet: " + self.user.username
+
 
 class Transaction(models.Model):
     """
@@ -63,6 +66,15 @@ class Transaction(models.Model):
         verbose_name = _("Transaction")
         verbose_name_plural = _("Transactions")
 
+    def __str__(self):
+        return (
+            self.wallet.user.username
+            + " : "
+            + self.movement.__str__()
+            + " - "
+            + self.date.__str__()
+        )
+
 
 class CreditCard(models.Model):
     """
@@ -81,7 +93,7 @@ class CreditCard(models.Model):
         blank=False,
         validators=[credit_number_validator],
     )
-    
+
     name = EncryptedCharField(_("name"), max_length=50, null=False, blank=False)
 
     # campo che ha il numero della carta cifrato in hash per verificare se esiste già
@@ -103,6 +115,9 @@ class CreditCard(models.Model):
     class Meta:
         verbose_name = _("CreditCard")
         verbose_name_plural = _("CreditCards")
+
+    def __str__(self):
+        return "**** **** **** *" + self.number[-3:]
 
 
 class WalletCard(models.Model):

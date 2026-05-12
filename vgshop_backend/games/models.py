@@ -16,6 +16,9 @@ class Tag(models.Model):
     class Meta:
         verbose_name_plural = _("Tags")
 
+    def __str__(self):
+        return self.name
+
 
 class GameImage(models.Model):
     image = models.ImageField(
@@ -36,6 +39,9 @@ class GameImage(models.Model):
 
     class Meta:
         verbose_name_plural = _("GameImages")
+
+    def __str__(self):
+        return "Immagine di: " + self.game.title
 
 
 class Game(models.Model):
@@ -80,3 +86,6 @@ class Game(models.Model):
 
     class Meta:
         verbose_name_plural = _("Games")
+
+    def __str__(self):
+        return self.title

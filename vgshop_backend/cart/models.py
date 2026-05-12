@@ -36,6 +36,9 @@ class CartItem(models.Model):
             UniqueConstraint(fields=["user", "game"], name="unique_user_game")
         ]
 
+    def __str__(self):
+        return self.user.username + " - " + self.game.title
+
 
 class Order(models.Model):
     """
@@ -77,6 +80,9 @@ class Order(models.Model):
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
 
+    def __str__(self):
+        return self.user.username + " - " + self.date.__str__()
+
 
 class OrderItem(models.Model):
     """
@@ -108,6 +114,9 @@ class OrderItem(models.Model):
         constraints = [
             UniqueConstraint(fields=["order", "game"], name="unique_order_game")
         ]
+
+    def __str__(self):
+        return self.order.user.username + " - " + self.game.title
 
 
 class Library(models.Model):
@@ -142,3 +151,6 @@ class Library(models.Model):
         constraints = [
             UniqueConstraint(fields=["user", "game"], name="unique_in_library_game")
         ]
+
+    def __str__(self):
+        return self.user.username + " - " + self.game.title

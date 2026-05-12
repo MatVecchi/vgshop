@@ -21,14 +21,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("account.urls")),
     path("games/", include("games.urls")),
-    path('api/', include('friends.urls')),
-    path("", include('cart.urls')),
-    path("", include('wallet.urls')),
+    path("api/", include("friends.urls")),
+    path("", include("cart.urls")),
+    path("", include("wallet.urls")),
+    path("", include("reviews.urls")),
 ]
 
 if settings.DEBUG:
