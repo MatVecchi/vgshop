@@ -32,7 +32,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-import { UsersRound } from "lucide-react";
+import { UserRoundPlus, UsersRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -40,7 +40,7 @@ import { UserPlus, Check, X, MessagesSquare, Search } from "lucide-react";
 import api from "@/lib/api";
 import Chat from "@/components/Chat/Chat";
 
-enum Status {
+export enum Status {
   PENDING = "P",
   ACCEPTED = "A",
   DECLINED = "D",
@@ -247,7 +247,7 @@ export default function FriendList() {
                         {sendingRequest === user.username ? (
                           "Invio..."
                         ) : (
-                          <UserPlus />
+                          <UserRoundPlus />
                         )}
                       </Button>
                     )}

@@ -111,7 +111,8 @@ export default function ChatComponent({
                 const isSent = elem.receiver === username;
                 const firstIndex = Math.max(0, 100000 - messages.length);
                 const arrayIndex = index - firstIndex;
-                const prevElem = arrayIndex > 0 ? messages[arrayIndex - 1] : null;
+                const prevElem =
+                  arrayIndex > 0 ? messages[arrayIndex - 1] : null;
 
                 let showDateSeparator = false;
                 if (!prevElem) {
@@ -186,7 +187,7 @@ export default function ChatComponent({
                     <></>
                   ),
               }}
-            ></Virtuoso>
+            />
           ) : (
             <></>
           )}

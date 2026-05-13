@@ -3,7 +3,7 @@ from account.serializers import UserSerializer, UserProfileSerializer
 from django.db import transaction
 from rest_framework import serializers
 from account.models import User
-from .models import Friend, Message
+from friends.models import Friend, Message
 
 
 class FriendSerializer(serializers.ModelSerializer):
