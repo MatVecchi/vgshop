@@ -28,6 +28,7 @@ import {
   Globe,
   Building,
   Users,
+  MessageCircle,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
 import CreditCardList from "@/components/CreditCardList/CreditCardList";
@@ -35,6 +36,8 @@ import { CreditCardRegister } from "@/components/CreditCardRegister/CreditCardRe
 import FamilyTab from "@/components/FamilyTab/FamilyTab";
 import { DepositDialog } from "@/components/DepositDialog/DepositDialog";
 import TransactionList from "@/components/TransactionList/TransactionList";
+import ReviewPersonalDashboard from "@/components/ReviewPersonalDashboard/ReviewPersonalDashboard";
+import ReviewList from "@/components/ReviewList/ReviewList";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -85,6 +88,13 @@ export default function Account() {
                 <TabsTrigger className="hover:cursor-pointer" value="orders">
                   <Package className="inline-block mr-2" />
                   Ordini
+                </TabsTrigger>
+                <TabsTrigger
+                  className="hover:cursor-pointer"
+                  value="my_reviews"
+                >
+                  <MessageCircle className="inline-block mr-2" />
+                  Miei commenti
                 </TabsTrigger>
                 <TabsTrigger className="hover:cursor-pointer" value="family">
                   <Users className="inline-block mr-2" />
@@ -218,6 +228,24 @@ export default function Account() {
                   </CardHeader>
                   <CardContent>
                     <OrderList />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="my_reviews">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <MessageCircle className="inline-block mr-2" />
+                      Miei commenti
+                    </CardTitle>
+                    <CardDescription>
+                      Visualizza e gestisci i tuoi ordini
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6 h-150">
+                      <ReviewList url={`/my_reviews/`} mine={true} />
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>

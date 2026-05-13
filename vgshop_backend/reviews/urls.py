@@ -4,6 +4,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path(
+        "my_reviews/",
+        ReviewViewSet.as_view({"get": "my_reviews"}),
+        name="review-my",
+    ),
+    path(
         "reviews/<str:game>/",
         ReviewViewSet.as_view({"get": "list"}),
         name="review-game",
@@ -13,4 +18,5 @@ urlpatterns = [
         ReviewViewSet.as_view({"post": "create"}),
         name="review-create",
     ),
+    
 ]

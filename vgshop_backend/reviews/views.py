@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 
 
 class ReviewPaginator(PageNumberPagination):
@@ -33,20 +35,39 @@ class ReviewViewSet(
 
         if self.action in ["list"]:
             permission_classes = [AllowAny]
-        elif self.action in ["create"]:
+        elif self.action in ["create", "my_reviews"]:
             permission_classes = [IsAuthenticated, IsInCustomerGroup]
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ["list"]:
+        if self.action in ["list", "my_reviews"]:
             return ReviewSerializer
         return AddReviewSerializer
 
+    # se non gli passa il gioco o non si richiama "my_reviews" allora lancia un validation error
     def get_queryset(self):
-        game_title = self.kwargs.get("game", None)
+        if self.action == "my_reviews":
+            return Review.objects.filter(user=self.request.user).order_by("-date")
 
+        game_title = self.kwargs.get("game", None)
         if not game_title:
             raise ValidationError({"message": "Titolo del gioco mancante !"})
 
         result = Review.objects.filter(game__title=game_title).select_related("user")
         return result
+
+    @action(detail=False, methods=["GET"])
+    def my_reviews(self, request):
+        reviews = self.get_queryset()
+        paginator = ReviewPaginator()
+        
+        try:
+            page = paginator.paginate_queryset(reviews, request=request)
+            serializer = self.get_serializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        except NotFound:
+            return Response(
+                {"count": 0, "next": None, "previous": None, "results": []},
+                status=status.HTTP_404_NOT_FOUND,
+            )
