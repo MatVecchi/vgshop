@@ -36,7 +36,6 @@ import { CreditCardRegister } from "@/components/CreditCardRegister/CreditCardRe
 import FamilyTab from "@/components/FamilyTab/FamilyTab";
 import { DepositDialog } from "@/components/DepositDialog/DepositDialog";
 import TransactionList from "@/components/TransactionList/TransactionList";
-import ReviewPersonalDashboard from "@/components/ReviewPersonalDashboard/ReviewPersonalDashboard";
 import ReviewList from "@/components/ReviewList/ReviewList";
 
 export default function Account() {
