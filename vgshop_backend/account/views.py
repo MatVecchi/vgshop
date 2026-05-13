@@ -1,16 +1,21 @@
+from friends.views import are_friends
+from account.permissions import IsInCustomerGroup
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import UserSerializer, UserRegisterSerializer
+from account.serializers import UserSerializer, UserRegisterSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from .models import User
+from account.models import User
 from wallet.models import Wallet
 from django.db import transaction
+from family.models import Family
+from friends.models import Friend
+from django.shortcuts import get_object_or_404
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -173,3 +178,36 @@ class ProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class FamilyJoinView(APIView):
+    permission_classes = [IsAuthenticated, IsInCustomerGroup]
+    def put(self, request, family_code):
+        raw_token = request.COOKIES.get('access_token')
+        if not raw_token:
+            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        family = get_object_or_404(Family, code=family_code)
+        if User.objects.filter(family=family).count() >= 5:
+            return Response({'message': 'Family is full'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+        if not are_friends(user, family.manager):
+            return Response({'message': 'Family not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserRegisterSerializer(user, data={'family': family.id}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Family joined successfully !'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Family join failed', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class FamilyLeaveView(APIView):
+    permission_classes = [IsAuthenticated, IsInCustomerGroup]
+    def delete(self, request):
+        raw_token = request.COOKIES.get('access_token')
+        if not raw_token:
+            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+        serializer = UserRegisterSerializer(request.user, data={'family': None}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Family left successfully !'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Family left failed', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

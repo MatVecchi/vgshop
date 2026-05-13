@@ -1,3 +1,6 @@
+from rest_framework.filters import OrderingFilter
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
@@ -5,10 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from account.serializers import UserProfileSerializer
 from account.permissions import IsInCustomerGroup
-from .models import Friend, Message
-from .serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer, MessageReadSerializer
-from rest_framework.filters import OrderingFilter
+from friends.models import Friend, Message
+from friends.serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer, MessageReadSerializer
 
+def are_friends(user, friend):
+    return Friend.objects.filter(
+        Q(first_friend=user, second_friend=friend) |
+        Q(first_friend=friend, second_friend=user)
+    ).exists()
 
 class CataloguePaginator(PageNumberPagination):
     page_size=15
@@ -24,10 +31,6 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         lookup_value = self.kwargs[lookup_url_kwarg]
         user = self.request.user
-
-        from account.models import User
-        from django.shortcuts import get_object_or_404
-        from django.db.models import Q
 
         other_user = get_object_or_404(User, username=lookup_value)
         

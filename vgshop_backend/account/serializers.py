@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from account.models import User
 from django.core import exceptions
 from django.contrib.auth.password_validation import validate_password as django_validate_password
 from django.contrib.auth.models import Group
@@ -27,7 +27,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     isPublisher = serializers.BooleanField(write_only= True)
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'password', 'email', 'piva', 'website', 'isPublisher']
+        fields = ['username', 'first_name', 'last_name', 'password', 'email', 'family', 'piva', 'website', 'isPublisher']
 
     @transaction.atomic
     def create(self, validated_data):

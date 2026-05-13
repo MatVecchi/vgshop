@@ -29,6 +29,7 @@ urlpatterns = [
     path("", include("cart.urls")),
     path("", include("wallet.urls")),
     path("", include("reviews.urls")),
+    path("api/", include("family.urls")),
 ]
 
 if settings.DEBUG:

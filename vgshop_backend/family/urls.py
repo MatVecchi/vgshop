@@ -1,10 +1,11 @@
 from rest_framework import routers
 from django.urls import path, include
-from .views import FamilyModelViewSet
+from family.views import FamilyModelViewSet, FamilyMemberModelViewSet
 
 router = routers.SimpleRouter()
-router.register("family", FamilyModelViewSet)
+router.register("dashboard", FamilyModelViewSet, basename="family")
+router.register("members", FamilyMemberModelViewSet, basename="family-members")
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("family/", include(router.urls)),
 ]

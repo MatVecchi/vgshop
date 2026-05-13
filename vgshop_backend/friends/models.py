@@ -1,3 +1,4 @@
+from encrypted_fields.fields import EncryptedTextField
 from django.db.models import constraints
 from random import choices
 from email.policy import default
@@ -36,7 +37,7 @@ class Message(models.Model):
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver")
-    message = models.TextField(
+    message = EncryptedTextField(
         verbose_name="description",
         null=False,
         blank=False,
