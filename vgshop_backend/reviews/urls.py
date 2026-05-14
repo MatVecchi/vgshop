@@ -9,6 +9,11 @@ urlpatterns = [
         name="review-my",
     ),
     path(
+        "reviews/<int:pk>/",
+        ReviewViewSet.as_view({"delete": "destroy", "patch": "partial_update"}),
+        name="review-delete",
+    ),
+    path(
         "reviews/<str:game>/",
         ReviewViewSet.as_view({"get": "list"}),
         name="review-game",
@@ -18,5 +23,4 @@ urlpatterns = [
         ReviewViewSet.as_view({"post": "create"}),
         name="review-create",
     ),
-    
 ]

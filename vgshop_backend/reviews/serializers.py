@@ -7,9 +7,16 @@ from django.db import transaction
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
     game = serializers.CharField(source="game.title", read_only=True)
+
     class Meta:
         model = Review
-        fields = ["user", "comment", "stars", "game", "date"]
+        fields = ["id", "user", "comment", "stars", "game", "date"]
+
+
+class UpdateReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ["comment", "stars"]
 
 
 class AddReviewSerializer(serializers.ModelSerializer):

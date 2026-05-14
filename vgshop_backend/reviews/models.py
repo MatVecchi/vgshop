@@ -25,9 +25,7 @@ class Review(models.Model):
         blank=False,
     )
 
-    date = models.DateTimeField(
-        _("date"), auto_now=False, auto_now_add=True, null=False, blank=False
-    )
+    date = models.DateTimeField(_("date"), auto_now=True, null=False, blank=False)
 
     stars = models.PositiveIntegerField(
         _("stars"),
@@ -49,3 +47,8 @@ class Review(models.Model):
                 fields=["user", "game", "date"], name="unique_instant_comment"
             )
         ]
+
+    def __str__(self):
+        return (
+            self.user.username + " - " + self.game.title + " - " + self.date.__str__()
+        )
