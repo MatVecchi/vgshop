@@ -146,7 +146,11 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
                   >
                     Annulla
                   </Button>
-                  <Button variant="secondary" className="mx-1" onClick={(e) => handleUpdate(e)}>
+                  <Button
+                    variant="secondary"
+                    className="mx-1"
+                    onClick={(e) => handleUpdate(e)}
+                  >
                     Conferma
                   </Button>
                 </>
@@ -227,6 +231,11 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
                   />
                 </button>
               ))}
+              {errorMessage.stars && (
+                <p className="text-sm text-red-500 text-destructive-foreground">
+                  {errorMessage.stars[0]}
+                </p>
+              )}
             </div>
           ) : (
             <div className="flex justify-between items-start gap-2">
@@ -258,12 +267,19 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
 
         <CardContent className="grow">
           {isEditing ? (
-            <Textarea
-              name="comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Commento ..."
-            />
+            <>
+              <Textarea
+                name="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Commento ..."
+              />
+              {errorMessage.comment && (
+                <p className="text-sm text-red-500 text-destructive-foreground">
+                  {errorMessage.comment[0]}
+                </p>
+              )}
+            </>
           ) : (
             <p className="text-sm text-slate-700 dark:text-zinc-300 leading-relaxed line-clamp-4 wrap-break-word">
               {item.comment}
