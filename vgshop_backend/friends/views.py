@@ -8,13 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from account.serializers import UserProfileSerializer
 from account.permissions import IsInCustomerGroup
-from friends.models import Friend, Message
+from friends.models import Friend, Message 
 from friends.serializers import FriendSerializer, FriendCreateSerializer, FriendUpdateSerializer, FriendGetSerializer, MessageSerializer, MessageCreateSerializer, MessageReadSerializer
 
 def are_friends(user, friend):
     return Friend.objects.filter(
-        Q(first_friend=user, second_friend=friend) |
-        Q(first_friend=friend, second_friend=user)
+        Q(first_friend=user, second_friend=friend, status=Friend.Status.ACCEPTED) |
+        Q(first_friend=friend, second_friend=user, status=Friend.Status.ACCEPTED)
     ).exists()
 
 class CataloguePaginator(PageNumberPagination):

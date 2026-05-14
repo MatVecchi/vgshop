@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { useSWRConfig } from "swr";
 import ReviewSection from "../ReviewSection/ReviewSection";
+import { Badge } from "../ui/badge";
 
 interface Props {
   params: {
@@ -56,6 +57,12 @@ export default function GameInfo({ params }: Props) {
     isLoading: libraryLoading,
     mutate,
   } = useSWR(`library/${game?.title}/`);
+
+  const {
+    data: familyLibrary,
+    error: familyLibraryError,
+    isLoading: familyLibraryLoading,
+  } = useSWR(`api/family/dashboard/games/${game?.title}/`);
 
   if (isLoading) return <Spinner />;
   if (error)
@@ -163,8 +170,12 @@ export default function GameInfo({ params }: Props) {
               </div>
             </div>
 
-            <div>
-              {libraryError?.status == 404 && !libraryLoading ? (
+            <div className="flex gap-2 items-center">
+              {!(libraryError?.status === 404 && !libraryLoading) ||
+              !(familyLibraryError?.status === 404 && !familyLibraryLoading) ? (
+                <Badge variant="secondary">Possiedi questo gioco</Badge>
+              ) : null}
+              {libraryError?.status === 404 && !libraryLoading ? (
                 <Button
                   size="lg"
                   className="h-14 px-8 text-lg font-bold gap-3 group transition-all hover:scale-105 shadow-lg shadow-primary/20"
@@ -178,7 +189,7 @@ export default function GameInfo({ params }: Props) {
                   }}
                 >
                   <span className="tracking-tight">
-                    {game.price == 0 ? "GRATIS" : `${game.price}€`}
+                    {game.price === 0 ? "GRATIS" : `${game.price}€`}
                   </span>
 
                   <div className="w-px h-6 bg-primary-foreground/20" />
