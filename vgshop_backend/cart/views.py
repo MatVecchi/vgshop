@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.filters import OrderingFilter
+from friends.views import are_friends
 
 class CartPaginator(PageNumberPagination):
     page_size = 12
@@ -100,29 +101,3 @@ class LibraryModelViewSet(
         queryset = self.get_queryset()
         titles = [ item.game.title for item in queryset]
         return Response( {"titles":titles}, status=status.HTTP_200_OK)
-
-    @action(
-        detail=False, methods=["GET"], url_path="friend/(?P<friend_username>[^/.]+)"
-    )
-    def firend_library(self, request, friend_username):
-        friend = get_object_or_404(User, username=friend_username)
-        is_first_friend = Friend.objects.filter(
-            first_friend=request.user,
-            second_friend=friend,
-            status=Friend.Status.ACCEPTED,
-        ).exists()
-        is_second_friend = Friend.objects.filter(
-            first_friend=friend,
-            second_friend=request.user,
-            status=Friend.Status.ACCEPTED,
-        ).exists()
-
-        if is_first_friend or is_second_friend:
-            library = Library.objects.filter(user=friend)
-            serializer = self.get_serializer(library, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": "Non sei amico con questo utente"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
