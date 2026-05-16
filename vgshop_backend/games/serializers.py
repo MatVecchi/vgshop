@@ -95,3 +95,11 @@ class GameRegisterSerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Il prezzo deve essere positivo o nullo")
         return value
+
+
+
+class GamePieChartSerializer(serializers.Serializer):
+    title = serializers.CharField(source="game__title")
+    price = serializers.DecimalField(source="game__price",max_digits=10, decimal_places=2)
+    count = serializers.IntegerField()
+

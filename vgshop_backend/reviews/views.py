@@ -9,8 +9,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
+from django.db.models import Count
 from .permissions import IsOwnerReviewer
 from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import APIException
 
 
 class ReviewPaginator(PageNumberPagination):
@@ -54,15 +56,44 @@ class ReviewViewSet(
 
     # se non gli passa il gioco o non si richiama "my_reviews" allora lancia un validation error
     def get_queryset(self):
-        if self.action in ["my_reviews", "destroy", "partial_update"]:
-            return Review.objects.filter(user=self.request.user).order_by("-date")
+        if self.action in ["list"]:
+            game_title = self.kwargs.get("game", None)
+            star_rate = self.request.query_params.get("stars", None)
 
-        game_title = self.kwargs.get("game", None)
-        if not game_title:
-            raise ValidationError({"message": "Titolo del gioco mancante !"})
+            if not game_title:
+                raise ValidationError({"message": "Titolo del gioco mancante !"})
 
-        result = Review.objects.filter(game__title=game_title).select_related("user")
-        return result
+            result = Review.objects.filter(game__title=game_title).select_related(
+                "user"
+            )
+            if star_rate:
+                result = result.filter(stars=star_rate)
+            return result
+
+        return Review.objects.filter(user=self.request.user).order_by("-date")
+
+    def list(self, request, *args, **kwargs):
+        try:
+            list_result = super().list(request, *args, **kwargs)
+            queryset = self.get_queryset()
+            total_reviews = queryset.count()
+            if total_reviews > 0:
+                counts = queryset.values("stars").annotate(total=Count("stars"))
+                stats = {i: 0 for i in range(1, 6)}
+                for star_rate in counts:
+                    percentage = star_rate["total"] / total_reviews *100
+                    stats[star_rate["stars"]] = round(percentage, 2)
+                list_result.data["stats"] = stats
+
+            return list_result
+
+        except APIException as exc:
+            return Response(
+                {
+                    "errors": exc.detail,
+                },
+                status=exc.status_code,
+            )
 
     @action(detail=False, methods=["GET"])
     def my_reviews(self, request):

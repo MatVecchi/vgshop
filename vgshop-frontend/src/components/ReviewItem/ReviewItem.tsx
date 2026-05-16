@@ -66,6 +66,12 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
     setRating(item.stars);
   };
 
+  const handleEditing = () => {
+    setComment(item.comment);
+    setRating(item.stars);
+    setIsEditing(true);
+  };
+
   const handleUpdate = async (e: any) => {
     e.preventDefault();
     setUpdateLoading(true);
@@ -158,7 +164,7 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
                 <Button
                   variant="outline"
                   className="mx-1"
-                  onClick={() => setIsEditing(true)}
+                  onClick={handleEditing}
                 >
                   <Pen />
                 </Button>

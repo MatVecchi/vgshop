@@ -8,6 +8,7 @@ import FriendList from "@/components/FriendList/FriendList";
 import GameAddModal from "@/components/GameAddModal/GameAddModal";
 import { CartShowDialog } from "@/components/CartShowDialog/CartShowDialog";
 import LibraryButton from "@/components/LibraryButton/LibraryButon";
+import PublisherDashboardButton from "@/components/PublisherDashboardButton/PublisherDashboardButton";
 
 export default async function MainLayout({
   children,
@@ -37,6 +38,7 @@ export default async function MainLayout({
           {isLogged && (
             <li>
               <LibraryButton />
+              <PublisherDashboardButton />
             </li>
           )}
 

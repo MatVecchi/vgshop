@@ -48,6 +48,7 @@ export interface ReviewData {
   previous: string;
   next: string;
   count: number;
+  stats: any;
 }
 
 export default function ReviewSection({ params }: Prop) {
@@ -58,22 +59,10 @@ export default function ReviewSection({ params }: Prop) {
   const [errorMessage, setErrorMessage] = useState<Record<string, string[]>>(
     {},
   );
-  const {
-    data,
-    error: reviewError,
-    size,
-    setSize,
-    isLoading: isLoadingReview,
-    mutate,
-  } = useSWRInfinite((pageIndex: any, previousPageData: any) => {
-    if (pageIndex === 0) return `/reviews/${params.gameTitle}/?page=1`;
-    if (previousPageData && !previousPageData.next) {
-      return null;
-    }
-    return `/reviews/${params.gameTitle}/?page=${pageIndex + 1}`;
-  });
 
+  //da usare se non loggato
   const { error: profileError } = useSWR("api/profile");
+  const [mutateReviews, setMutateReviews] = useState<any>(null);
   const { mutate: mutateGame } = useSWRConfig();
 
   const handleReset = () => {
@@ -97,7 +86,8 @@ export default function ReviewSection({ params }: Prop) {
       });
 
       toast.success("Commento agggiunto con successo !");
-      mutate();
+
+      mutateReviews();
       mutateGame(`/games/catalogue/${params.gameTitle}`);
       handleReset();
     } catch (e: any) {
@@ -114,14 +104,6 @@ export default function ReviewSection({ params }: Prop) {
       setSubmitLoading(false);
     }
   };
-
-  const reviews = useMemo(() => {
-    if (!data) return [];
-    return data.flatMap((page: ReviewData) => page.results || []);
-  }, [data]);
-
-  if (reviewError) return <>Errore nel caricamento dei commenti</>;
-  if (isLoadingReview) return <Spinner />;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-12">
@@ -210,12 +192,16 @@ export default function ReviewSection({ params }: Prop) {
         </Card>
       )}
 
-      <div className="space-y-6 h-150">
+      <div className="space-y-6">
         <h1 className="text-2xl font-medium  uppercase tracking-wider">
           Commenti della community
         </h1>
-        <Separator className="mt-5" />
-        <ReviewList url={`/reviews/${params.gameTitle}/`} mine={false} />
+
+        <ReviewList
+          url={`/reviews/${params.gameTitle}/`}
+          mine={false}
+          onMutateReady={(mutateValue) => setMutateReviews(mutateValue)}
+        />
       </div>
     </div>
   );

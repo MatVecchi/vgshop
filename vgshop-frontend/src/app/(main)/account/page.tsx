@@ -164,8 +164,8 @@ export default function Account() {
                     <Globe className="inline-block mr-2" />
                     <strong>Sito web:</strong>{" "}
                     <Button className="p-0" variant="link" asChild>
-                      <Link href={data.website} target="_blank">
-                        {data.website}
+                      <Link href={data?.website || ""} target="_blank">
+                        {data?.website || "Non impostato"}
                       </Link>
                     </Button>
                   </p>

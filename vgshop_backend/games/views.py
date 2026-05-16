@@ -1,15 +1,17 @@
 from rest_framework.response import Response
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import GameRegisterSerializer, GameSerializer, TagSerializer
+from .serializers import GameRegisterSerializer, GameSerializer, TagSerializer, GamePieChartSerializer
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.exceptions import ValidationError
+from cart.models import OrderItem
 from .permissions import IsOwnerPublisher
+from django.db.models import Count
 import django_filters
 import datetime
 
@@ -99,3 +101,43 @@ class GameModelViewSet(viewsets.ModelViewSet):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PublisherDashboard(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated, IsInPublisherGroup]
+    serializer_class = GamePieChartSerializer
+
+    def get_queryset(self):
+        publisher_games = Game.objects.filter(publisher=self.request.user)
+        return OrderItem.objects.filter(game__in=publisher_games).select_related("game")
+        
+
+    @action(detail=False, methods=["GET"], url_path="cake")
+    def game_cake_overview(self, request):
+        num_filter = self.request.query_params.get("num", None)
+        orders = self.get_queryset()
+
+        try:
+            order_groups = (
+                orders.values("game__title", "game__price")
+                .annotate(count=Count("id"))
+                .order_by("-count")
+            )
+
+            if num_filter:
+                order_groups = order_groups[:int(num_filter)]
+
+            serializer = GamePieChartSerializer(order_groups, many = True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except TypeError:
+            return Response(
+                {"message": "Filtro non valido"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception:
+            return Response(
+                {"message": "Errore nel caricamento dei dati"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
