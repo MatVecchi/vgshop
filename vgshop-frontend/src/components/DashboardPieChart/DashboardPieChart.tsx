@@ -116,7 +116,7 @@ export function DashboardPieChart({
   return (
     <Card
       data-chart={id}
-      className="flex flex-col w-full border-zinc-500! shadow-none!"
+      className="flex flex-col w-full border-zinc-500! shadow-none! "
     >
       <ChartStyle id={id} config={chartConfig} />
       <CardHeader className="flex-row items-start space-y-0 pb-0">
@@ -126,7 +126,7 @@ export function DashboardPieChart({
         </div>
         <Select value={active} onValueChange={setActive}>
           <SelectTrigger
-            className="ml-auto h-7 w-[150px] rounded-lg pl-2.5"
+            className="ml-auto h-7 w-37.5 rounded-lg pl-2.5"
             aria-label="Select a game"
           >
             <SelectValue placeholder="Seleziona gioco" />
@@ -163,7 +163,7 @@ export function DashboardPieChart({
         <ChartContainer
           id={id}
           config={chartConfig}
-          className="mx-auto aspect-square w-full max-w-[300px]"
+          className="mx-auto aspect-square w-full max-w-75 h-[250px]"
         >
           <PieChart>
             <ChartTooltip

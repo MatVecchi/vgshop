@@ -3,7 +3,13 @@ from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import GameRegisterSerializer, GameSerializer, TagSerializer, GamePieChartSerializer
+from .serializers import (
+    GameRegisterSerializer,
+    GameSerializer,
+    TagSerializer,
+    GamePieChartSerializer,
+    GameChartSerializer,
+)
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +18,7 @@ from django.core.exceptions import ValidationError
 from cart.models import OrderItem
 from .permissions import IsOwnerPublisher
 from django.db.models import Count
+from django.db.models.functions import TruncMonth, TruncYear
 import django_filters
 import datetime
 
@@ -103,14 +110,77 @@ class GameModelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class PublisherDashboard(viewsets.GenericViewSet):
+class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
     permission_classes = [IsAuthenticated, IsInPublisherGroup]
-    serializer_class = GamePieChartSerializer
+
+    lookup_field = "game__title"
+    lookup_url_kwarg = "game_title"
+
+    def list(self, request, *args, **kwargs):
+        games = Game.objects.filter(publisher=self.request.user) 
+        return Response([game.title for game in games], status=status.HTTP_200_OK)
 
     def get_queryset(self):
         publisher_games = Game.objects.filter(publisher=self.request.user)
         return OrderItem.objects.filter(game__in=publisher_games).select_related("game")
+
+    def get_serializer_class(self):
+        if self.action in ["game_cake_overview"]:
+            return GamePieChartSerializer
+        return GameChartSerializer
+
+    def _game_bar_overview(self, request, game_title=None):
+        year = self.request.query_params.get("year", datetime.datetime.today().year)
+        try:
+            first_day = datetime.date(int(year), 1, 1)
+            last_day = datetime.date(int(year), 12, 31)
+        except (TypeError, ValueError):
+            first_day = datetime.date(datetime.datetime.today().year, 1, 1)
+            last_day = datetime.date(datetime.datetime.today().year, 12, 31)
+
         
+
+        stats = self.get_queryset().filter(order__date__gte=first_day, order__date__lte=last_day)
+        if game_title:
+            stats = stats.filter(game__title=game_title)
+
+        stats = stats.values("game__title", month=TruncMonth("order__date")).annotate(
+            count=Count("id")
+        )
+
+        month_names = [
+            "Gennaio",
+            "Febbraio",
+            "Marzo",
+            "Aprile",
+            "Maggio",
+            "Giugno",
+            "Luglio",
+            "Agosto",
+            "Settembre",
+            "Ottobre",
+            "Novembre",
+            "Dicembre",
+        ]
+
+        json_stats = {month: {"month": month} for month in month_names}
+        for item in stats:
+            month = item["month"].month
+            key = month_names[month - 1]
+            json_stats[key][item["game__title"]] = item["count"]
+
+        json_stats = list(json_stats.values())
+        serializer = self.get_serializer(json_stats, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="bar")
+    def game_bar_list(self, request):
+        return self._game_bar_overview(request=request)
+
+    @action(detail=True, methods=["GET"], url_name="detail")
+    def game_bar_detail(self, request, game_title):
+        return self._game_bar_overview(request=request, game_title=game_title)
 
     @action(detail=False, methods=["GET"], url_path="cake")
     def game_cake_overview(self, request):
@@ -125,9 +195,9 @@ class PublisherDashboard(viewsets.GenericViewSet):
             )
 
             if num_filter:
-                order_groups = order_groups[:int(num_filter)]
+                order_groups = order_groups[: int(num_filter)]
 
-            serializer = GamePieChartSerializer(order_groups, many = True)
+            serializer = self.get_serializer(order_groups, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
