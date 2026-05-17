@@ -162,14 +162,14 @@ export function DashboardPieChart({
       </CardHeader>
       <CardContent className="flex flex-1 justify-center pb-0">
         {isLoading ? (
-          <div className="flex h-[250px] w-full opacity-50">
+          <div className="flex h-62.5 w-full opacity-50">
             <Spinner className="h-12 w-12 mx-auto" />
           </div>
         ) : (
           <ChartContainer
             id={id}
             config={chartConfig}
-            className="mx-auto aspect-square w-full max-w-75 h-[250px]"
+            className="mx-auto aspect-square w-full max-w-75 h-62.5"
           >
             <PieChart>
               <ChartTooltip

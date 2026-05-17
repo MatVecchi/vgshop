@@ -52,7 +52,7 @@ export default function DashboardBarChartContainer({
         ) : (
           <div className="flex gap-2">
             <Select value={gameSearch} onValueChange={setSearchGame}>
-              <SelectTrigger className="w-full sm:w-[200px] rounded-lg">
+              <SelectTrigger className="w-full sm:w-50 rounded-lg">
                 <SelectValue placeholder="Quale giocho vuoi vedere?" />
               </SelectTrigger>
               <SelectContent>
@@ -71,7 +71,7 @@ export default function DashboardBarChartContainer({
               </SelectContent>
             </Select>
             <Input
-              className="w-full sm:w-[200px] rounded-lg"
+              className="w-full sm:w-50 rounded-lg"
               placeholder="Anno"
               type="number"
               value={barYear}

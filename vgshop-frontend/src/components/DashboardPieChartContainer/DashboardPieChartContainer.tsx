@@ -68,7 +68,7 @@ export default function DashboardPieChartContainer({
           <ChartPieIcon /> Panoramica vendite{" "}
         </h2>
         <Select value={pieSelect} onValueChange={setPieSelect}>
-          <SelectTrigger className="w-full sm:w-[200px] rounded-lg">
+          <SelectTrigger className="w-full sm:w-50 rounded-lg">
             <SelectValue placeholder="Quanti giochi vuoi vedere?" />
           </SelectTrigger>
           <SelectContent>

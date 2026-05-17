@@ -91,11 +91,11 @@ export function DashboardBarChart({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex h-[300px] w-full opacity-50">
+          <div className="flex h-75 w-full opacity-50">
             <Spinner className="h-12 w-12 mx-auto" />
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <ChartContainer config={chartConfig} className="h-75 w-full">
             <BarChart
               accessibilityLayer
               data={data}

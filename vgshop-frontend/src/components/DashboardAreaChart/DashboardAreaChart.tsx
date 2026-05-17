@@ -98,13 +98,13 @@ export function DashboardAreaChart({
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         {isLoading ? (
-          <div className="flex h-[300px] w-full opacity-50">
+          <div className="flex h-75 w-full opacity-50">
             <Spinner className="h-12 w-12 mx-auto" />
           </div>
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto h-[300px] w-full"
+            className="aspect-auto h-75 w-full"
           >
             <AreaChart data={data}>
               <defs>

@@ -80,7 +80,7 @@ export default function DashboardAreaChartContainer({
           <div className="flex gap-2">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger
-                className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
+                className="hidden w-40 rounded-lg sm:ml-auto sm:flex"
                 aria-label="Select a value"
               >
                 <SelectValue placeholder="Last 3 months" />
@@ -102,7 +102,7 @@ export default function DashboardAreaChartContainer({
             </Select>
 
             <Select value={gameSearch} onValueChange={setSearchGame}>
-              <SelectTrigger className="w-full sm:w-[200px] rounded-lg">
+              <SelectTrigger className="w-full sm:w-50 rounded-lg">
                 <SelectValue placeholder="Quale giocho vuoi vedere?" />
               </SelectTrigger>
               <SelectContent>
