@@ -9,6 +9,7 @@ from .serializers import (
     TagSerializer,
     GamePieChartSerializer,
     GameChartSerializer,
+    GameAreaChartSerializer,
 )
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
@@ -117,7 +118,7 @@ class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
     lookup_url_kwarg = "game_title"
 
     def list(self, request, *args, **kwargs):
-        games = Game.objects.filter(publisher=self.request.user) 
+        games = Game.objects.filter(publisher=self.request.user)
         return Response([game.title for game in games], status=status.HTTP_200_OK)
 
     def get_queryset(self):
@@ -125,10 +126,75 @@ class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
         return OrderItem.objects.filter(game__in=publisher_games).select_related("game")
 
     def get_serializer_class(self):
+
         if self.action in ["game_cake_overview"]:
             return GamePieChartSerializer
+        if self.action in ["game_area_list", "game_area_detail"]:
+            return GameAreaChartSerializer
         return GameChartSerializer
 
+    # grafico a linee
+    def _game_area_overview(self, request, game_title=None):
+        try:
+            is_cumulative = bool(self.request.query_params.get("cumulative", False))
+        except TypeError:
+            is_cumulative = False
+
+        today = datetime.date.today()
+        try:
+            time_range_in_days = int(self.request.query_params.get("time_range", 30))
+            limit = today - datetime.timedelta(time_range_in_days)
+        except TypeError:
+            limit = today - datetime.timedelta(30)
+
+        stats = self.get_queryset().filter(
+            order__date__gte=limit, order__date__lte=today
+        )
+        if game_title:
+            stats = stats.filter(game__title=game_title)
+
+        stats = stats.values("game__title", "order__date", "game__price").annotate(
+            count=Count("id")
+        )
+
+        game_titles = set(item["game__title"] for item in stats)
+
+        json_stats = {}
+        for i in range(time_range_in_days + 1):
+            date_key = (limit + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+            json_stats[date_key] = {"date": date_key}
+
+            for title in game_titles:
+                json_stats[date_key][title] = 0
+
+        for item in stats:
+            key = item["order__date"].strftime("%Y-%m-%d")
+            title = item["game__title"]
+            json_stats[key][title] = item["count"] * item["game__price"]
+
+        if is_cumulative:
+            for i in range(1, time_range_in_days + 1):
+                date_key = (limit + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+                previous_date_key = (limit + datetime.timedelta(days=i - 1)).strftime(
+                    "%Y-%m-%d"
+                )
+                for title in game_titles:
+                    json_stats[date_key][title] += json_stats[previous_date_key][title]
+
+        json_stats = list(json_stats.values())
+        serializer = self.get_serializer(json_stats, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="area")
+    def game_area_list(self, request):
+        return self._game_area_overview(request=request)
+
+    @action(detail=True, methods=["GET"], url_path="detail")
+    def game_area_detail(self, request, game_title):
+        return self._game_area_overview(request=request, game_title=game_title)
+
+    # grafico a barre
     def _game_bar_overview(self, request, game_title=None):
         year = self.request.query_params.get("year", datetime.datetime.today().year)
         try:
@@ -138,9 +204,9 @@ class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
             first_day = datetime.date(datetime.datetime.today().year, 1, 1)
             last_day = datetime.date(datetime.datetime.today().year, 12, 31)
 
-        
-
-        stats = self.get_queryset().filter(order__date__gte=first_day, order__date__lte=last_day)
+        stats = self.get_queryset().filter(
+            order__date__gte=first_day, order__date__lte=last_day
+        )
         if game_title:
             stats = stats.filter(game__title=game_title)
 
@@ -182,6 +248,7 @@ class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
     def game_bar_detail(self, request, game_title):
         return self._game_bar_overview(request=request, game_title=game_title)
 
+    # grafici a torta
     @action(detail=False, methods=["GET"], url_path="cake")
     def game_cake_overview(self, request):
         num_filter = self.request.query_params.get("num", None)

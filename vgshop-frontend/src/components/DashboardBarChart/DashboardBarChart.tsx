@@ -29,6 +29,7 @@ type Prop = {
   id: string;
   title: string;
   description: string;
+  isValidating: boolean;
 };
 
 interface chartData {
@@ -43,13 +44,12 @@ export function DashboardBarChart({
   id,
   title,
   description,
+  isValidating,
 }: Prop) {
-  if (error) return <>Errore nella visualizzazione del grafico</>;
-  if (isLoading) return <Spinner />;
-  if (!data || data.length === 0) return <>Nessun dato disponibile</>;
-
   const { chartConfig } = useMemo(() => {
     const config: ChartConfig = {};
+
+    if (!data) return { chartConfig: config };
 
     const gameTitles = new Set<string>();
     data.forEach((item) => {
@@ -62,7 +62,9 @@ export function DashboardBarChart({
 
     Array.from(gameTitles).forEach((item, index) => {
       const chartKey = item;
-      const colorIndex = (index % 5) + 1;
+      const hueStep = (index * 17) % 20;
+      const tierStep = index % 2 === 0 ? 2 : 3;
+      const colorIndex = tierStep * 20 + hueStep + 1;
 
       config[chartKey] = {
         label: item,
@@ -73,60 +75,62 @@ export function DashboardBarChart({
     return { chartConfig: config };
   }, [data]);
 
+  if (error) return <>Errore nella visualizzazione del grafico</>;
+  if (!data || data.length === 0) return <>Nessun dato disponibile</>;
+
   return (
     <Card
       data-chart={id}
-      className="flex flex-col w-full border-zinc-500! shadow-none!"
+      className={`flex flex-col w-full border-zinc-500! shadow-none! ${isValidating ? "opacity-60" : "opacity-100"}`}
     >
-      <CardHeader>
+      <CardHeader className="border-b">
         <div className="flex justify-between w-full">
           <CardTitle>{title}</CardTitle>
         </div>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{ left: -20, right: 10 }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={10}
-              allowDecimals={false}
-            />
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <ChartLegend content={<ChartLegendContent />} />
-            {Object.keys(chartConfig).map((item, index) => (
-              <Bar
-                dataKey={item}
-                key={index}
-                stackId="a"
-                fill={chartConfig[item].color}
+        {isLoading ? (
+          <div className="flex h-[300px] w-full opacity-50">
+            <Spinner className="h-12 w-12 mx-auto" />
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <BarChart
+              accessibilityLayer
+              data={data}
+              margin={{ left: -20, right: 10 }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 3)}
               />
-            ))}
-          </BarChart>
-        </ChartContainer>
+
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={10}
+                allowDecimals={false}
+              />
+              <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+              <ChartLegend content={<ChartLegendContent />} />
+              {Object.keys(chartConfig).map((item, index) => (
+                <Bar
+                  dataKey={item}
+                  key={item}
+                  stackId="a"
+                  fill={chartConfig[item].color}
+                />
+              ))}
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
+      <CardFooter className="flex-col items-start gap-2 text-sm"></CardFooter>
     </Card>
   );
 }

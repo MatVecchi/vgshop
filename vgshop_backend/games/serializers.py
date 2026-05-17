@@ -114,3 +114,16 @@ class GameChartSerializer(serializers.Serializer):
             if key != "month":
                 data[key] = value
         return data
+
+
+class GameAreaChartSerializer(serializers.Serializer):
+    date = serializers.DateField()
+
+    # metodo richiamato nella costruzione del json
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        for key, value in instance.items():
+            if key != "date":
+                data[key] = value
+        return data

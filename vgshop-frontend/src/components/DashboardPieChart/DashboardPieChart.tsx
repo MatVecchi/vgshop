@@ -54,7 +54,6 @@ export function DashboardPieChart({
   const id = propId;
 
   if (error) return <>Errore nella visualizzazione del grafico</>;
-  if (isLoading) return <Spinner />;
   if (!data || data.length === 0) return <>Nessun dato disponibile</>;
 
   const [active, setActive] = React.useState(data[0]?.title || "");
@@ -94,7 +93,9 @@ export function DashboardPieChart({
 
     const formattedData = data.map((item, index) => {
       const chartKey = item.title.replace(/\s+/g, "-");
-      const colorIndex = (index % 5) + 1;
+      const hueStep = (index * 17) % 20;
+      const tierStep = index % 2 === 0 ? 2 : 3;
+      const colorIndex = tierStep * 20 + hueStep + 1;
 
       config[chartKey] = {
         label: item.title,
@@ -160,59 +161,65 @@ export function DashboardPieChart({
         </Select>
       </CardHeader>
       <CardContent className="flex flex-1 justify-center pb-0">
-        <ChartContainer
-          id={id}
-          config={chartConfig}
-          className="mx-auto aspect-square w-full max-w-75 h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={formattedChartData}
-              dataKey="value"
-              nameKey="title"
-              innerRadius={60}
-              strokeWidth={5}
-              shape={renderPieShape}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
+        {isLoading ? (
+          <div className="flex h-[250px] w-full opacity-50">
+            <Spinner className="h-12 w-12 mx-auto" />
+          </div>
+        ) : (
+          <ChartContainer
+            id={id}
+            config={chartConfig}
+            className="mx-auto aspect-square w-full max-w-75 h-[250px]"
+          >
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={formattedChartData}
+                dataKey="value"
+                nameKey="title"
+                innerRadius={60}
+                strokeWidth={5}
+                shape={renderPieShape}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
                         >
-                          {formattedChartData[
-                            safeActiveIndex
-                          ]?.value.toLocaleString() || 0}
-                          {money ? "€" : ""}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Vendite
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {formattedChartData[
+                              safeActiveIndex
+                            ]?.value.toLocaleString() || 0}
+                            {money ? "€" : ""}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            Vendite
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );
