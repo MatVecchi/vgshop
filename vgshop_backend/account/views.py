@@ -151,33 +151,19 @@ class UsernameView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        user = request.user
+        return Response({'username':user.username, 'profile_image':user.profile_image if user.profile_image else None}, status=status.HTTP_200_OK)
         
-        raw_token = request.COOKIES.get('access_token')
-        if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        user = get_user_from_token(raw_token=raw_token)
-        if user:
-            return Response({'username':user.username, 'profile_image':user.profile_image if user.profile_image else None}, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
         
         
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        
-        raw_token = request.COOKIES.get('access_token')
-        if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
-          
-        user = get_user_from_token(raw_token=raw_token)
+        user = request.user
         serializer = UserSerializer(user)
-        if user:
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
 class FamilyJoinView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
