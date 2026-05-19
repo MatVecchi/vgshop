@@ -36,7 +36,7 @@ interface Prop {
 
 export interface Review {
   id: number;
-  user: string;
+  user: { username: string; profile_image: any };
   comment: string;
   stars: number;
   game: number;
@@ -61,7 +61,7 @@ export default function ReviewSection({ params }: Prop) {
   );
 
   //da usare se non loggato
-  const { error: profileError } = useSWR("api/profile");
+  const { data, error: profileError } = useSWR("api/profile");
   const [mutateReviews, setMutateReviews] = useState<any>(null);
   const { mutate: mutateGame } = useSWRConfig();
 
@@ -107,7 +107,7 @@ export default function ReviewSection({ params }: Prop) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-12">
-      {profileError ? (
+      {profileError || !data ? (
         <div className="flex-1">
           <Empty className="p-3!">
             <EmptyHeader>
@@ -120,7 +120,7 @@ export default function ReviewSection({ params }: Prop) {
             </EmptyHeader>
           </Empty>
         </div>
-      ) : (
+      ) : data.piva ? null : (
         <Card className=" p-6 rounded-2xl">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-primary" />
