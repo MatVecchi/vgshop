@@ -3,10 +3,10 @@ from torch.utils.data import Dataset
 
 
 class UserGameInteractionDataset(Dataset):
-    def __init__(self, users_id, games_id, tags_per_game, stars, in_lib, targets):
+    def __init__(self, users_id, games_id, tags_per_game, stars, in_lib):
         self.users = torch.tensor(users_id, dtype=torch.long)
         self.games = torch.tensor(games_id, dtype=torch.long)
-        self.interests = torch.tensor(
+        self.targets = torch.tensor(
             [
                 self._calc_interest(star=stars[i], in_lib=in_lib[i])
                 for i in range(len(stars))
@@ -14,7 +14,8 @@ class UserGameInteractionDataset(Dataset):
             dtype=torch.float32,
         )
 
-        self.targets = torch.tensor(targets, dtype=torch.float32)
+        print(self.targets)
+
         self.tags_per_game = {
             game_id: torch.tensor(tags, dtype=torch.float32)
             for game_id, tags in tags_per_game.items()
@@ -35,8 +36,7 @@ class UserGameInteractionDataset(Dataset):
     def __getitem__(self, index):
         user = self.users[index]
         game = self.games[index]
-        interest = self.interests[index]
         tags = self.tags_per_game[game.item()]
         target = self.targets[index]
 
-        return user, game, tags, interest, target
+        return user, game, tags, target
