@@ -175,7 +175,14 @@ class ProfileUpdateView(APIView):
 
     def patch(self, request):
         user = request.user
-        serializer = UserSerializer(instance=user, data=request.data, partial=True)
+        data = request.data.copy()
+
+        if IsInCustomerGroup().has_permission(request, self):
+            data.pop("piva", None)
+            data.pop("website", None)
+
+        serializer = UserSerializer(instance=user, data=data, partial=True)
+        
         if serializer.is_valid():
             serializer.save()
             user.refresh_from_db()

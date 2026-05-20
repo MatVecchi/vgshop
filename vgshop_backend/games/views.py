@@ -126,7 +126,6 @@ class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):
         return OrderItem.objects.filter(game__in=publisher_games).select_related("game")
 
     def get_serializer_class(self):
-
         if self.action in ["game_cake_overview"]:
             return GamePieChartSerializer
         if self.action in ["game_area_list", "game_area_detail"]:

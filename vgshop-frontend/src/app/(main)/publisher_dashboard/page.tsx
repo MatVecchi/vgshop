@@ -19,6 +19,8 @@ import { DashboardAreaChart } from "@/components/DashboardAreaChart/DashboardAre
 import DashboardAreaChartContainer from "@/components/DashboardAreaChartContainer/DashboardAreaChartContainer";
 import DashboardBarChartContainer from "@/components/DashboardBarChartContainer/DashboardBarChartContainer";
 import DashboardPieChartContainer from "@/components/DashboardPieChartContainer/DashboardPieChartContainer";
+import ReviewList from "@/components/ReviewList/ReviewList";
+import DashboardReviewSection from "@/components/DashboardReviewSection/DashboardReviewSection";
 
 export default function PublisherDashboard() {
   const {
@@ -47,6 +49,8 @@ export default function PublisherDashboard() {
           gameTitlesError={gameTitlesError}
           gameTitlesAreLoading={gameTitlesAreLoading}
         />
+
+        <DashboardReviewSection gameTitles={gameTitles} />
       </div>
     </>
   );

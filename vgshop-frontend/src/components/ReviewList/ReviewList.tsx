@@ -133,7 +133,7 @@ export default function ReviewList({ url, mine, onMutateReady }: Prop) {
               Annulla filtro{" "}
             </Button>
           ) : null}
-          <Separator />
+          <Separator className="my-2" />
         </>
       ) : null}
       {reviews.length == 0 ? (
