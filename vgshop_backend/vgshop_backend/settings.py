@@ -174,3 +174,19 @@ REST_AUTH = {
     "JWT_AUTH_SECURE": False,
     "JWT_AUTH_SAMESITE": "Lax",  # Necessario per gestire i cookie tra domini o navigazione
 }
+
+# smtp server per le email
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# user per l'smtp
+EMAIL_HOST_USER = os.environ["SMTP_EMAIL"]
+
+# password
+EMAIL_HOST_PASSWORD = os.environ["SMTP_KEY"]
+
+# nome che compare nella mail
+DEFAULT_FROM_EMAIL = f'VGshop <{os.environ["SMTP_EMAIL"]}>'

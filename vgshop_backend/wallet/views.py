@@ -16,6 +16,10 @@ from rest_framework.filters import OrderingFilter
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework import serializers
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 
 class TransactionPaginator(PageNumberPagination):
@@ -104,5 +108,25 @@ class DepositView(APIView):
         serializer = DepositSerializer(data = request.data, context = {"request":request})
         if serializer.is_valid():
             serializer.save()
+
+            completed_transaction = serializer.instance
+            context = {
+                "movement": completed_transaction.movement,
+                "date": completed_transaction.date,
+            }
+
+            html_content = render_to_string('email/deposit.html', context)
+            text_content = strip_tags(html_content)
+
+            msg = EmailMultiAlternatives(
+                subject="Conferma avvenuto deposito - Grazie per il tuo sostegno!",
+                body=text_content,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[request.user.email]  
+            )
+
+            msg.attach_alternative(html_content, "text/html")
+            msg.send(fail_silently=False)
+            
             return Response({"message":"Deposito effettuato con successo !"} , status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
