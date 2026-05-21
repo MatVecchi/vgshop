@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from account.serializers import UserSerializer, UserRegisterSerializer
+from account.serializers import UserSerializer, UserRegisterSerializer, UserProfileSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
@@ -16,6 +16,7 @@ from django.db import transaction
 from family.models import Family
 from friends.models import Friend
 from django.shortcuts import get_object_or_404
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -29,7 +30,7 @@ class LoginView(APIView):
             if user:
                 refresh = RefreshToken.for_user(user)
                 response = Response({
-                    'user': UserSerializer(user).data,
+                    'user': UserSerializer(user, context={'request': request}).data,
                     'message': 'Login successful !'
                 })
                 
@@ -149,36 +150,46 @@ def get_user_from_token(raw_token):
 
 class UsernameView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
-        raw_token = request.COOKIES.get('access_token')
-        if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        user = get_user_from_token(raw_token=raw_token)
-        if user:
-            print(user.profile_image)
-            return Response({'username':user.username, 'profile_image':user.profile_image if user.profile_image else None}, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
         
         
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request):
+        user = request.user
+        data = request.data.copy()
+
+        if IsInCustomerGroup().has_permission(request, self):
+            data.pop("piva", None)
+            data.pop("website", None)
+
+        serializer = UserSerializer(instance=user, data=data, partial=True)
         
-        raw_token = request.COOKIES.get('access_token')
-        if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
-          
-        user = get_user_from_token(raw_token=raw_token)
-        serializer = UserSerializer(user)
-        if user:
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        if serializer.is_valid():
+            serializer.save()
+            user.refresh_from_db()
+            return Response(UserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
 
 class FamilyJoinView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]

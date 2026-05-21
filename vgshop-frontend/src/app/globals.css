@@ -67,11 +67,122 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
+  /*
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-5: oklch(0.269 0 0);*/
+
+  /* Tier 1 — medium bright  L=0.62 C=0.22 */
+  --chart-1: oklch(0.62 0.22 200);
+  --chart-2: oklch(0.62 0.22 208);
+  --chart-3: oklch(0.62 0.22 216);
+  --chart-4: oklch(0.62 0.22 224);
+  --chart-5: oklch(0.62 0.22 232);
+  --chart-6: oklch(0.62 0.22 240);
+  --chart-7: oklch(0.62 0.22 248);
+  --chart-8: oklch(0.62 0.22 256);
+  --chart-9: oklch(0.62 0.22 264);
+  --chart-10: oklch(0.62 0.22 272);
+  --chart-11: oklch(0.62 0.22 280);
+  --chart-12: oklch(0.62 0.22 288);
+  --chart-13: oklch(0.62 0.22 296);
+  --chart-14: oklch(0.62 0.22 304);
+  --chart-15: oklch(0.62 0.22 312);
+  --chart-16: oklch(0.62 0.22 320);
+  --chart-17: oklch(0.62 0.22 328);
+  --chart-18: oklch(0.62 0.22 336);
+  --chart-19: oklch(0.62 0.22 344);
+  --chart-20: oklch(0.62 0.22 352);
+
+  /* Tier 2 — dark vivid  L=0.45 C=0.26 */
+  --chart-21: oklch(0.45 0.26 200);
+  --chart-22: oklch(0.45 0.26 208);
+  --chart-23: oklch(0.45 0.26 216);
+  --chart-24: oklch(0.45 0.26 224);
+  --chart-25: oklch(0.45 0.26 232);
+  --chart-26: oklch(0.45 0.26 240);
+  --chart-27: oklch(0.45 0.26 248);
+  --chart-28: oklch(0.45 0.26 256);
+  --chart-29: oklch(0.45 0.26 264);
+  --chart-30: oklch(0.45 0.26 272);
+  --chart-31: oklch(0.45 0.26 280);
+  --chart-32: oklch(0.45 0.26 288);
+  --chart-33: oklch(0.45 0.26 296);
+  --chart-34: oklch(0.45 0.26 304);
+  --chart-35: oklch(0.45 0.26 312);
+  --chart-36: oklch(0.45 0.26 320);
+  --chart-37: oklch(0.45 0.26 328);
+  --chart-38: oklch(0.45 0.26 336);
+  --chart-39: oklch(0.45 0.26 344);
+  --chart-40: oklch(0.45 0.26 352);
+
+  /* Tier 3 — light soft  L=0.76 C=0.16 */
+  --chart-41: oklch(0.76 0.16 200);
+  --chart-42: oklch(0.76 0.16 208);
+  --chart-43: oklch(0.76 0.16 216);
+  --chart-44: oklch(0.76 0.16 224);
+  --chart-45: oklch(0.76 0.16 232);
+  --chart-46: oklch(0.76 0.16 240);
+  --chart-47: oklch(0.76 0.16 248);
+  --chart-48: oklch(0.76 0.16 256);
+  --chart-49: oklch(0.76 0.16 264);
+  --chart-50: oklch(0.76 0.16 272);
+  --chart-51: oklch(0.76 0.16 280);
+  --chart-52: oklch(0.76 0.16 288);
+  --chart-53: oklch(0.76 0.16 296);
+  --chart-54: oklch(0.76 0.16 304);
+  --chart-55: oklch(0.76 0.16 312);
+  --chart-56: oklch(0.76 0.16 320);
+  --chart-57: oklch(0.76 0.16 328);
+  --chart-58: oklch(0.76 0.16 336);
+  --chart-59: oklch(0.76 0.16 344);
+  --chart-60: oklch(0.76 0.16 352);
+
+  /* Tier 4 — vivid mid  L=0.55 C=0.27 */
+  --chart-61: oklch(0.55 0.27 200);
+  --chart-62: oklch(0.55 0.27 208);
+  --chart-63: oklch(0.55 0.27 216);
+  --chart-64: oklch(0.55 0.27 224);
+  --chart-65: oklch(0.55 0.27 232);
+  --chart-66: oklch(0.55 0.27 240);
+  --chart-67: oklch(0.55 0.27 248);
+  --chart-68: oklch(0.55 0.27 256);
+  --chart-69: oklch(0.55 0.27 264);
+  --chart-70: oklch(0.55 0.27 272);
+  --chart-71: oklch(0.55 0.27 280);
+  --chart-72: oklch(0.55 0.27 288);
+  --chart-73: oklch(0.55 0.27 296);
+  --chart-74: oklch(0.55 0.27 304);
+  --chart-75: oklch(0.55 0.27 312);
+  --chart-76: oklch(0.55 0.27 320);
+  --chart-77: oklch(0.55 0.27 328);
+  --chart-78: oklch(0.55 0.27 336);
+  --chart-79: oklch(0.55 0.27 344);
+  --chart-80: oklch(0.55 0.27 352);
+
+  /* Tier 5 — pastel  L=0.82 C=0.10 */
+  --chart-81: oklch(0.82 0.1 200);
+  --chart-82: oklch(0.82 0.1 208);
+  --chart-83: oklch(0.82 0.1 216);
+  --chart-84: oklch(0.82 0.1 224);
+  --chart-85: oklch(0.82 0.1 232);
+  --chart-86: oklch(0.82 0.1 240);
+  --chart-87: oklch(0.82 0.1 248);
+  --chart-88: oklch(0.82 0.1 256);
+  --chart-89: oklch(0.82 0.1 264);
+  --chart-90: oklch(0.82 0.1 272);
+  --chart-91: oklch(0.82 0.1 280);
+  --chart-92: oklch(0.82 0.1 288);
+  --chart-93: oklch(0.82 0.1 296);
+  --chart-94: oklch(0.82 0.1 304);
+  --chart-95: oklch(0.82 0.1 312);
+  --chart-96: oklch(0.82 0.1 320);
+  --chart-97: oklch(0.82 0.1 328);
+  --chart-98: oklch(0.82 0.1 336);
+  --chart-99: oklch(0.82 0.1 344);
+  --chart-100: oklch(0.82 0.1 352);
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -102,12 +213,124 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
+  /*--chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-5: oklch(0.269 0 0);*/
   --sidebar: oklch(0.205 0 0);
+
+  /* Tier 1 */
+  /* Tier 1 - Luminosità media, saturo (Base) */
+  /* Tier 1 - Luminosità medio-alta, molto soft */
+  --chart-1: oklch(0.75 0.1 240); /* Blu pastello */
+  --chart-2: oklch(0.75 0.1 250);
+  --chart-3: oklch(0.75 0.1 260);
+  --chart-4: oklch(0.75 0.1 270);
+  --chart-5: oklch(0.75 0.1 280); /* Indigo soft */
+  --chart-6: oklch(0.75 0.1 290);
+  --chart-7: oklch(0.75 0.1 300); /* Viola spento */
+  --chart-8: oklch(0.75 0.1 310);
+  --chart-9: oklch(0.75 0.1 320); /* Prugna chiaro */
+  --chart-10: oklch(0.75 0.1 330);
+  --chart-11: oklch(0.75 0.1 340);
+  --chart-12: oklch(0.75 0.1 350);
+  --chart-13: oklch(0.75 0.1 360); /* Rosso mattone chiaro */
+  --chart-14: oklch(0.75 0.1 10);
+  --chart-15: oklch(0.75 0.1 15);
+  --chart-16: oklch(0.75 0.1 20); /* Salmone desaturo */
+  --chart-17: oklch(0.75 0.1 25);
+  --chart-18: oklch(0.75 0.1 30);
+  --chart-19: oklch(0.75 0.1 35);
+  --chart-20: oklch(0.75 0.1 40);
+
+  /* Tier 2 - Più scuri (per dare contrasto), ma sempre desaturati */
+  --chart-21: oklch(0.6 0.08 240);
+  --chart-22: oklch(0.6 0.08 250);
+  --chart-23: oklch(0.6 0.08 260);
+  --chart-24: oklch(0.6 0.08 270);
+  --chart-25: oklch(0.6 0.08 280);
+  --chart-26: oklch(0.6 0.08 290);
+  --chart-27: oklch(0.6 0.08 300);
+  --chart-28: oklch(0.6 0.08 310);
+  --chart-29: oklch(0.6 0.08 320);
+  --chart-30: oklch(0.6 0.08 330);
+  --chart-31: oklch(0.6 0.08 340);
+  --chart-32: oklch(0.6 0.08 350);
+  --chart-33: oklch(0.6 0.08 360);
+  --chart-34: oklch(0.6 0.08 10);
+  --chart-35: oklch(0.6 0.08 15);
+  --chart-36: oklch(0.6 0.08 20);
+  --chart-37: oklch(0.6 0.08 25);
+  --chart-38: oklch(0.6 0.08 30);
+  --chart-39: oklch(0.6 0.08 35);
+  --chart-40: oklch(0.6 0.08 40);
+
+  /* Tier 3 - "Muted" (Molto vicini al grigio cromato, super aziendali) */
+  --chart-41: oklch(0.68 0.05 240);
+  --chart-42: oklch(0.68 0.05 250);
+  --chart-43: oklch(0.68 0.05 260);
+  --chart-44: oklch(0.68 0.05 270);
+  --chart-45: oklch(0.68 0.05 280);
+  --chart-46: oklch(0.68 0.05 290);
+  --chart-47: oklch(0.68 0.05 300);
+  --chart-48: oklch(0.68 0.05 310);
+  --chart-49: oklch(0.68 0.05 320);
+  --chart-50: oklch(0.68 0.05 330);
+  --chart-51: oklch(0.68 0.05 340);
+  --chart-52: oklch(0.68 0.05 350);
+  --chart-53: oklch(0.68 0.05 360);
+  --chart-54: oklch(0.68 0.05 10);
+  --chart-55: oklch(0.68 0.05 15);
+  --chart-56: oklch(0.68 0.05 20);
+  --chart-57: oklch(0.68 0.05 25);
+  --chart-58: oklch(0.68 0.05 30);
+  --chart-59: oklch(0.68 0.05 35);
+  --chart-60: oklch(0.68 0.05 40);
+
+  /* Tier 4 - Luminosi ma lattiginosi (Chiarissimi) */
+  --chart-61: oklch(0.84 0.07 240);
+  --chart-62: oklch(0.84 0.07 250);
+  --chart-63: oklch(0.84 0.07 260);
+  --chart-64: oklch(0.84 0.07 270);
+  --chart-65: oklch(0.84 0.07 280);
+  --chart-66: oklch(0.84 0.07 290);
+  --chart-67: oklch(0.84 0.07 300);
+  --chart-68: oklch(0.84 0.07 310);
+  --chart-69: oklch(0.84 0.07 320);
+  --chart-70: oklch(0.84 0.07 330);
+  --chart-71: oklch(0.84 0.07 340);
+  --chart-72: oklch(0.84 0.07 350);
+  --chart-73: oklch(0.84 0.07 360);
+  --chart-74: oklch(0.84 0.07 10);
+  --chart-75: oklch(0.84 0.07 15);
+  --chart-76: oklch(0.84 0.07 20);
+  --chart-77: oklch(0.84 0.07 25);
+  --chart-78: oklch(0.84 0.07 30);
+  --chart-79: oklch(0.84 0.07 35);
+  --chart-80: oklch(0.84 0.07 40);
+
+  /* Tier 5 - Più polverosi e caldi */
+  --chart-81: oklch(0.7 0.06 240);
+  --chart-82: oklch(0.7 0.06 250);
+  --chart-83: oklch(0.7 0.06 260);
+  --chart-84: oklch(0.7 0.06 270);
+  --chart-85: oklch(0.7 0.06 280);
+  --chart-86: oklch(0.7 0.06 290);
+  --chart-87: oklch(0.7 0.06 300);
+  --chart-88: oklch(0.7 0.06 310);
+  --chart-89: oklch(0.7 0.06 320);
+  --chart-90: oklch(0.7 0.06 330);
+  --chart-91: oklch(0.7 0.06 340);
+  --chart-92: oklch(0.7 0.06 350);
+  --chart-93: oklch(0.7 0.06 360);
+  --chart-94: oklch(0.7 0.06 10);
+  --chart-95: oklch(0.7 0.06 15);
+  --chart-96: oklch(0.7 0.06 20);
+  --chart-97: oklch(0.7 0.06 25);
+  --chart-98: oklch(0.7 0.06 30);
+  --chart-99: oklch(0.7 0.06 35);
+  --chart-100: oklch(0.7 0.06 40);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);

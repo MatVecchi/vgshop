@@ -314,7 +314,7 @@ export default function GameInfo({ params }: Props) {
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
-                          i + 1 < game.stars
+                          i + 1 <= game.stars
                             ? "fill-violet-500 text-violet-500"
                             : "text-slate-300 dark:text-zinc-700"
                         }`}

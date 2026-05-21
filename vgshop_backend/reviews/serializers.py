@@ -2,10 +2,11 @@ from rest_framework import serializers
 from .models import Review
 from games.models import Game
 from django.db import transaction
+from account.serializers import UserProfileSerializer
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source="user.username", read_only=True)
+    user = UserProfileSerializer(read_only=True)
     game = serializers.CharField(source="game.title", read_only=True)
 
     class Meta:

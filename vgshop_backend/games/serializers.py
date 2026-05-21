@@ -21,8 +21,9 @@ class GameImageSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     tag_list = TagSerializer(many=True, read_only=True)
     images = GameImageSerializer(many=True, read_only=True)
-    publisher = serializers.CharField(source="publisher.username", read_only = True)
+    publisher = serializers.CharField(source="publisher.username", read_only=True)
     stars = serializers.SerializerMethodField(method_name="calculate_rating")
+
     class Meta:
         model = Game
         fields = [
@@ -36,15 +37,14 @@ class GameSerializer(serializers.ModelSerializer):
             "publisher",
             "images",
             "cover",
-            "stars"
+            "stars",
         ]
 
     def calculate_rating(self, game):
-        reviews =  Review.objects.filter(game__title=game.title)
+        reviews = Review.objects.filter(game__title=game.title)
         if len(reviews) == 0:
             return 0
-        return round(mean((r.stars for r in reviews) ),2)
-
+        return round(mean((r.stars for r in reviews)), 2)
 
 
 class GameRegisterSerializer(serializers.ModelSerializer):
@@ -66,9 +66,7 @@ class GameRegisterSerializer(serializers.ModelSerializer):
             "cover",
             "uploaded_images",
         ]
-        extra_kwargs = {
-            'publisher': {'read_only': True}
-        }
+        extra_kwargs = {"publisher": {"read_only": True}}
 
     @transaction.atomic
     def create(self, validated_data):
@@ -95,3 +93,37 @@ class GameRegisterSerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Il prezzo deve essere positivo o nullo")
         return value
+
+
+class GamePieChartSerializer(serializers.Serializer):
+    title = serializers.CharField(source="game__title")
+    price = serializers.DecimalField(
+        source="game__price", max_digits=10, decimal_places=2
+    )
+    count = serializers.IntegerField()
+
+
+class GameChartSerializer(serializers.Serializer):
+    month = serializers.CharField()
+
+    # metodo richiamato nella costruzione del json
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        for key, value in instance.items():
+            if key != "month":
+                data[key] = value
+        return data
+
+
+class GameAreaChartSerializer(serializers.Serializer):
+    date = serializers.DateField()
+
+    # metodo richiamato nella costruzione del json
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        for key, value in instance.items():
+            if key != "date":
+                data[key] = value
+        return data

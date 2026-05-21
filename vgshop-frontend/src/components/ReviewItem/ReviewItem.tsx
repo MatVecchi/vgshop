@@ -40,6 +40,7 @@ import useSWRInfinite from "swr/infinite";
 import { Spinner } from "../ui/spinner";
 import { useState, useMemo, SubmitEvent } from "react";
 import { toast } from "sonner";
+import { AvatarImage, Avatar } from "../ui/avatar";
 
 interface Prop {
   index: number;
@@ -64,6 +65,12 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
     setIsEditing(false);
     setComment(item.comment);
     setRating(item.stars);
+  };
+
+  const handleEditing = () => {
+    setComment(item.comment);
+    setRating(item.stars);
+    setIsEditing(true);
   };
 
   const handleUpdate = async (e: any) => {
@@ -124,10 +131,16 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
         {!mine ? (
           <>
             <div className="h-9 w-9 rounded-full bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-              <User className="w-4 h-4 text-violet-500" />
+              {item.user.profile_image ? (
+                <Avatar>
+                  <AvatarImage src={item.user.profile_image} />
+                </Avatar>
+              ) : (
+                <User className="w-4 h-4 text-violet-500" />
+              )}
             </div>
             <span className="font-bold text-sm text-slate-900 dark:text-zinc-100 tracking-tight truncate">
-              @{item.user}
+              @{item.user.username}
             </span>
           </>
         ) : (
@@ -158,7 +171,7 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
                 <Button
                   variant="outline"
                   className="mx-1"
-                  onClick={() => setIsEditing(true)}
+                  onClick={handleEditing}
                 >
                   <Pen />
                 </Button>

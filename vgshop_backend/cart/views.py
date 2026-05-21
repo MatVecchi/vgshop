@@ -18,6 +18,10 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.filters import OrderingFilter
 from friends.views import are_friends
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 class CartPaginator(PageNumberPagination):
     page_size = 12
@@ -76,6 +80,32 @@ class OrderModelViewSet(
             return OrderSerializer
         return OrderCreateSerializer
 
+    def perform_create(self, serializer):
+        result = super().perform_create(serializer)
+        order = serializer.instance
+
+        new_games = [ order_item.game for order_item in order.order_items.all()]
+        total = sum(game.price for game in new_games)
+        context = {
+            "items": new_games,
+            "total": total,
+            "payment_method": order.payment_method,
+            "date": order.date
+        }
+
+        html_content = render_to_string('email/confirm_order_email.html', context)
+        text_content = strip_tags(html_content)
+
+        msg = EmailMultiAlternatives(
+            subject=f"Conferma Ordine #ORD-{order.id} - Grazie per il tuo acquisto!",
+            body=text_content,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[order.user.email]  
+        )
+
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+        return result
     # create serve per poter confermare un pagamento dal carrello
 
 
