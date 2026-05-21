@@ -158,6 +158,7 @@ class UsernameView(APIView):
         
         user = get_user_from_token(raw_token=raw_token)
         if user:
+            print(user.profile_image)
             return Response({'username':user.username, 'profile_image':user.profile_image if user.profile_image else None}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
