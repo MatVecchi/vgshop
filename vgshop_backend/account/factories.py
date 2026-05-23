@@ -3,6 +3,7 @@ import requests
 from faker import Faker
 from django.core.files.base import ContentFile
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group
 from .models import User
 
 faker = Faker(locale="it_IT")
@@ -45,3 +46,10 @@ class UserFactory(factory.django.DjangoModelFactory):
             website=factory.Faker("url"),
             family=None
         )
+
+    @factory.post_generation
+    def is_publisher(self, create, extracted, **kwargs):
+        is_publisher_value = self.piva != None
+        group, _ = Group.objects.get_or_create( name = "Publisher" if is_publisher_value else "Customer")
+        self.groups.add(group)
+        

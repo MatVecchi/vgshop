@@ -6,7 +6,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from games.factories import GameFactory, TagFactory, GameImageFactory
 from account.factories import UserFactory
-from friends.factories import FriendFactory
+from friends.factories import FriendFactory, MessageFactory
 from family.factories import FamilyFactory
 from cart.factories import CartItemFactory, LibraryFactory
 from reviews.factories import ReviewFactory
@@ -103,6 +103,16 @@ class Command(BaseCommand):
                 for friend in friends:
                     FriendFactory(first_friend=user, second_friend=friend)
                     self.stdout.write(self.style.SUCCESS(f"Created friendship between {user.username} and {friend.username}"))
+                    
+                    num_messages = random.randint(0, 30)
+                    for _ in range(num_messages):
+                        if random.choice([True, False]):
+                            sender, receiver = user, friend
+                        else:
+                            sender, receiver = friend, user
+                        MessageFactory(sender=sender, receiver=receiver)
+                    if num_messages > 0:
+                        self.stdout.write(self.style.SUCCESS(f"Created {num_messages} messages between {user.username} and {friend.username}"))
                 if random.random() < 0.20:
                     self.stdout.write("Creating family...")
                     if families and random.random() < 0.5:

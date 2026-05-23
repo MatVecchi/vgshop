@@ -43,6 +43,12 @@ interface Props {
   };
 }
 
+const dateOptions: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+};
+
 export default function GameInfo({ params }: Props) {
   const { game, error, isLoading } = params;
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
@@ -165,7 +171,12 @@ export default function GameInfo({ params }: Props) {
                     </span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-border" />
-                  <div>{game.release_date}</div>
+                  <div>
+                    {new Date(game.release_date).toLocaleDateString(
+                      "it-IT",
+                      dateOptions,
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -292,7 +303,13 @@ export default function GameInfo({ params }: Props) {
                       Data di rilascio
                     </h1>
                   </div>
-                  <p> {game.release_date} </p>
+                  <p>
+                    {" "}
+                    {new Date(game.release_date).toLocaleDateString(
+                      "it-IT",
+                      dateOptions,
+                    )}{" "}
+                  </p>
                 </div>
 
                 <div className="my-5">

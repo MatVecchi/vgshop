@@ -153,9 +153,9 @@ export default function FriendList() {
           ) : (
             <div className="min-h-0 flex-1">
               <div className="max-h-full overflow-y-auto">
-                {displayList?.map((user: any) => (
+                {displayList?.map((user: any, index: number) => (
                   <div
-                    key={user.id || user.username}
+                    key={index}
                     className="flex items-center gap-3 p-3 border-b"
                   >
                     <Avatar>
