@@ -48,7 +48,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         )
 
     @factory.post_generation
-    def is_publisher(self, create, extracted, **kwargs):
+    def assign_to_group(self, create, extracted, **kwargs):
         is_publisher_value = self.piva != None
         group, _ = Group.objects.get_or_create( name = "Publisher" if is_publisher_value else "Customer")
         self.groups.add(group)
