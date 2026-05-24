@@ -8,10 +8,12 @@ from games.factories import GameFactory, TagFactory, GameImageFactory
 from account.factories import UserFactory
 from friends.factories import FriendFactory, MessageFactory
 from family.factories import FamilyFactory
-from cart.factories import CartItemFactory, LibraryFactory
+from cart.factories import CartItemFactory, LibraryFactory, OrderFactory, OrderItemFactory
 from reviews.factories import ReviewFactory
-from wallet.factories import WalletFactory, WalletCardFactory
+from wallet.factories import WalletFactory, WalletCardFactory, TransactionFactory
 from wallet.models import Wallet
+from friends.models import Message
+from django.db.models import Q
 import factory
 
 class Command(BaseCommand):
@@ -112,6 +114,17 @@ class Command(BaseCommand):
                             sender, receiver = friend, user
                         MessageFactory(sender=sender, receiver=receiver)
                     if num_messages > 0:
+                        chat_messages = list(Message.objects.filter(
+                            Q(sender=user, receiver=friend) | Q(sender=friend, receiver=user)
+                        ).order_by('date'))
+                        
+                        for idx, msg in enumerate(chat_messages):
+                            msg_sender = msg.sender
+                            for prev_msg in chat_messages[:idx]:
+                                if prev_msg.sender != msg_sender and prev_msg.status != "R":
+                                    prev_msg.status = "R"
+                                    prev_msg.save()
+                                    
                         self.stdout.write(self.style.SUCCESS(f"Created {num_messages} messages between {user.username} and {friend.username}"))
                 if random.random() < 0.20:
                     self.stdout.write("Creating family...")
@@ -137,9 +150,43 @@ class Command(BaseCommand):
                     CartItemFactory(user=user, game=game)
                     self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s cart"))
                 
+                wallet_purchases = []
+                card_purchases = []
                 for game in owned_games:
-                    LibraryFactory(user=user, game=game)
-                    self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s library"))
+                    if random.random() < 0.5:  
+                        wallet_purchases.append(game)
+                    else:
+                        card_purchases.append(game)
+                
+                def chunk_list(lst, min_size=1, max_size=3):
+                    chunks = []
+                    i = 0
+                    while i < len(lst):
+                        size = random.randint(min_size, max_size)
+                        chunks.append(lst[i:i+size])
+                        i += size
+                    return chunks
+                
+                wallet_chunks = chunk_list(wallet_purchases)
+                card_chunks = chunk_list(card_purchases)
+                
+                wallet_orders_info = []
+                for chunk in wallet_chunks:
+                    order = OrderFactory(user=user, payment_method="W")
+                    total_price = 0
+                    for game in chunk:
+                        OrderItemFactory(order=order, game=game)
+                        LibraryFactory(user=user, game=game)
+                        total_price += game.price
+                        self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s library via Wallet Order"))
+                    wallet_orders_info.append(total_price)
+                    
+                for chunk in card_chunks:
+                    order = OrderFactory(user=user, payment_method="C")
+                    for game in chunk:
+                        OrderItemFactory(order=order, game=game)
+                        LibraryFactory(user=user, game=game)
+                        self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s library via Card Order"))
 
                 self.stdout.write("\nCreating reviews...")
                 if owned_games:
@@ -149,8 +196,47 @@ class Command(BaseCommand):
                         ReviewFactory(user=user, game=game)
                         self.stdout.write(self.style.SUCCESS(f"{user.username} reviewed {game.title}"))
                 
-                self.stdout.write("\nCreating wallet...")
-                wallet = WalletFactory(user=user)
+                self.stdout.write("\nCreating wallet and transactions...")
+                wallet = WalletFactory(user=user, credit=0)
+                
+                total_purchase_cost = sum(wallet_orders_info)
+                remaining_credit = random.randint(10, 200)
+                needed_deposits = total_purchase_cost + remaining_credit
+                
+                num_deposits = random.randint(1, 3)
+                deposits = []
+                if num_deposits == 1:
+                    deposits.append(needed_deposits)
+                elif num_deposits == 2:
+                    d1 = random.randint(int(needed_deposits * 0.3), int(needed_deposits * 0.7))
+                    deposits.append(d1)
+                    deposits.append(needed_deposits - d1)
+                else:
+                    d1 = random.randint(int(needed_deposits * 0.2), int(needed_deposits * 0.4))
+                    d2 = random.randint(int(needed_deposits * 0.2), int(needed_deposits * 0.5))
+                    deposits.append(d1)
+                    deposits.append(d2)
+                    deposits.append(needed_deposits - d1 - d2)
+                
+                total_credit = 0
+                
+                for deposit_amt in deposits:
+                    TransactionFactory(
+                        wallet=wallet,
+                        movement=deposit_amt,
+                    )
+                    total_credit += deposit_amt
+                
+                for order_total in wallet_orders_info:
+                    TransactionFactory(
+                        wallet=wallet,
+                        movement=-order_total,
+                    )
+                    total_credit -= order_total
+                
+                wallet.credit = total_credit
+                wallet.save()
+                self.stdout.write(self.style.SUCCESS(f"Created wallet for {user.username} with credit {total_credit} and {len(deposits) + len(wallet_orders_info)} transactions"))
 
                 self.stdout.write("\nCreated credit cards...")
                 num_cards = random.randint(0, 3)

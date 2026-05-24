@@ -49,6 +49,14 @@ const dateOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
+  return null;
+};
+
 export default function GameInfo({ params }: Props) {
   const { game, error, isLoading } = params;
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
@@ -56,19 +64,21 @@ export default function GameInfo({ params }: Props) {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { mutate: mutateCart } = useSWRConfig();
 
+  const isLoggedIn = typeof window !== "undefined" && getCookie("is_logged_in") === "true";
+
   // verifico che non sia già in libreria
   const {
     data: library,
     error: libraryError,
     isLoading: libraryLoading,
     mutate,
-  } = useSWR(`library/${game?.title}/`);
+  } = useSWR(isLoggedIn ? `library/${game?.title}/` : null);
 
   const {
     data: familyLibrary,
     error: familyLibraryError,
     isLoading: familyLibraryLoading,
-  } = useSWR(`api/family/dashboard/games/${game?.title}/`);
+  } = useSWR(isLoggedIn ? `api/family/dashboard/games/${game?.title}/` : null);
 
   if (isLoading) return <Spinner />;
   if (error)
@@ -182,17 +192,19 @@ export default function GameInfo({ params }: Props) {
             </div>
 
             <div className="flex gap-2 items-center">
-              {!(libraryError?.status === 404 && !libraryLoading) ||
-              !(familyLibraryError?.status === 404 && !familyLibraryLoading) ? (
+              {isLoggedIn && (
+                (!libraryLoading && !libraryError && !!library) ||
+                (!familyLibraryLoading && !familyLibraryError && !!familyLibrary && !!familyLibrary.game)
+              ) ? (
                 <Badge variant="secondary">Possiedi questo gioco</Badge>
               ) : null}
-              {libraryError?.status === 404 && !libraryLoading ? (
+              {!isLoggedIn || (libraryError?.status === 404 && !libraryLoading) || (libraryError?.status === 401 && !libraryLoading) ? (
                 <Button
                   size="lg"
                   className="h-14 px-8 text-lg font-bold gap-3 group transition-all hover:scale-105 shadow-lg shadow-primary/20"
                   type="submit"
                   onClick={() => {
-                    if (libraryError?.status == 401) {
+                    if (!isLoggedIn || libraryError?.status == 401) {
                       window.location.href = "/login";
                     } else {
                       handleSubmit(game.title);

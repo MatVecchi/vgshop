@@ -65,7 +65,9 @@ export default function FriendList() {
   );
 
   const isSearching = debouncedValue.trim() !== "";
-  const displayList = isSearching ? friends : data?.results;
+  const displayList = isSearching
+    ? friends
+    : data?.results?.filter((user: any) => user.status !== Status.DECLINED);
   const isLoadingSearch = isSearching && !friends && !errFriends;
   const totalPages = Math.ceil(data?.count / USER_PER_PAGE);
 
