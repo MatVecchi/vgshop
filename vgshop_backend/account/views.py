@@ -135,7 +135,7 @@ class LogoutView(APIView):
     def get(self, request):
         response = Response({'message':'Logout successful !'}, status=status.HTTP_200_OK)
         response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
+        response.delete_cookie("refresh_token", path='/api/token/refresh/')
         response.delete_cookie("is_logged_in")
         return response
     

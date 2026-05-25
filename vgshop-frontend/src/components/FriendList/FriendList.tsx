@@ -65,7 +65,9 @@ export default function FriendList() {
   );
 
   const isSearching = debouncedValue.trim() !== "";
-  const displayList = isSearching ? friends : data?.results;
+  const displayList = isSearching
+    ? friends
+    : data?.results?.filter((user: any) => user.status !== Status.DECLINED);
   const isLoadingSearch = isSearching && !friends && !errFriends;
   const totalPages = Math.ceil(data?.count / USER_PER_PAGE);
 
@@ -153,9 +155,9 @@ export default function FriendList() {
           ) : (
             <div className="min-h-0 flex-1">
               <div className="max-h-full overflow-y-auto">
-                {displayList?.map((user: any) => (
+                {displayList?.map((user: any, index: number) => (
                   <div
-                    key={user.id || user.username}
+                    key={index}
                     className="flex items-center gap-3 p-3 border-b"
                   >
                     <Avatar>

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",  # app specifica per la gestione dei toke di auth
+    "common",
     "account",
     "corsheaders",
     "embed_video",
@@ -118,6 +119,8 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+print(BASE_DIR)
 
 
 # Password validation

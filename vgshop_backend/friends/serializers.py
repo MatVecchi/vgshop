@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Q
 from account.serializers import UserSerializer, UserProfileSerializer
 from django.db import transaction
 from rest_framework import serializers
@@ -26,11 +27,28 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        friend, success = Friend.objects.get_or_create(
-            first_friend=self.context["request"].user,
-            second_friend=User.objects.get(
-                username=validated_data["second_friend"]["username"]
-            ),
+        user = self.context["request"].user
+        other_user = User.objects.get(
+            username=validated_data["second_friend"]["username"]
+        )
+        
+        friend = Friend.objects.filter(
+            Q(first_friend=user, second_friend=other_user) |
+            Q(first_friend=other_user, second_friend=user)
+        ).first()
+        
+        if friend:
+            if friend.status == Friend.Status.DECLINED:
+                friend.first_friend = user
+                friend.second_friend = other_user
+                friend.status = Friend.Status.PENDING
+                friend.save()
+            return friend
+            
+        friend = Friend.objects.create(
+            first_friend=user,
+            second_friend=other_user,
+            status=Friend.Status.PENDING
         )
         return friend
 

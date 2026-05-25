@@ -62,11 +62,28 @@ interface Props {
   };
 }
 
+const dateOptions: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+};
+
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
+  return null;
+};
+
 export default function GameInfo({ params }: Props) {
   const { game, error, isLoading, fromPanel = false } = params;
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { mutate: mutateCart } = useSWRConfig();
+
+  const isLoggedIn =
+    typeof window !== "undefined" && getCookie("is_logged_in") === "true";
 
   const [editTitle, setEditTitle] = useState<string>("");
   const [editPrice, setEditPrice] = useState<number>(0.0);
@@ -95,127 +112,27 @@ export default function GameInfo({ params }: Props) {
     error: libraryError,
     isLoading: libraryLoading,
     mutate,
-  } = useSWR(!fromPanel && game?.title ? `library/${game.title}/` : null);
+  } = useSWR(
+    isLoggedIn && !fromPanel && game?.title ? `library/${game?.title}/` : null,
+  );
 
   const {
     data: familyLibrary,
     error: familyLibraryError,
     isLoading: familyLibraryLoading,
   } = useSWR(
-    !fromPanel && game?.title
-      ? `api/family/dashboard/games/${game.title}/`
+    isLoggedIn && !fromPanel && game?.title
+      ? `api/family/dashboard/games/${game?.title}/`
       : null,
   );
 
-  const {
-    data: tagList,
-    error: errorTaglist,
-    isLoading: isTagListLoading,
-  } = useSWR(canEdit && "/games/catalogue/tag_list/");
-
-  const handleEdit = () => {
-    if (canEdit) {
-      setIsEditing(true);
-    }
-  };
-
-  const setStateToData = (game: Game) => {
-    setEditTitle(game.title);
-    setEditPrice(game.price);
-    setEditReleaseDate(new Date(game.release_date));
-    setEditDescription(game.description);
-    setEditSelectedTags(game.tag_list.map((tag) => tag.name));
-    setEditVideo(game.video);
-
-    if (game.images) {
-      const existingImages = game.images.map(
-        (img: { id: number; image: string }) => ({
-          id: img.id,
-          preview: img.image,
-        }),
-      );
-      setIEditmages(existingImages);
-    }
-
-    if (game.cover) {
-      setEditCover({ file: null, preview: game.cover });
-    }
-  };
-
-  useEffect(() => {
-    if (canEdit) {
-      setStateToData(game);
-    }
-  }, [game, canEdit]);
-
-  const handleResetEdit = () => {
-    if (canEdit) {
-      setStateToData(game);
-      setIsEditing(false);
-      setErrorMessageEdit({});
-    }
-  };
-
-  const handleUpdate = async (e: any) => {
-    e.preventDefault();
-    setSubmitLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("title", editTitle);
-      formData.append("price", editPrice.toString());
-      formData.append("description", editDescription);
-      formData.append("video", editVideo);
-      formData.append(
-        "release_date",
-        editReleaseDate ? format(editReleaseDate, "yyyy-MM-dd") : "",
-      );
-
-      editSelectedTags.forEach((tag) => formData.append("tag_list", tag));
-
-      if (editCover?.file) {
-        formData.append("cover", editCover.file);
-      }
-
-      if (editImages.length > 0) {
-        editImages.forEach((img) => {
-          if (img.file) {
-            formData.append("uploaded_images", img.file);
-          } else if (img.preview) {
-            const fileName = img.preview.includes("/media/")
-              ? img.preview.split("/media/")[1]
-              : img.preview;
-
-            if (fileName) {
-              formData.append("keep_images", fileName);
-            }
-          }
-        });
-      }
-      const response = await api.patch(
-        `games/catalogue/${game.title}/`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
-
-      toast.success("Gioco Modificato con successo !");
-      window.location.href = `/publisher_control/${editTitle}`;
-      setIsEditing(false);
-    } catch (e: any) {
-      if (e.response && e.response.data) {
-        if (e.response.data.message) {
-          toast.error(e.response.data.message[0]);
-        } else {
-          setErrorMessageEdit(e.response.data);
-        }
-      } else {
-        toast.error("Errore nella modifica dei dati! riprova");
-      }
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
+  if (isLoading) return <Spinner />;
+  if (error)
+    return (
+      <div className="p-8 text-center text-destructive">
+        Errore nel caricamento
+      </div>
+    );
 
   const handleSubmit = async (title: string) => {
     setSubmitLoading(true);
@@ -385,7 +302,12 @@ export default function GameInfo({ params }: Props) {
                     </span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-border" />
-                  <div>{game.release_date}</div>
+                  <div>
+                    {new Date(game.release_date).toLocaleDateString(
+                      "it-IT",
+                      dateOptions,
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -420,17 +342,23 @@ export default function GameInfo({ params }: Props) {
                   </Button>
                 )
               ) : null}
-              {!(libraryError?.status === 404 && !libraryLoading) ||
-              !(familyLibraryError?.status === 404 && !familyLibraryLoading) ? (
+              {isLoggedIn &&
+              ((!libraryLoading && !libraryError && !!library) ||
+                (!familyLibraryLoading &&
+                  !familyLibraryError &&
+                  !!familyLibrary &&
+                  !!familyLibrary.game)) ? (
                 <Badge variant="secondary">Possiedi questo gioco</Badge>
               ) : null}
-              {libraryError?.status === 404 && !libraryLoading ? (
+              {!isLoggedIn ||
+              (libraryError?.status === 404 && !libraryLoading) ||
+              (libraryError?.status === 401 && !libraryLoading) ? (
                 <Button
                   size="lg"
                   className="h-14 px-8 text-lg font-bold gap-3 group transition-all hover:scale-105 shadow-lg shadow-primary/20"
                   type="submit"
                   onClick={() => {
-                    if (libraryError?.status == 401) {
+                    if (!isLoggedIn || libraryError?.status == 401) {
                       window.location.href = "/login";
                     } else {
                       handleSubmit(game.title);
@@ -761,7 +689,13 @@ export default function GameInfo({ params }: Props) {
                         </Popover>
                       </Field>
                     ) : (
-                      <p> {game.release_date} </p>
+                      <p>
+                        {" "}
+                        {new Date(game.release_date).toLocaleDateString(
+                          "it-IT",
+                          dateOptions,
+                        )}{" "}
+                      </p>
                     )}
                   </div>
                   <ErrorMessage message={errorMessageEdit.date} />

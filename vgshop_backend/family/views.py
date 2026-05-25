@@ -59,6 +59,11 @@ class FamilyModelViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.
         game = get_object_or_404(Game, title=game_id)
         family_members = User.objects.filter(family=user.family).exclude(id=user.id)
         library = Library.objects.filter(user__in=family_members, game=game).first()
+        if not library:
+            return Response(
+                {"message": "Il gioco non è posseduto da nessun membro della famiglia"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         serializer = LibrarySerializer(library, context={"request":request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

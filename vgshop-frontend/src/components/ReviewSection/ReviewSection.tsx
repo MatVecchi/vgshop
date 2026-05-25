@@ -51,6 +51,14 @@ export interface ReviewData {
   stats: any;
 }
 
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
+  return null;
+};
+
 export default function ReviewSection({ params }: Prop) {
   const [rating, setRating] = useState<number>(0);
   const [hover, setHover] = useState<number>(0);
@@ -60,8 +68,13 @@ export default function ReviewSection({ params }: Prop) {
     {},
   );
 
+  const isLoggedIn =
+    typeof window !== "undefined" && getCookie("is_logged_in") === "true";
+
   //da usare se non loggato
-  const { data, error: profileError } = useSWR("api/profile");
+  const { data, error: profileError } = useSWR(
+    isLoggedIn ? "api/profile" : null,
+  );
   const [mutateReviews, setMutateReviews] = useState<any>(null);
   const { mutate: mutateGame } = useSWRConfig();
 
@@ -112,7 +125,7 @@ export default function ReviewSection({ params }: Prop) {
           <Empty className="p-3!">
             <EmptyHeader>
               <EmptyTitle>
-                Esegui il login per commentare !{" "}
+                Esegui il login per commentare!{" "}
                 <Button>
                   <Link href={"/login"}> Login </Link>
                 </Button>
