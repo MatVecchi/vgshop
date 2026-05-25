@@ -35,13 +35,13 @@ export function TagCarousel() {
         align: "start",
         loop: true,
       }}
-      className="w-[90%] mx-auto"
+      className="w-[100%] mx-auto"
     >
       <CarouselContent className="-ml-4">
         {tag_list.map((tag: Tag) => (
           <CarouselItem
             key={tag.name}
-            className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 "
+            className="pl-4 basis-full sm:basis-1/3 md:basis-1/4 lg:basis-1/5 "
           >
             <div className="p-2">
               <Link href={`/explore/${tag.name}`}>
@@ -63,7 +63,6 @@ export function TagCarousel() {
         ))}
       </CarouselContent>
 
-      {/* Posizionamento migliorato delle frecce */}
       <CarouselPrevious className="-left-12 hidden md:flex" />
       <CarouselNext className="-right-12 hidden md:flex" />
     </Carousel>

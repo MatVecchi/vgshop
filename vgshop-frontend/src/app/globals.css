@@ -195,56 +195,64 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  /*--chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);*/
-  --sidebar: oklch(0.205 0 0);
+  --background: oklch(0.129 0.014 246.43);
+  --foreground: oklch(0.985 0.005 247.8);
 
-  /* Tier 1 */
-  /* Tier 1 - Luminosità media, saturo (Base) */
-  /* Tier 1 - Luminosità medio-alta, molto soft */
-  --chart-1: oklch(0.75 0.1 240); /* Blu pastello */
+  --card: oklch(0.175 0.015 246.43);
+  --card-foreground: oklch(0.985 0.005 247.8);
+
+  --popover: oklch(0.175 0.015 246.43);
+  --popover-foreground: oklch(0.985 0.005 247.8);
+
+  --primary: oklch(0.93 0.015 245);
+  --primary-foreground: oklch(0.129 0.014 246.43);
+
+  --secondary: oklch(0.24 0.016 246.43);
+  --secondary-foreground: oklch(0.92 0.01 245);
+
+  --muted: oklch(0.24 0.016 246.43);
+  --muted-foreground: oklch(0.68 0.015 245);
+
+  --accent: oklch(0.24 0.016 246.43);
+  --accent-foreground: oklch(0.985 0.005 247.8);
+
+  --destructive: oklch(0.62 0.17 25.5);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.45 0.03 245);
+
+  --sidebar: oklch(0.15 0.015 246.43);
+  --sidebar-foreground: oklch(0.92 0.01 245);
+  --sidebar-primary: oklch(0.55 0.04 245);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.22 0.015 246.43);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.45 0.03 245);
+
+  --chart-1: oklch(0.75 0.1 240);
   --chart-2: oklch(0.75 0.1 250);
   --chart-3: oklch(0.75 0.1 260);
   --chart-4: oklch(0.75 0.1 270);
-  --chart-5: oklch(0.75 0.1 280); /* Indigo soft */
+  --chart-5: oklch(0.75 0.1 280);
   --chart-6: oklch(0.75 0.1 290);
-  --chart-7: oklch(0.75 0.1 300); /* Viola spento */
+  --chart-7: oklch(0.75 0.1 300);
   --chart-8: oklch(0.75 0.1 310);
-  --chart-9: oklch(0.75 0.1 320); /* Prugna chiaro */
+  --chart-9: oklch(0.75 0.1 320);
   --chart-10: oklch(0.75 0.1 330);
   --chart-11: oklch(0.75 0.1 340);
   --chart-12: oklch(0.75 0.1 350);
-  --chart-13: oklch(0.75 0.1 360); /* Rosso mattone chiaro */
+  --chart-13: oklch(0.75 0.1 360);
   --chart-14: oklch(0.75 0.1 10);
   --chart-15: oklch(0.75 0.1 15);
-  --chart-16: oklch(0.75 0.1 20); /* Salmone desaturo */
+  --chart-16: oklch(0.75 0.1 20);
   --chart-17: oklch(0.75 0.1 25);
   --chart-18: oklch(0.75 0.1 30);
   --chart-19: oklch(0.75 0.1 35);
   --chart-20: oklch(0.75 0.1 40);
 
-  /* Tier 2 - Più scuri (per dare contrasto), ma sempre desaturati */
   --chart-21: oklch(0.6 0.08 240);
   --chart-22: oklch(0.6 0.08 250);
   --chart-23: oklch(0.6 0.08 260);
@@ -266,7 +274,6 @@
   --chart-39: oklch(0.6 0.08 35);
   --chart-40: oklch(0.6 0.08 40);
 
-  /* Tier 3 - "Muted" (Molto vicini al grigio cromato, super aziendali) */
   --chart-41: oklch(0.68 0.05 240);
   --chart-42: oklch(0.68 0.05 250);
   --chart-43: oklch(0.68 0.05 260);
@@ -288,7 +295,6 @@
   --chart-59: oklch(0.68 0.05 35);
   --chart-60: oklch(0.68 0.05 40);
 
-  /* Tier 4 - Luminosi ma lattiginosi (Chiarissimi) */
   --chart-61: oklch(0.84 0.07 240);
   --chart-62: oklch(0.84 0.07 250);
   --chart-63: oklch(0.84 0.07 260);
@@ -310,7 +316,6 @@
   --chart-79: oklch(0.84 0.07 35);
   --chart-80: oklch(0.84 0.07 40);
 
-  /* Tier 5 - Più polverosi e caldi */
   --chart-81: oklch(0.7 0.06 240);
   --chart-82: oklch(0.7 0.06 250);
   --chart-83: oklch(0.7 0.06 260);
@@ -331,13 +336,6 @@
   --chart-98: oklch(0.7 0.06 30);
   --chart-99: oklch(0.7 0.06 35);
   --chart-100: oklch(0.7 0.06 40);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {

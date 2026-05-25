@@ -14,6 +14,7 @@ import { TagCarousel } from "@/components/TagCarousel/TagCarousel";
 import { GameGridCarousel } from "@/components/GameGridCarousel/GameGridCarousel";
 import { GameCard } from "@/components/GameCard/GameCard";
 import CollapsibleGameFilter from "@/components/CollapsibleGameFilter/CollapsibleGameFilter";
+import LightRaysBg from "@/components/LightRaysBg/LightRaysBg";
 
 export default function ExploreLayout({
   children,
@@ -21,11 +22,13 @@ export default function ExploreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-7xl flex-1 mx-auto p-4">
-      <div className="flex-1">
-        <CollapsibleGameFilter />
-        <div className="mt-6">{children}</div>
+    <LightRaysBg>
+      <div className="max-w-7xl flex-1 mx-auto pt-24">
+        <div className="flex-1">
+          <CollapsibleGameFilter />
+          <div className="mt-6">{children}</div>
+        </div>
       </div>
-    </div>
+    </LightRaysBg>
   );
 }

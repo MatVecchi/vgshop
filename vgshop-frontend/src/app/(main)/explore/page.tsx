@@ -1,6 +1,13 @@
 "use client";
 
-import { ListFilter, X } from "lucide-react";
+import {
+  Clock,
+  ListFilter,
+  SparkleIcon,
+  Sparkles,
+  Tags,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameSearch } from "@/components/GameSearch/GameSearch";
@@ -36,7 +43,9 @@ export default function Explore() {
   return (
     <div>
       <div>
-        <h2 className="uppercase text-2xl font-bold">I più popolari</h2>
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-50 mb-2">
+          <Sparkles className="h-5 w-5 text-primary" />I più popolari
+        </h2>
         <BigGameCarousel
           params={{
             games: newGames,
@@ -46,15 +55,19 @@ export default function Explore() {
         />
       </div>
 
-      <div className="my-8">
-        <h2 className="uppercase text-2xl font-bold">
-          Esplora le nostra categorie
+      <div className="my-15">
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-50 mb-2">
+          <Tags className="h-5 w-5 text-primary" />
+          Esplore le categorie
         </h2>
         <TagCarousel />
       </div>
 
-      <div className="my-6">
-        <h2 className="uppercase text-2xl font-bold">Uscite recenti</h2>
+      <div className="my-15">
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-50 mb-2">
+          <Clock className="h-5 w-5 text-primary" />
+          Ultime uscite
+        </h2>
         <GameGridCarousel
           params={{
             games: popularGames,

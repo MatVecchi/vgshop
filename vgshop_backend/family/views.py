@@ -59,7 +59,7 @@ class FamilyModelViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.
         game = get_object_or_404(Game, title=game_id)
         family_members = User.objects.filter(family=user.family).exclude(id=user.id)
         library = Library.objects.filter(user__in=family_members, game=game).first()
-        serializer = LibrarySerializer(library)
+        serializer = LibrarySerializer(library, context={"request":request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FamilyMemberModelViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):

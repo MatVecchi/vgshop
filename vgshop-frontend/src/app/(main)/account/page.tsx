@@ -44,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
 import { useSWRConfig } from "swr";
+import GrainientBg from "@/components/GrainientBg/GrainientBg";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -165,370 +166,379 @@ export default function Account() {
   if (!data) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-7xl flex-1 mx-auto p-4">
-      <div className="h-full flex flex-col">
-        <h2 className="uppercase text-4xl font-bold">Dettagli dell'account</h2>
-        <Tabs
-          className="mt-6 flex-1"
-          defaultValue="info"
-          orientation="vertical"
-        >
-          <TabsList className="h-auto! max-h-96">
-            <TabsTrigger className="hover:cursor-pointer" value="info">
-              <Info className="inline-block mr-2" />
-              Informazioni
-            </TabsTrigger>
-            <TabsTrigger className="hover:cursor-pointer" value="payments">
-              <CreditCard className="inline-block mr-2" />
-              Pagamenti
-            </TabsTrigger>
-            {!data.piva && (
-              <>
-                <TabsTrigger className="hover:cursor-pointer" value="orders">
-                  <Package className="inline-block mr-2" />
-                  Ordini
-                </TabsTrigger>
-                <TabsTrigger
-                  className="hover:cursor-pointer"
-                  value="my_reviews"
-                >
-                  <MessageCircle className="inline-block mr-2" />
-                  Miei commenti
-                </TabsTrigger>
-                <TabsTrigger className="hover:cursor-pointer" value="family">
-                  <Users className="inline-block mr-2" />
-                  Famiglia
-                </TabsTrigger>
-              </>
-            )}
-            <Button
-              className="mt-auto w-full hover:cursor-pointer"
-              variant="destructive"
-              onClick={handleLogout}
-            >
-              <LogOut className="inline-block mr-2" />
-              Logout
-            </Button>
-          </TabsList>
-          <TabsContent value="info" className="flex flex-col gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex justify-between">
-                  <div>
-                    <Info className="inline-block mr-2" />
-                    Informazioni dell'account
-                  </div>
-                  <div>
-                    {isEditing ? (
-                      <>
-                        <Button onClick={handleReset}> Annulla </Button>
-                        <Button onClick={handleConfirm}>
-                          {" "}
-                          {updateLoading ? <Spinner /> : "Conferma"}{" "}
+    <GrainientBg>
+      <div className="max-w-7xl flex-1 mx-auto p-4 pt-24">
+        <div className="h-full flex flex-col">
+          <h2 className="uppercase text-4xl font-bold">
+            Dettagli dell'account
+          </h2>
+          <Tabs
+            className="mt-6 flex-1"
+            defaultValue="info"
+            orientation="vertical"
+          >
+            <TabsList className="h-auto! max-h-96">
+              <TabsTrigger className="hover:cursor-pointer" value="info">
+                <Info className="inline-block mr-2" />
+                Informazioni
+              </TabsTrigger>
+              <TabsTrigger className="hover:cursor-pointer" value="payments">
+                <CreditCard className="inline-block mr-2" />
+                Pagamenti
+              </TabsTrigger>
+              {!data.piva && (
+                <>
+                  <TabsTrigger className="hover:cursor-pointer" value="orders">
+                    <Package className="inline-block mr-2" />
+                    Ordini
+                  </TabsTrigger>
+                  <TabsTrigger
+                    className="hover:cursor-pointer"
+                    value="my_reviews"
+                  >
+                    <MessageCircle className="inline-block mr-2" />
+                    Miei commenti
+                  </TabsTrigger>
+                  <TabsTrigger className="hover:cursor-pointer" value="family">
+                    <Users className="inline-block mr-2" />
+                    Famiglia
+                  </TabsTrigger>
+                </>
+              )}
+              <Button
+                className="mt-auto w-full hover:cursor-pointer"
+                variant="destructive"
+                onClick={handleLogout}
+              >
+                <LogOut className="inline-block mr-2" />
+                Logout
+              </Button>
+            </TabsList>
+            <TabsContent value="info" className="flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex justify-between">
+                    <div>
+                      <Info className="inline-block mr-2" />
+                      Informazioni dell'account
+                    </div>
+                    <div>
+                      {isEditing ? (
+                        <>
+                          <Button onClick={handleReset}> Annulla </Button>
+                          <Button onClick={handleConfirm}>
+                            {" "}
+                            {updateLoading ? <Spinner /> : "Conferma"}{" "}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button onClick={handleEdit}>
+                          <PenIcon />
                         </Button>
-                      </>
-                    ) : (
-                      <Button onClick={handleEdit}>
-                        <PenIcon />
-                      </Button>
-                    )}
-                  </div>
-                </CardTitle>
-                <CardDescription>
-                  Dati personali e dettagli dell'account dell'utente
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
-                  <div className="flex flex-col items-center text-center bg-muted/30 p-4 rounded-xl border">
-                    <Field className="flex flex-col items-center w-full">
-                      <Label htmlFor="profile_image" className="group relative">
-                        <div className="w-28! h-28! mx-auto aspect-square! rounded-full overflow-hidden border-2 border-primary/20 bg-background flex items-center justify-center shadow-sm shrink-0 relative">
-                          {previewUrl ? (
-                            <Image
-                              fill
-                              src={previewUrl}
-                              alt="Nuovo Avatar"
-                              className="object-cover"
-                            />
-                          ) : data?.profile_image ? (
-                            <Image
-                              fill
-                              src={data.profile_image}
-                              alt="Avatar Corrente"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <User className="w-12 h-12 text-muted-foreground" />
-                          )}
+                      )}
+                    </div>
+                  </CardTitle>
+                  <CardDescription>
+                    Dati personali e dettagli dell'account dell'utente
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+                    <div className="flex flex-col items-center text-center bg-muted/30 p-4 rounded-xl border">
+                      <Field className="flex flex-col items-center w-full">
+                        <Label
+                          htmlFor="profile_image"
+                          className="group relative"
+                        >
+                          <div className="w-28! h-28! mx-auto aspect-square! rounded-full overflow-hidden border-2 border-primary/20 bg-background flex items-center justify-center shadow-sm shrink-0 relative">
+                            {previewUrl ? (
+                              <Image
+                                fill
+                                src={previewUrl}
+                                alt="Nuovo Avatar"
+                                className="object-cover"
+                              />
+                            ) : data?.profile_image ? (
+                              <Image
+                                fill
+                                src={data.profile_image}
+                                alt="Avatar Corrente"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <User className="w-12 h-12 text-muted-foreground" />
+                            )}
 
-                          {isEditing && (
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <span className="text-[10px] text-white font-medium uppercase tracking-wider text-center px-1">
-                                Cambia
-                                <br />
-                                Foto
-                              </span>
-                            </div>
-                          )}
+                            {isEditing && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <span className="text-[10px] text-white font-medium uppercase tracking-wider text-center px-1">
+                                  Cambia
+                                  <br />
+                                  Foto
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </Label>
+
+                        {isEditing && (
+                          <input
+                            id="profile_image"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              setImage(file);
+                            }}
+                          />
+                        )}
+                      </Field>
+
+                      <div className="mt-4 w-full">
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">
+                          Username
                         </div>
-                      </Label>
-
-                      {isEditing && (
-                        <input
-                          id="profile_image"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0] || null;
-                            setImage(file);
-                          }}
-                        />
-                      )}
-                    </Field>
-
-                    <div className="mt-4 w-full">
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">
-                        Username
+                        {isEditing ? (
+                          <Input
+                            type="text"
+                            className="text-center"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                          />
+                        ) : (
+                          <span className="font-mono font-bold text-lg text-card-foreground">
+                            @{username}
+                          </span>
+                        )}
+                        {errorMessage.username && (
+                          <p className="text-xs text-red-500 mt-1">
+                            {errorMessage.username[0]}
+                          </p>
+                        )}
                       </div>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          className="text-center"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                        />
-                      ) : (
-                        <span className="font-mono font-bold text-lg text-card-foreground">
-                          @{username}
+                    </div>
+
+                    <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-card p-2">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                          <NotebookPen className="w-4 h-4" /> Nome
                         </span>
-                      )}
-                      {errorMessage.username && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errorMessage.username[0]}
-                        </p>
-                      )}
+                        {isEditing ? (
+                          <Input
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                          />
+                        ) : (
+                          <p className="text-base font-semibold border-b pb-1 pl-1">
+                            {firstName || "—"}
+                          </p>
+                        )}
+                        {errorMessage.first_name && (
+                          <p className="text-xs text-red-500">
+                            {errorMessage.first_name[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                          <NotebookPen className="w-4 h-4" /> Cognome
+                        </span>
+                        {isEditing ? (
+                          <Input
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                          />
+                        ) : (
+                          <p className="text-base font-semibold border-b pb-1 pl-1">
+                            {lastName || "—"}
+                          </p>
+                        )}
+                        {errorMessage.last_name && (
+                          <p className="text-xs text-red-500">
+                            {errorMessage.last_name[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
+                        <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                          <Mail className="w-4 h-4" /> Email
+                        </span>
+                        {isEditing ? (
+                          <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                        ) : (
+                          <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
+                            {email}
+                          </p>
+                        )}
+                        {errorMessage.email && (
+                          <p className="text-xs text-red-500">
+                            {errorMessage.email[0]}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-card p-2">
-                    <div className="flex flex-col gap-1.5">
+                </CardContent>
+              </Card>
+              {data.piva ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <Megaphone className="inline-block mr-2" />
+                      Informazioni Publisher
+                    </CardTitle>
+                    <CardDescription>
+                      Informazioni riservate agli account publisher
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
                       <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                        <NotebookPen className="w-4 h-4" /> Nome
+                        <Building className="w-4 h-4" /> Partita IVA
                       </span>
                       {isEditing ? (
                         <Input
                           type="text"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
+                          value={piva}
+                          onChange={(e) => setPiva(e.target.value)}
                         />
                       ) : (
-                        <p className="text-base font-semibold border-b pb-1 pl-1">
-                          {firstName || "—"}
+                        <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
+                          {piva}
                         </p>
                       )}
-                      {errorMessage.first_name && (
+                      {errorMessage.piva && (
                         <p className="text-xs text-red-500">
-                          {errorMessage.first_name[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                        <NotebookPen className="w-4 h-4" /> Cognome
-                      </span>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                        />
-                      ) : (
-                        <p className="text-base font-semibold border-b pb-1 pl-1">
-                          {lastName || "—"}
-                        </p>
-                      )}
-                      {errorMessage.last_name && (
-                        <p className="text-xs text-red-500">
-                          {errorMessage.last_name[0]}
+                          {errorMessage.piva[0]}
                         </p>
                       )}
                     </div>
 
                     <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
                       <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                        <Mail className="w-4 h-4" /> Email
+                        <Globe className="w-4 h-4" /> Sito Web
                       </span>
                       {isEditing ? (
                         <Input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          type="url"
+                          value={website}
+                          onChange={(e) => setWebsite(e.target.value)}
                         />
                       ) : (
-                        <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
-                          {email}
-                        </p>
+                        <Button
+                          className="text-base font-semibold border-b pb-1 pl-1 text-primary justify-start w-full h-auto"
+                          variant="link"
+                          asChild
+                        >
+                          <Link href={data?.website || ""} target="_blank">
+                            {data?.website || "Non impostato"}
+                          </Link>
+                        </Button>
                       )}
-                      {errorMessage.email && (
-                        <p className="text-xs text-red-500">
-                          {errorMessage.email[0]}
+                      {errorMessage.website && (
+                        <p className="text-sm text-red-500 text-destructive-foreground">
+                          {errorMessage.website[0]}
                         </p>
                       )}
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {data.piva ? (
+                  </CardContent>
+                </Card>
+              ) : (
+                <></>
+              )}
+            </TabsContent>
+            <TabsContent value="payments" className="flex flex-col gap-4">
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    <Megaphone className="inline-block mr-2" />
-                    Informazioni Publisher
+                    <Landmark className="inline-block mr-2" />
+                    Saldo VGSHOP
                   </CardTitle>
                   <CardDescription>
-                    Informazioni riservate agli account publisher
+                    Gestisci il tuo saldo VGSHOP
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
-                    <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                      <Building className="w-4 h-4" /> Partita IVA
-                    </span>
-                    {isEditing ? (
-                      <Input
-                        type="text"
-                        value={piva}
-                        onChange={(e) => setPiva(e.target.value)}
-                      />
-                    ) : (
-                      <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
-                        {piva}
-                      </p>
-                    )}
-                    {errorMessage.piva && (
-                      <p className="text-xs text-red-500">
-                        {errorMessage.piva[0]}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
-                    <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                      <Globe className="w-4 h-4" /> Sito Web
-                    </span>
-                    {isEditing ? (
-                      <Input
-                        type="url"
-                        value={website}
-                        onChange={(e) => setWebsite(e.target.value)}
-                      />
-                    ) : (
-                      <Button
-                        className="text-base font-semibold border-b pb-1 pl-1 text-primary justify-start w-full h-auto"
-                        variant="link"
-                        asChild
-                      >
-                        <Link href={data?.website || ""} target="_blank">
-                          {data?.website || "Non impostato"}
-                        </Link>
-                      </Button>
-                    )}
-                    {errorMessage.website && (
-                      <p className="text-sm text-red-500 text-destructive-foreground">
-                        {errorMessage.website[0]}
-                      </p>
-                    )}
+                <CardContent className="flex">
+                  <p className="text-5xl font-medium">
+                    {creditValue?.credit.toFixed(2) || "0.00"} €
+                  </p>
+                  <div className="ml-auto flex flex-col gap-2">
+                    <DepositDialog />
+                    <TransactionList />
                   </div>
                 </CardContent>
               </Card>
-            ) : (
-              <></>
-            )}
-          </TabsContent>
-          <TabsContent value="payments" className="flex flex-col gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Landmark className="inline-block mr-2" />
-                  Saldo VGSHOP
-                </CardTitle>
-                <CardDescription>Gestisci il tuo saldo VGSHOP</CardDescription>
-              </CardHeader>
-              <CardContent className="flex">
-                <p className="text-5xl font-medium">
-                  {creditValue?.credit.toFixed(2) || "0.00"} €
-                </p>
-                <div className="ml-auto flex flex-col gap-2">
-                  <DepositDialog />
-                  <TransactionList />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex flex-row justify-between">
-                  <div>
-                    <CreditCard className="inline-block mr-2 " />
-                    Metodi di pagamento
-                  </div>
-                  <CreditCardRegister />
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i tuoi metodi di pagamento
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <CreditCardList />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          {!data.piva && (
-            <>
-              <TabsContent value="orders">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      <Package className="inline-block mr-2" />
-                      Ordini
-                    </CardTitle>
-                    <CardDescription>
-                      Visualizza e gestisci i tuoi ordini
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <OrderList />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="my_reviews">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      <MessageCircle className="inline-block mr-2" />
-                      Miei commenti
-                    </CardTitle>
-                    <CardDescription>
-                      Visualizza e gestisci i tuoi ordini
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6 h-150">
-                      <ReviewList url={`/my_reviews/`} mine={true} />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex flex-row justify-between">
+                    <div>
+                      <CreditCard className="inline-block mr-2 " />
+                      Metodi di pagamento
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="family" className="flex flex-col gap-4">
-                <FamilyTab />
-              </TabsContent>
-            </>
-          )}
-        </Tabs>
+                    <CreditCardRegister />
+                  </CardTitle>
+                  <CardDescription>
+                    Gestisci i tuoi metodi di pagamento
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CreditCardList />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            {!data.piva && (
+              <>
+                <TabsContent value="orders">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>
+                        <Package className="inline-block mr-2" />
+                        Ordini
+                      </CardTitle>
+                      <CardDescription>
+                        Visualizza e gestisci i tuoi ordini
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <OrderList />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="my_reviews">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>
+                        <MessageCircle className="inline-block mr-2" />
+                        Miei commenti
+                      </CardTitle>
+                      <CardDescription>
+                        Visualizza e gestisci i tuoi ordini
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6 h-150">
+                        <ReviewList url={`/my_reviews/`} mine={true} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="family" className="flex flex-col gap-4">
+                  <FamilyTab />
+                </TabsContent>
+              </>
+            )}
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </GrainientBg>
   );
 }

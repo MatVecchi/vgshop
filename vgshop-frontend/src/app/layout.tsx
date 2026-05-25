@@ -42,7 +42,7 @@ export default function RootLayout({
         inter.variable,
       )}
     >
-      <body className="min-h-full flex flex-col bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+      <body className="min-h-full flex flex-col bg-white dark:bg-slate-950 text-zinc-900 dark:text-zinc-100">
         <Toaster position="top-center" richColors />
         <TooltipProvider>
           <SWRProvider>{children}</SWRProvider>

@@ -42,16 +42,16 @@ export function GameGridCarousel({ params }: Props) {
   const itemsToProcess = params.games ?? [];
   const chunkedItems = [];
 
-  for (let i = 0; i < itemsToProcess.length; i += 12) {
-    chunkedItems.push(itemsToProcess.slice(i, i + 12));
+  for (let i = 0; i < itemsToProcess.length; i += 15) {
+    chunkedItems.push(itemsToProcess.slice(i, i + 15));
   }
 
   return (
-    <Carousel style={{ width: "90%", margin: "0 auto" }}>
+    <Carousel style={{ width: "100%", margin: "0 auto" }}>
       <CarouselContent>
         {chunkedItems.map((group, index) => (
           <CarouselItem key={index}>
-            <div className="grid grid-cols-4 grid-rows-2 gap-2 gap-y-3 p-4">
+            <div className="grid grid-cols-5 grid-rows-2 gap-2 gap-y-3 p-4">
               {group.map((game) => (
                 <GameCard key={game.id} params={{ game }} />
               ))}

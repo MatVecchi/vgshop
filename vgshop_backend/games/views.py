@@ -10,6 +10,7 @@ from .serializers import (
     GamePieChartSerializer,
     GameChartSerializer,
     GameAreaChartSerializer,
+    GameUpdateSerializer,
 )
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
@@ -40,7 +41,7 @@ class GameFilters(django_filters.FilterSet):
 
 
 class CataloguePaginator(PageNumberPagination):
-    page_size = 12
+    page_size = 15
 
 
 class GameModelViewSet(viewsets.ModelViewSet):
@@ -49,6 +50,14 @@ class GameModelViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Game.objects.all()
+
+    # definisce il serializer in base all'utente che accede all'endpoint
+    def get_serializer_class(self):
+        if self.action in ["create"]:
+            return GameRegisterSerializer
+        elif self.action in ["partial_update", "update"]:
+            return GameUpdateSerializer
+        return GameSerializer
 
     def get_permissions(self):
         if self.action in ["list", "retrieve", "tag_list", "recent"]:
@@ -80,6 +89,15 @@ class GameModelViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = CataloguePaginator
 
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @action(detail=True, methods=["GET"], url_path="publisher_detail")
+    def publisher_detail(self, request, title=None):
+        game = self.get_object()
+        serializer = GameUpdateSerializer(game, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=["GET"])
     def recent(self, request):
         tag = request.GET.get("tag_list", None)
@@ -97,12 +115,6 @@ class GameModelViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(games, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # definisce il serializer in base all'utente che accede all'endpoint
-    def get_serializer_class(self):
-        if self.action in ["create", "partial_update", "update"]:
-            return GameRegisterSerializer
-        return GameSerializer
 
     @action(detail=False, methods=["GET"])
     def tag_list(self, request):

@@ -109,7 +109,7 @@ export function BigGameCarousel({ params }: Props) {
                         />
                       </div>
 
-                      <div className="w-1/4 flex flex-col bg-zinc-900 border-l border-zinc-800 overflow-hidden">
+                      <div className="w-1/4 flex flex-col  border-l border-zinc-800 overflow-hidden">
                         <div className="relative w-full aspect-video flex-shrink-0">
                           <Image
                             src={game.images[0]?.image || game.cover}

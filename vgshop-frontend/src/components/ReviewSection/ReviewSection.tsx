@@ -16,7 +16,7 @@ import { VirtuosoGrid } from "react-virtuoso";
 import { Card, CardContent, CardDescription, CardHeader } from "../ui/card";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Star, MessageSquare, Send, User } from "lucide-react";
+import { Star, MessageSquare, Send, User, MessageCircle } from "lucide-react";
 import { Field } from "../ui/field";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -193,9 +193,9 @@ export default function ReviewSection({ params }: Prop) {
       )}
 
       <div className="space-y-6">
-        <h1 className="text-2xl font-medium  uppercase tracking-wider">
-          Commenti della community
-        </h1>
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+          <MessageCircle /> Commenti della community{" "}
+        </h2>
 
         <ReviewList
           url={`/reviews/${params.gameTitle}/`}

@@ -34,7 +34,7 @@ export default function GameList({ params }: Props) {
     { keepPreviousData: true },
   );
 
-  const totalPages = data ? Math.ceil(data.count / 12) : 0;
+  const totalPages = data ? Math.ceil(data.count / 15) : 0;
 
   if (error)
     return (
@@ -60,12 +60,12 @@ export default function GameList({ params }: Props) {
   console.log(currentGames);
 
   return (
-    <div className="space-y-8" style={{ width: "90%", margin: "auto" }}>
+    <div className="space-y-8" style={{ width: "100%", margin: "auto" }}>
       {isLoading ? (
         <Spinner />
       ) : (
-        <div className="grid grid-cols-4 gap-6">
-          {currentGames.slice(0, 12).map((game) => (
+        <div className="grid grid-cols-5 gap-6">
+          {currentGames.slice(0, 15).map((game) => (
             <GameCard key={game.id} params={{ game }} />
           ))}
         </div>

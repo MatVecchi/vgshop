@@ -53,6 +53,7 @@ export interface Game {
   images: GameImage[];
   cover: string;
   stars: number;
+  is_owner: boolean;
 }
 
 export default function GameAddModal() {

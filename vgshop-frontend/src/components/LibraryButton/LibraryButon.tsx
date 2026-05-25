@@ -21,7 +21,12 @@ export default function LibraryButton() {
   const title = titles?.titles ? titles.titles[0] : null;
   return (
     <>
-      <Link href={`/library/${title}`}>Libreria</Link>
+      <Link
+        href={`/library/${title}`}
+        className="hover:text-white transition-colors"
+      >
+        Libreria
+      </Link>
     </>
   );
 }

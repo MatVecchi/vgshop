@@ -48,21 +48,23 @@ export function CartShowDialog() {
         <DialogHeader>
           <DialogTitle className="text-3xl p-2 flex items-center gap-2">
             {" "}
-            <ShoppingCart /> Il tuo carrello{" "}
+            <ShoppingCart /> Il tuo carrello
           </DialogTitle>
-          <CartInfiniteScroller />
-
-          {!isCartEmpty && (
-            <DialogClose asChild className="flex items-center justify-between">
-              <Link href="/payments/shopping_cart/">
-                <Button className="group transition-all hover:scale-105 shadow-lg shadow-primary/20 mt-3">
-                  <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
-                  Checkout
-                </Button>
-              </Link>
-            </DialogClose>
-          )}
+          <Separator className="mt-2" />
         </DialogHeader>
+
+        <CartInfiniteScroller />
+
+        {!isCartEmpty && (
+          <DialogClose asChild className="flex items-center justify-between">
+            <Link href="/payments/shopping_cart/">
+              <Button className="group transition-all hover:scale-105 shadow-lg shadow-primary/20 mt-3">
+                <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
+                Checkout
+              </Button>
+            </Link>
+          </DialogClose>
+        )}
       </DialogContent>
     </Dialog>
   );

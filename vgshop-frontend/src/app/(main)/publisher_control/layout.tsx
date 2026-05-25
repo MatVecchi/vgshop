@@ -1,8 +1,8 @@
-import { LibrarySidebar } from "@/components/LibrarySidebar/LibrarySidebar";
+import { PublisherGameSidebar } from "@/components/PublisherGameSideBar/PublisherGameSideBar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export default function LibraryLayout({
+export default function PublisherControlLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -10,9 +10,9 @@ export default function LibraryLayout({
   return (
     <TooltipProvider>
       <SidebarProvider defaultOpen={false}>
-        <LibrarySidebar />
+        <PublisherGameSidebar />
 
-        <header className="flex items-center h-14 px-4  shrink-0 pt-26">
+        <header className="flex items-center h-14 px-4  shrink-0 pt-28">
           <SidebarTrigger />
         </header>
 

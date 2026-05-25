@@ -30,14 +30,14 @@ interface Props {
   params: Promise<{ title: string }>;
 }
 
-export default function Library({ params }: Props) {
+export default function PublisherControl({ params }: Props) {
   const title = use(params).title;
 
   const {
     data: gameData,
     error: gameError,
     isLoading: gameIsLoading,
-  } = useSWR(title ? `/library/${title}` : null);
+  } = useSWR(title ? `/games/catalogue/${title}/publisher_detail/` : null);
 
   if (gameIsLoading) return <Spinner />;
   if (!title || gameError || !gameData) {
@@ -48,10 +48,9 @@ export default function Library({ params }: Props) {
           <div className="flex-1">
             <Empty>
               <EmptyHeader>
-                <EmptyTitle>Non hai nessun gioco nella tua libreria</EmptyTitle>
+                <EmptyTitle>Non hai nessun gioco pubblicato</EmptyTitle>
                 <EmptyDescription>
-                  Acquista un gioco per vederlo qui. Visita il nostro catalogo
-                  per scoprire i giochi disponibili.
+                  Pubblica un gioco per poterlo modificare in questa sezione !
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent className="flex-row justify-center gap-2">
@@ -71,10 +70,10 @@ export default function Library({ params }: Props) {
       <div className="max-w-full flex-1 mx-0 p-0">
         <GameInfo
           params={{
-            game: gameData.game,
+            game: gameData,
             error: gameError,
             isLoading: gameIsLoading,
-            fromPanel:false
+            fromPanel: true,
           }}
         />
       </div>
