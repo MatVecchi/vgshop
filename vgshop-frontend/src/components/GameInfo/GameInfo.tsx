@@ -126,6 +126,116 @@ export default function GameInfo({ params }: Props) {
       : null,
   );
 
+  const {
+    data: tagList,
+    error: errorTaglist,
+    isLoading: isTagListLoading,
+  } = useSWR(canEdit && "/games/catalogue/tag_list/");
+
+  const handleEdit = () => {
+    if (canEdit) {
+      setIsEditing(true);
+    }
+  };
+
+  const setStateToData = (game: Game) => {
+    setEditTitle(game.title);
+    setEditPrice(game.price);
+    setEditReleaseDate(new Date(game.release_date));
+    setEditDescription(game.description);
+    setEditSelectedTags(game.tag_list.map((tag) => tag.name));
+    setEditVideo(game.video);
+
+    if (game.images) {
+      const existingImages = game.images.map(
+        (img: { id: number; image: string }) => ({
+          id: img.id,
+          preview: img.image,
+        }),
+      );
+      setIEditmages(existingImages);
+    }
+
+    if (game.cover) {
+      setEditCover({ file: null, preview: game.cover });
+    }
+  };
+
+  useEffect(() => {
+    if (canEdit) {
+      setStateToData(game);
+    }
+  }, [game, canEdit]);
+
+  const handleResetEdit = () => {
+    if (canEdit) {
+      setStateToData(game);
+      setIsEditing(false);
+      setErrorMessageEdit({});
+    }
+  };
+
+  const handleUpdate = async (e: any) => {
+    e.preventDefault();
+    setSubmitLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", editTitle);
+      formData.append("price", editPrice.toString());
+      formData.append("description", editDescription);
+      formData.append("video", editVideo);
+      formData.append(
+        "release_date",
+        editReleaseDate ? format(editReleaseDate, "yyyy-MM-dd") : "",
+      );
+
+      editSelectedTags.forEach((tag) => formData.append("tag_list", tag));
+
+      if (editCover?.file) {
+        formData.append("cover", editCover.file);
+      }
+
+      if (editImages.length > 0) {
+        editImages.forEach((img) => {
+          if (img.file) {
+            formData.append("uploaded_images", img.file);
+          } else if (img.preview) {
+            const fileName = img.preview.includes("/media/")
+              ? img.preview.split("/media/")[1]
+              : img.preview;
+
+            if (fileName) {
+              formData.append("keep_images", fileName);
+            }
+          }
+        });
+      }
+      const response = await api.patch(
+        `games/catalogue/${game.title}/`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+
+      toast.success("Gioco Modificato con successo !");
+      window.location.href = `/publisher_control/${editTitle}`;
+      setIsEditing(false);
+    } catch (e: any) {
+      if (e.response && e.response.data) {
+        if (e.response.data.message) {
+          toast.error(e.response.data.message[0]);
+        } else {
+          setErrorMessageEdit(e.response.data);
+        }
+      } else {
+        toast.error("Errore nella modifica dei dati! riprova");
+      }
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
   if (isLoading) return <Spinner />;
   if (error)
     return (
@@ -384,142 +494,167 @@ export default function GameInfo({ params }: Props) {
 
       <div className="max-w-7xl mx-auto px-6 py-12 ">
         <div className="flex flex-row gap-10">
-          <Carousel className="w-full max-w-[60%] mx-auto">
-            <CarouselContent>
-              <CarouselItem>
-                <div className="p-3">
-                  <Card className="overflow-hidden border-none p-0">
-                    <CardContent className="relative aspect-video p-0 bg-muted flex flex-col items-center justify-center">
-                      {isEditing ? (
-                        <div className="group-hover:ring-2 group-hover:ring-white group-hover:ring-inset w-full h-full p-6 flex flex-col justify-center items-center gap-4 bg-background border-2 border-dashed border-border rounded-xl">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            Link Video YouTube (Trailer)
-                          </span>
-                          <input
-                            type="text"
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            value={editVideo}
-                            onChange={(e) => setEditVideo(e.target.value)}
-                            className="w-full max-w-md px-3 py-2 text-sm border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                          />
-                          {editVideo && (
-                            <p className="text-xs text-muted-foreground truncate max-w-xs">
-                              Anteprima pronta per il salvataggio
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        game.video && (
-                          <iframe
-                            src={getYouTubeEmbedUrl(game.video, origin)}
-                            title={`Trailer di ${game.title}`}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-full absolute inset-0"
-                          />
-                        )
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-                <ErrorMessage message={errorMessageEdit.video} />
-              </CarouselItem>
-
-              {isEditing
-                ? editImages.map((img, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <Card className="overflow-hidden border-none p-0 group relative">
-                          <CardContent className="shadow-none border-primary/30! hover:border-primary/60! transition-colors relative aspect-video p-0 flex items-center justify-center bg-background">
-                            <Image
-                              src={img.preview}
-                              alt={`Anteprima galleria ${index}`}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIEditmages(
-                                  editImages.filter((_, i) => i !== index),
-                                );
-                              }}
-                              className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:scale-105"
-                              title="Elimina immagine"
-                            >
-                              <X />
-                            </button>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CarouselItem>
-                  ))
-                : game.images?.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <Card className="overflow-hidden border-none p-0">
-                          <CardContent className="relative aspect-video p-0 flex items-center justify-center">
-                            <Image
-                              src={image?.image || game.cover}
-                              alt={`Galleria ${index}`}
-                              fill
-                              priority
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CarouselItem>
-                  ))}
-
-              {isEditing && (
+          <div className="w-full max-w-[60%]">
+            <Carousel className="w-full mx-auto">
+              <CarouselContent>
                 <CarouselItem>
-                  <div className="p-1">
-                    <label
-                      htmlFor="gallery_add_image"
-                      className="cursor-pointer block"
-                    >
-                      <Card className="group-hover:ring-2 shadow-none!  overflow-hidden border-2 border-dashed! border-primary/30! hover:border-primary/60! transition-colors duration-200 p-0">
-                        <CardContent className="relative aspect-video p-0 flex flex-col items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground">
-                          <PlusCircleIcon />
-                          <span className="text-xs font-semibold uppercase tracking-wider">
-                            Aggiungi Immagine
-                          </span>
-                        </CardContent>
-                      </Card>
-                    </label>
-                    <input
-                      id="gallery_add_image"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setIEditmages([
-                            ...editImages,
-                            {
-                              file: file,
-                              preview: URL.createObjectURL(file),
-                            },
-                          ]);
-                        }
-                      }}
-                    />
+                  <div className="p-3">
+                    <Card className="overflow-hidden border-none p-0">
+                      <CardContent className="relative aspect-video p-0 bg-muted flex flex-col items-center justify-center">
+                        {isEditing ? (
+                          <div className="group-hover:ring-2 group-hover:ring-white group-hover:ring-inset w-full h-full p-6 flex flex-col justify-center items-center gap-4 bg-background border-2 border-dashed border-border rounded-xl">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              Link Video YouTube (Trailer)
+                            </span>
+                            <input
+                              type="text"
+                              placeholder="https://www.youtube.com/watch?v=..."
+                              value={editVideo}
+                              onChange={(e) => setEditVideo(e.target.value)}
+                              className="w-full max-w-md px-3 py-2 text-sm border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            {editVideo && (
+                              <p className="text-xs text-muted-foreground truncate max-w-xs">
+                                Anteprima pronta per il salvataggio
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          game.video && (
+                            <iframe
+                              src={getYouTubeEmbedUrl(game.video, origin)}
+                              title={`Trailer di ${game.title}`}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full h-full absolute inset-0"
+                            />
+                          )
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
+                  <ErrorMessage message={errorMessageEdit.video} />
                 </CarouselItem>
-              )}
-            </CarouselContent>
-            <ErrorMessage message={errorMessageEdit.images} />
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
 
-          <Card className="w-full max-w-[30%] ">
-            <CardHeader>
+                {isEditing
+                  ? editImages.map((img, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1">
+                          <Card className="overflow-hidden border-none p-0 group relative">
+                            <CardContent className="shadow-none border-primary/30! hover:border-primary/60! transition-colors relative aspect-video p-0 flex items-center justify-center bg-background">
+                              <Image
+                                src={img.preview}
+                                alt={`Anteprima galleria ${index}`}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIEditmages(
+                                    editImages.filter((_, i) => i !== index),
+                                  );
+                                }}
+                                className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:scale-105"
+                                title="Elimina immagine"
+                              >
+                                <X />
+                              </button>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))
+                  : game.images?.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1">
+                          <Card className="overflow-hidden border-none p-0">
+                            <CardContent className="relative aspect-video p-0 flex items-center justify-center">
+                              <Image
+                                src={image?.image || game.cover}
+                                alt={`Galleria ${index}`}
+                                fill
+                                priority
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              />
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))}
+
+                {isEditing && (
+                  <CarouselItem>
+                    <div className="p-1">
+                      <label
+                        htmlFor="gallery_add_image"
+                        className="cursor-pointer block"
+                      >
+                        <Card className="group-hover:ring-2 shadow-none!  overflow-hidden border-2 border-dashed! border-primary/30! hover:border-primary/60! transition-colors duration-200 p-0">
+                          <CardContent className="relative aspect-video p-0 flex flex-col items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground">
+                            <PlusCircleIcon />
+                            <span className="text-xs font-semibold uppercase tracking-wider">
+                              Aggiungi Immagine
+                            </span>
+                          </CardContent>
+                        </Card>
+                      </label>
+                      <input
+                        id="gallery_add_image"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setIEditmages([
+                              ...editImages,
+                              {
+                                file: file,
+                                preview: URL.createObjectURL(file),
+                              },
+                            ]);
+                          }
+                        }}
+                      />
+                    </div>
+                  </CarouselItem>
+                )}
+              </CarouselContent>
+              <ErrorMessage message={errorMessageEdit.images} />
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+            <div className="mt-10">
+              <div className="flex gap-5">
+                <Notebook className="w-4 h-4 text-primary" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
+                  Descrizione
+                </h2>
+              </div>
+              <ErrorMessage message={errorMessageEdit.description} />
+            </div>
+            <div className="mt-3">
+              {isEditing ? (
+                <Textarea
+                  name="description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Descrizione ..."
+                />
+              ) : (
+                <>
+                  <p> {game.description} </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <Card className="w-full max-w-[30%] flex flex-col">
+            <CardHeader className="flex flex-col flex-grow">
               <div className="flex gap-5 items-center">
                 <Gamepad2 />
 
@@ -541,7 +676,7 @@ export default function GameInfo({ params }: Props) {
               </div>
               <ErrorMessage message={errorMessageEdit.title} />
               <Separator />
-              <CardContent>
+              <CardContent className="flex flex-col flex-grow">
                 <div className="my-4">
                   <div className="flex gap-5 items-center mb-3">
                     <TagIcon className="w-4 h-4 text-primary" />
@@ -593,29 +728,6 @@ export default function GameInfo({ params }: Props) {
                     )}
                   </div>
                   <ErrorMessage message={errorMessageEdit.tag_list} />
-                </div>
-                <div className="my-5">
-                  <div className="flex gap-5">
-                    <Notebook className="w-4 h-4 text-primary" />
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-                      Descrizione
-                    </h2>
-                  </div>
-                  <div className="mt-3">
-                    {isEditing ? (
-                      <Textarea
-                        name="description"
-                        value={editDescription}
-                        onChange={(e) => setEditDescription(e.target.value)}
-                        placeholder="Descrizione ..."
-                      />
-                    ) : (
-                      <>
-                        <p> {game.description} </p>
-                      </>
-                    )}
-                  </div>
-                  <ErrorMessage message={errorMessageEdit.description} />
                 </div>
 
                 {isEditing ? (
@@ -711,23 +823,25 @@ export default function GameInfo({ params }: Props) {
                   <p> {game.publisher} </p>
                 </div>
 
-                <Separator className="opacity-80 my-1" />
+                <div className="mt-auto">
+                  <Separator className="opacity-80 my-1" />
 
-                <div className="my-5 flex items-center justify-between bg-muted/40 p-3 rounded-2xl border border-border/50 shadow-inner">
-                  <div className="flex gap-5">
-                    <h1 className="text-xl md:text-xl font-black text-foreground drop-shadow-lg">
-                      {game.stars === 0 ? "NR" : game.stars}
-                    </h1>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${
-                          i + 1 <= game.stars
-                            ? "fill-violet-500 text-violet-500"
-                            : "text-slate-300 dark:text-zinc-700"
-                        }`}
-                      />
-                    ))}
+                  <div className="my-5 flex items-center justify-between bg-muted/40 p-3 rounded-2xl border border-border/50 shadow-inner">
+                    <div className="flex gap-5">
+                      <h1 className="text-xl md:text-xl font-black text-foreground drop-shadow-lg">
+                        {game.stars === 0 ? "NR" : game.stars}
+                      </h1>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${
+                            i + 1 <= game.stars
+                              ? "fill-violet-500 text-violet-500"
+                              : "text-slate-300 dark:text-zinc-700"
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
