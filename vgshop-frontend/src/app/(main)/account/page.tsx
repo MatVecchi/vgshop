@@ -31,6 +31,8 @@ import {
   Users,
   MessageCircle,
   PenIcon,
+  Key,
+  LockKeyhole,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
 import CreditCardList from "@/components/CreditCardList/CreditCardList";
@@ -181,6 +183,10 @@ export default function Account() {
               <TabsTrigger className="hover:cursor-pointer" value="info">
                 <Info className="inline-block mr-2" />
                 Informazioni
+              </TabsTrigger>
+              <TabsTrigger className="hover:cursor-pointer" value="security">
+                <LockKeyhole className="inline-block mr-2" />
+                Sicurezza
               </TabsTrigger>
               <TabsTrigger className="hover:cursor-pointer" value="payments">
                 <CreditCard className="inline-block mr-2" />
@@ -456,6 +462,89 @@ export default function Account() {
                 <></>
               )}
             </TabsContent>
+            <TabsContent value="security" className="flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex justify-between">
+                    <div>
+                      <LockKeyhole className="inline-block mr-2" />
+                      Sicurezza
+                    </div>
+                  </CardTitle>
+                  <CardDescription>
+                    Modifica la password e le impostazioni di sicurezza
+                    dell'account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-6"></CardContent>
+              </Card>
+              {data.piva ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <Megaphone className="inline-block mr-2" />
+                      Informazioni Publisher
+                    </CardTitle>
+                    <CardDescription>
+                      Informazioni riservate agli account publisher
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
+                      <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                        <Building className="w-4 h-4" /> Partita IVA
+                      </span>
+                      {isEditing ? (
+                        <Input
+                          type="text"
+                          value={piva}
+                          onChange={(e) => setPiva(e.target.value)}
+                        />
+                      ) : (
+                        <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
+                          {piva}
+                        </p>
+                      )}
+                      {errorMessage.piva && (
+                        <p className="text-xs text-red-500">
+                          {errorMessage.piva[0]}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
+                      <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                        <Globe className="w-4 h-4" /> Sito Web
+                      </span>
+                      {isEditing ? (
+                        <Input
+                          type="url"
+                          value={website}
+                          onChange={(e) => setWebsite(e.target.value)}
+                        />
+                      ) : (
+                        <Button
+                          className="text-base font-semibold border-b pb-1 pl-1 text-primary justify-start w-full h-auto"
+                          variant="link"
+                          asChild
+                        >
+                          <Link href={data?.website || ""} target="_blank">
+                            {data?.website || "Non impostato"}
+                          </Link>
+                        </Button>
+                      )}
+                      {errorMessage.website && (
+                        <p className="text-sm text-red-500 text-destructive-foreground">
+                          {errorMessage.website[0]}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <></>
+              )}
+            </TabsContent>
             <TabsContent value="payments" className="flex flex-col gap-4">
               <Card>
                 <CardHeader>
@@ -477,23 +566,25 @@ export default function Account() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex flex-row justify-between">
-                    <div>
-                      <CreditCard className="inline-block mr-2 " />
-                      Metodi di pagamento
-                    </div>
-                    <CreditCardRegister />
-                  </CardTitle>
-                  <CardDescription>
-                    Gestisci i tuoi metodi di pagamento
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CreditCardList />
-                </CardContent>
-              </Card>
+              {!data.piva && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex flex-row justify-between">
+                      <div>
+                        <CreditCard className="inline-block mr-2 " />
+                        Metodi di pagamento
+                      </div>
+                      <CreditCardRegister />
+                    </CardTitle>
+                    <CardDescription>
+                      Gestisci i tuoi metodi di pagamento
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <CreditCardList />
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
             {!data.piva && (
               <>
