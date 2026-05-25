@@ -112,7 +112,7 @@ class GameFactory(factory.django.DjangoModelFactory):
         game_info = factory.LazyFunction(fetch_igdb_game)
         publisher_name = factory.LazyAttribute(lambda o: o.game_info.get("publisher") or faker.company())
         publisher_logo = factory.LazyAttribute(lambda o: o.game_info.get("publisher_logo") or faker.image_url())
-
+        
     title = factory.LazyAttribute(lambda o: o.game_info.get("title") or faker.sentence())
     description = factory.LazyAttribute(lambda o: o.game_info.get("description") or faker.paragraph())
     release_date = factory.LazyAttribute(lambda o: o.game_info.get("release_date") or faker.date_this_decade())

@@ -18,13 +18,14 @@ interface GameResponse {
 }
 
 export default function TagPage({ params }: Props) {
-  const tagName = use(params).tag;
+  const rawTag = use(params).tag;
+  const tagName = decodeURIComponent(rawTag);
 
   const {
     data: dataCarousel,
     error: errC,
     isLoading: loadingC,
-  } = useSWR<Game[]>(`/games/catalogue/recent?tag_list=${tagName}`);
+  } = useSWR<Game[]>(`/games/catalogue/recent?tag_list=${rawTag}`);
 
   return (
     <div className="space-y-12">
@@ -39,7 +40,7 @@ export default function TagPage({ params }: Props) {
           I giochi del nostro catalogo: {tagName}
         </h2>
 
-        <GameList params={{ query: `tag_list=${tagName}` }} />
+        <GameList params={{ query: `tag_list=${rawTag}` }} />
       </div>
     </div>
   );

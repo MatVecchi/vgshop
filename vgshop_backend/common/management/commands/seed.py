@@ -94,6 +94,10 @@ class Command(BaseCommand):
 
             self.stdout.write(self.style.SUCCESS(f"\nFinished seeding {10 * multiplier} games."))
             
+            # Ensure unique lists of users and games to prevent duplicate seeding and UNIQUE constraint failures
+            users = list(set(users))
+            games = list(set(games))
+
             self.stdout.write("\nGenerating relations (Friends, Families, Cart, Library, Reviews, Wallet)...")
             for user in users:
                 self.stdout.write(f"\nProcessing user: {user.username}")
@@ -140,11 +144,12 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS(f"Created family: {family.code} with manager {user.username}"))
                 
                 self.stdout.write("\nCreating cart items and owned games...")
-                num_cart = random.randint(0, min(3, len(games)))
                 num_owned = random.randint(0, min(20, len(games)))
-                
-                cart_games = random.sample(games, num_cart)
                 owned_games = random.sample(games, num_owned)
+                
+                non_owned_games = [g for g in games if g not in owned_games]
+                num_cart = random.randint(0, min(3, len(non_owned_games)))
+                cart_games = random.sample(non_owned_games, num_cart)
                 
                 for game in cart_games:
                     CartItemFactory(user=user, game=game)

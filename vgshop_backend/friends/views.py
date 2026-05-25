@@ -110,7 +110,7 @@ class ChatModelViewSet(viewsets.GenericViewSet,
 
     def list(self, request):
         friend = request.GET.get("friend", None)
-        if not Friend:
+        if not friend:
             return Response({"msg": "friend field not found"}, status=status.HTTP_400_BAD_REQUEST)
         messages = self.get_queryset().filter(sender__username=friend) | self.get_queryset().filter(receiver__username=friend)
         serializer = MessageSerializer(messages, many=True)
