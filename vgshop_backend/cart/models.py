@@ -118,6 +118,24 @@ class OrderItem(models.Model):
     def __str__(self):
         return self.order.user.username + " - " + self.game.title
 
+class Collection(models.Model):
+    """
+    Collezione di un utente customer, che definisce tutti i giochi che ha comprato.
+    E' aggiornata tramite l'acquisto di un carrello (e seguente trasformazione in un ordine).
+    """
+
+    nome = models.CharField(
+        verbose_name=_("nome"),
+        null=False,
+        blank=False,
+    )
+
+    class Meta:
+        verbose_name = _("Collection")
+        verbose_name_plural = _("Collections")
+
+    def __str__(self):
+        return self.nome
 
 class Library(models.Model):
     """
@@ -145,12 +163,21 @@ class Library(models.Model):
         blank=False,
     )
 
+    collection = models.ForeignKey(
+        Collection,
+        verbose_name=_("collection"),
+        on_delete=models.CASCADE,
+        related_name="collection",
+        null=True,
+        blank=False,
+    )
+
     class Meta:
         verbose_name = _("Library")
         verbose_name_plural = _("Librarys")
         constraints = [
-            UniqueConstraint(fields=["user", "game"], name="unique_in_library_game")
+            UniqueConstraint(fields=["user", "game", "collection"], name="unique_in_library_game")
         ]
 
     def __str__(self):
-        return self.user.username + " - " + self.game.title
+        return self.user.username + " - " + self.game.title + " - " + self.collection.nome
