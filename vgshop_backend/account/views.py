@@ -6,7 +6,15 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from account.serializers import UserSerializer, UserRegisterSerializer, UserProfileSerializer
+from account.serializers import (
+    UserSerializer,
+    UserRegisterSerializer,
+    UserProfileSerializer,
+    UserUpdateSerializer,
+    ChangeLostPassword,
+    ChangePasswordSerializer,
+    RequestForgotPassword,
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
@@ -17,136 +25,159 @@ from family.models import Family
 from friends.models import Friend
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+import os
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         try:
-            username = request.data.get('username')
-            password = request.data.get('password')
-            
+            username = request.data.get("username")
+            password = request.data.get("password")
+
             user = authenticate(username=username, password=password)
             if user:
                 refresh = RefreshToken.for_user(user)
-                response = Response({
-                    'user': UserSerializer(user, context={'request': request}).data,
-                    'message': 'Login successful !'
-                })
-                
+                response = Response(
+                    {
+                        "user": UserSerializer(user, context={"request": request}).data,
+                        "message": "Login successful !",
+                    }
+                )
+
                 response.set_cookie(
-                    key='access_token', 
+                    key="access_token",
                     value=str(refresh.access_token),
-                    httponly=True, 
-                    secure=False, # In produzione metti True
-                    max_age=60*15, # 15 minuti
-                    samesite='Lax',
-                    path='/',
+                    httponly=True,
+                    secure=False,  # In produzione metti True
+                    max_age=60 * 15,  # 15 minuti
+                    samesite="Lax",
+                    path="/",
                 )
                 response.set_cookie(
-                    key='refresh_token',
+                    key="refresh_token",
                     value=str(refresh),
                     httponly=True,
                     secure=False,
-                    max_age=60*60*24*30, # 30 giorni
-                    samesite='Lax',
-                    path='/api/token/refresh/', 
+                    max_age=60 * 60 * 24 * 30,  # 30 giorni
+                    samesite="Lax",
+                    path="/api/token/refresh/",
                 )
                 response.set_cookie(
-                    key='is_logged_in',
-                    value='true',
-                    httponly=False, # accessibile dal frontend se serve
+                    key="is_logged_in",
+                    value="true",
+                    httponly=False,  # accessibile dal frontend se serve
                     secure=False,
-                    max_age=60*60*24*30, # 30 giorni
-                    samesite='Lax',
-                    path='/', 
+                    max_age=60 * 60 * 24 * 30,  # 30 giorni
+                    samesite="Lax",
+                    path="/",
                 )
                 return response
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+            )
         except Exception as e:
-            return Response({'message': 'Server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response(
+                {"message": "Server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     @transaction.atomic
     def post(self, request):
-        serializer = UserRegisterSerializer(data = request.data)
+        serializer = UserRegisterSerializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.save()
-            Wallet.objects.create(user = user)
+            Wallet.objects.create(user=user)
 
             return Response(
-                {'message':'Registration completed !'},
-                status= status.HTTP_201_CREATED
+                {"message": "Registration completed !"}, status=status.HTTP_201_CREATED
             )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        refresh_token = request.COOKIES.get('refresh_token')
-        
+        refresh_token = request.COOKIES.get("refresh_token")
+
         if not refresh_token:
             print("Refresh token mancante nei cookie")
-            return Response({"error": "Refresh token missing"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Refresh token missing"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
-        request.data['refresh'] = refresh_token
+        request.data["refresh"] = refresh_token
 
         try:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
         except (InvalidToken, TokenError):
             print("Token non valido o scaduto")
-            return Response({"error": "Token not valid"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Token not valid"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         response = Response({"detail": "Token updated"}, status=status.HTTP_200_OK)
-        
+
         response.set_cookie(
-            key='access_token',
-            value=serializer.validated_data['access'],
+            key="access_token",
+            value=serializer.validated_data["access"],
             httponly=True,
-            secure=False, # In produzione metti True
-            max_age=60*15, # 15 minuti
-            samesite='Lax',
-            path='/',
+            secure=False,  # In produzione metti True
+            max_age=60 * 15,  # 15 minuti
+            samesite="Lax",
+            path="/",
         )
 
-        if 'refresh' in serializer.validated_data:
+        if "refresh" in serializer.validated_data:
             response.set_cookie(
-                key='refresh_token',
-                value=serializer.validated_data['refresh'],
+                key="refresh_token",
+                value=serializer.validated_data["refresh"],
                 httponly=True,
                 secure=False,
-                max_age=60*60*24*30, # 30 giorni
-                samesite='Lax',
-                path='/api/token/refresh/',
+                max_age=60 * 60 * 24 * 30,  # 30 giorni
+                samesite="Lax",
+                path="/api/token/refresh/",
             )
 
         return response
-    
+
+
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        response = Response({'message':'Logout successful !'}, status=status.HTTP_200_OK)
+        response = Response(
+            {"message": "Logout successful !"}, status=status.HTTP_200_OK
+        )
         response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token", path='/api/token/refresh/')
+        response.delete_cookie("refresh_token", path="/api/token/refresh/")
         response.delete_cookie("is_logged_in")
         return response
-    
+
 
 def get_user_from_token(raw_token):
     try:
         token = AccessToken(raw_token)
-        return User.objects.get(id=token['user_id'])
+        return User.objects.get(id=token["user_id"])
     except (User.DoesNotExist, Exception):
         return None
-        
+
 
 class UsernameView(APIView):
     permission_classes = [IsAuthenticated]
@@ -156,9 +187,8 @@ class UsernameView(APIView):
         user = request.user
         serializer = UserProfileSerializer(user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        
-        
+
+
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -167,7 +197,7 @@ class ProfileView(APIView):
         user = request.user
         serializer = UserSerializer(user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 
 class ProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -175,51 +205,158 @@ class ProfileUpdateView(APIView):
 
     def patch(self, request):
         user = request.user
-        data = request.data.copy()
+        serializer = UserUpdateSerializer(
+            instance=user, data=request.data, partial=True
+        )
 
-        if IsInCustomerGroup().has_permission(request, self):
-            data.pop("piva", None)
-            data.pop("website", None)
-
-        serializer = UserSerializer(instance=user, data=data, partial=True)
-        
         if serializer.is_valid():
             serializer.save()
-            user.refresh_from_db()
-            return Response(UserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
+            return Response(
+                UserUpdateSerializer(user, context={"request": request}).data,
+                status=status.HTTP_200_OK,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
+
+# Da sostituire direttamente con confirm lost password --> sono uguali
+class ResetPasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        passwords = request.data
+        serializer = ChangePasswordSerializer(
+            data=passwords, context={"request": request}
+        )
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+            return Response(
+                {"message": "Password cambiata con successo !"},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def change_password_email(self, user):
+        email = user.email
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        context = {
+            "username": user.username,
+            "reset_link": f"http://{os.environ['DOMAIN']}/reset-password/?uid={uid}&token={token}",
+        }
+
+        html_content = render_to_string("email/reset_password.html", context=context)
+        text_content = strip_tags(html_content)
+
+        msg = EmailMultiAlternatives(
+            subject="Link per il cambio di password",
+            body=text_content,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[email],
+        )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+
+    def post(self, request):
+        serializer = RequestForgotPassword(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            try:
+                user = User.objects.get(username=serializer.validated_data["username"])
+                self.change_password_email(user)
+            except Exception:
+                pass
+
+        return Response(
+            {
+                "message": [
+                    "Ti abbiamo inviato un'email di cambio di password, vai e controlla !"
+                ]
+            }
+        )
+
+
+class ConfirmResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        serializer = ChangeLostPassword(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            user = serializer.data["user"]
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+            return Response(
+                {"message": "Password cambiata con successo !"},
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class FamilyJoinView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
+
     def put(self, request, family_code):
-        raw_token = request.COOKIES.get('access_token')
+        raw_token = request.COOKIES.get("access_token")
         if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"message": "Token not found"}, status=status.HTTP_401_UNAUTHORIZED
+            )
         family = get_object_or_404(Family, code=family_code)
         if User.objects.filter(family=family).count() >= 5:
-            return Response({'message': 'Family is full'}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"message": "Family is full"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         user = request.user
         if not are_friends(user, family.manager):
-            return Response({'message': 'Family not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Family not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        serializer = UserRegisterSerializer(user, data={'family': family.id}, partial=True)
+        serializer = UserRegisterSerializer(
+            user, data={"family": family.id}, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Family joined successfully !'}, status=status.HTTP_200_OK)
-        return Response({'message': 'Family join failed', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Family joined successfully !"}, status=status.HTTP_200_OK
+            )
+        return Response(
+            {"message": "Family join failed", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 class FamilyLeaveView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
+
     def delete(self, request):
-        raw_token = request.COOKIES.get('access_token')
+        raw_token = request.COOKIES.get("access_token")
         if not raw_token:
-            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-        serializer = UserRegisterSerializer(request.user, data={'family': None}, partial=True)
+            return Response(
+                {"message": "Token not found"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        serializer = UserRegisterSerializer(
+            request.user, data={"family": None}, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Family left successfully !'}, status=status.HTTP_200_OK)
-        return Response({'message': 'Family left failed', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Family left successfully !"}, status=status.HTTP_200_OK
+            )
+        return Response(
+            {"message": "Family left failed", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

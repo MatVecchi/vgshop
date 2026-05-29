@@ -139,7 +139,8 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
             if validated_data["payment_method"] == "C":
                 print("Il numero della carta è: ", validated_data["number"])
-
+                # logica di pagamento con api Stripe
+                
             else:
                 wallet = get_object_or_404(Wallet, user=user)
                 if wallet.credit < total:
@@ -148,18 +149,19 @@ class OrderCreateSerializer(serializers.ModelSerializer):
                     )
                 wallet.credit = wallet.credit - total
                 wallet.save()
+                transaction = Transaction.objects.create(wallet=wallet, movement=-total)
+
+            for item in cart_items:
+                publisher_wallet = get_object_or_404(Wallet, user=item.game.publisher )
+                publisher_wallet.credit+=item.game.price
+                publisher_wallet.save()
 
             order = Order.objects.create(
                 user=user, payment_method=validated_data["payment_method"]
             )
-
             order_items = [
                 OrderItem(order=order, game=item.game) for item in cart_items
             ]
-
-            if validated_data["payment_method"] == "W":
-                transaction = Transaction.objects.create(wallet=wallet, movement=-total)
-
             library_items = [Library(user=user, game=item.game) for item in cart_items]
 
             OrderItem.objects.bulk_create(order_items)

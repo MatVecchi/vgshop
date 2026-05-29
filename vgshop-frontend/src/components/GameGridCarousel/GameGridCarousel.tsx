@@ -24,6 +24,7 @@ interface Props {
     games: Game[] | undefined;
     error: string;
     isLoading: boolean;
+    game_per_page?: number;
   };
 }
 
@@ -41,9 +42,10 @@ export function GameGridCarousel({ params }: Props) {
   // Usiamo un fallback all'array vuoto se games non è ancora disponibile
   const itemsToProcess = params.games ?? [];
   const chunkedItems = [];
+  const game_per_page = params.game_per_page ? params.game_per_page : 15;
 
-  for (let i = 0; i < itemsToProcess.length; i += 15) {
-    chunkedItems.push(itemsToProcess.slice(i, i + 15));
+  for (let i = 0; i < itemsToProcess.length; i += game_per_page) {
+    chunkedItems.push(itemsToProcess.slice(i, i + game_per_page));
   }
 
   return (
@@ -51,7 +53,9 @@ export function GameGridCarousel({ params }: Props) {
       <CarouselContent>
         {chunkedItems.map((group, index) => (
           <CarouselItem key={index}>
-            <div className="grid grid-cols-5 grid-rows-2 gap-2 gap-y-3 p-4">
+            <div
+              className={`grid grid-cols-5 ${game_per_page > 5 ? "grid-rows-2" : "grid-rows-1"} gap-2 gap-y-3 p-4`}
+            >
               {group.map((game) => (
                 <GameCard key={game.id} params={{ game }} />
               ))}

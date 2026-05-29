@@ -12,6 +12,7 @@ from .serializers import (
     GameAreaChartSerializer,
     GameUpdateSerializer,
 )
+from cart.models import Library
 from .models import Game, Tag
 from account.permissions import IsInPublisherGroup
 from django_filters.rest_framework import DjangoFilterBackend
@@ -21,6 +22,8 @@ from cart.models import OrderItem
 from .permissions import IsOwnerPublisher
 from django.db.models import Count
 from django.db.models.functions import TruncMonth, TruncYear
+from recomendation_system.service import get_recomendation_service
+from recomendation_system.content_based import content_based_similarity
 import django_filters
 import datetime
 
@@ -49,7 +52,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
     Classe che definisce tutti i metodi GET, POST, PATHC, PUT, DELETE del modello Game
     """
 
-    queryset = Game.objects.all()
+    queryset = Game.objects.distinct()
 
     # definisce il serializer in base all'utente che accede all'endpoint
     def get_serializer_class(self):
@@ -90,7 +93,16 @@ class GameModelViewSet(viewsets.ModelViewSet):
     pagination_class = CataloguePaginator
 
     def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+        response = super().retrieve(request, *args, **kwargs)
+        game = self.get_object()
+
+        similar_games = content_based_similarity(game, request.user)
+        if similar_games:
+            serializer = self.get_serializer(similar_games, many=True)
+            response.data["similar_games"] = serializer.data
+        else:
+            response.data["similar_games"] = []
+        return response
 
     @action(detail=True, methods=["GET"], url_path="publisher_detail")
     def publisher_detail(self, request, title=None):
@@ -101,17 +113,40 @@ class GameModelViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"])
     def recent(self, request):
         tag = request.GET.get("tag_list", None)
-        end = datetime.date.today()
-        start = end - datetime.timedelta(30)
+        recent = True
 
-        if tag:
-            games = self.get_queryset().filter(
-                tag_list=tag, release_date__gte=start, release_date__lte=end
-            )[:12]
-        else:
-            games = self.get_queryset().filter(
-                release_date__gte=start, release_date__lte=end
-            )[:12]
+        if request.user.is_authenticated:
+            user = request.user
+            k = 10
+            owned = Library.objects.filter(user=user).values_list("game", flat=True)
+            not_owned = Game.objects.distinct()
+            if tag:
+                not_owned = not_owned.filter(tag_list=tag)
+            not_owned = not_owned.exclude(id__in=owned)
+
+            scores = [
+                (
+                    game,
+                    get_recomendation_service().predict_score(
+                        user=user.pk,
+                        game=game.id,
+                        game_tags=game.tag_list.values_list("name", flat=True),
+                    ),
+                )
+                for game in not_owned
+            ]
+
+            scores = [score for score in scores if score[1] is not None]
+            if scores:
+                recent = False
+                scores.sort(key=lambda x: x[1], reverse=True)
+                games = [score[0] for score in scores][:5]
+
+        if recent:
+            games = self.get_queryset().order_by("-release_date")
+            if tag:
+                games = games.filter(tag_list=tag)
+            games = games[:5]
 
         serializer = self.get_serializer(games, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)

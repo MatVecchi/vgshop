@@ -26,6 +26,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     piva = None
     website = None
     family = None
+    iban = None
 
     @factory.lazy_attribute 
     def profile_image(self): 
@@ -44,7 +45,8 @@ class UserFactory(factory.django.DjangoModelFactory):
         is_publisher = factory.Trait(
             piva=factory.Faker("numerify", text="###########"),
             website=factory.Faker("url"),
-            family=None
+            family=None,
+            iban=factory.Faker("iban")
         )
 
     @factory.post_generation

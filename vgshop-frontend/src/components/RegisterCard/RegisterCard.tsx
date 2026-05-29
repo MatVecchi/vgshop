@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { use, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -27,6 +27,7 @@ export function RegisterCard() {
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [piva, setPiva] = useState<string | null>("");
+  const [iban, setIban] = useState<string | null>("");
   const [website, setWebsite] = useState<string | null>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -36,6 +37,7 @@ export function RegisterCard() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
     try {
       const response = await api.post("/api/register/", {
         username: username,
@@ -45,6 +47,7 @@ export function RegisterCard() {
         email: email,
         isPublisher: isPublisher,
         piva: piva,
+        iban: iban,
         website: website,
       });
 
@@ -52,9 +55,13 @@ export function RegisterCard() {
       router.push("/login");
     } catch (e: any) {
       if (e.response && e.response.data) {
-        setErrors(e.response.data);
+        if (e.response.data.message) {
+          toast.error(e.response.data.message[0]);
+        } else {
+          setErrors(e.response.data);
+        }
       } else {
-        toast.error("Something went wrong, try again !");
+        toast.error("Errore nell'aggiunta della recensione! riprova");
       }
     } finally {
       setLoading(false);
@@ -163,6 +170,20 @@ export function RegisterCard() {
                   {errors.piva && (
                     <p className="text-sm text-red-500 text-destructive-foreground">
                       {errors.piva[0]}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="piva">Iban</Label>
+                  <Input
+                    id="iban"
+                    onChange={(e) =>
+                      setIban(e.target.value === "" ? null : e.target.value)
+                    }
+                  />
+                  {errors.iban && (
+                    <p className="text-sm text-red-500 text-destructive-foreground">
+                      {errors.iban[0]}
                     </p>
                   )}
                 </div>

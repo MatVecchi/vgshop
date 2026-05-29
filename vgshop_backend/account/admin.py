@@ -6,13 +6,13 @@ class CustomAdminUser(UserAdmin):
 
     additional_info = (
         ("Immagine profilo", {"fields": ["profile_image"]}),
-        ("Informazioni Publisher", {"fields": ["piva", "website"]}),
+        ("Informazioni Publisher", {"fields": ["piva", "website", "iban"]}),
         ("Informazioni Famiglia", {"fields": ["family"]}),
     )
 
     add_fieldsets = UserAdmin.add_fieldsets + additional_info
     fieldsets = UserAdmin.fieldsets + additional_info
 
-    list_display = ["username", "email", "family", "piva", "website"]
+    list_display = ["username", "email", "family", "piva", "website", "iban"]
 
 admin.site.register(User, CustomAdminUser)

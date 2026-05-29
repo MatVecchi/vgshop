@@ -54,6 +54,7 @@ export interface Game {
   cover: string;
   stars: number;
   is_owner: boolean;
+  similar_games?: Game[];
 }
 
 export default function GameAddModal() {

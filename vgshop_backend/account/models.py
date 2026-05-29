@@ -25,6 +25,19 @@ class User(AbstractUser):
         regex=r"^\d{11}$", message="La partita iva deve avere 11 cifre"
     )
 
+    iban_validator = RegexValidator(
+        regex=r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$", message="Iban deve seguire lo standard europeo"
+    )
+
+    iban = models.CharField(
+        verbose_name=_("Iban"),
+        validators=[iban_validator],
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Iban in formato europeo"
+    )
+
     piva = models.CharField(
         verbose_name=_("Partita Iva"),
         validators=[piva_validator],
