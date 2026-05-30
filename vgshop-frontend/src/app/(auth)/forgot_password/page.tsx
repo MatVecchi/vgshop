@@ -6,7 +6,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
+import Link from "next/link";
 import { FieldGroup, Field } from "@/components/ui/field";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import { User, KeyRound } from "lucide-react";
@@ -121,6 +123,17 @@ export default function ForgotPassword() {
           </FieldGroup>
         </form>
       </CardContent>
+
+      <CardFooter className="flex items-center justify-center border-t border-border/60 py-4 bg-muted/30 rounded-b-lg text-sm text-muted-foreground gap-1">
+        <span>Hai ricordato la password?</span>
+        <Button
+          variant="link"
+          className="p-0 h-auto font-semibold text-primary hover:underline"
+          asChild
+        >
+          <Link href="/login">Torna al login</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

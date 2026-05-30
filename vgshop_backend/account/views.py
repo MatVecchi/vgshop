@@ -251,7 +251,7 @@ class RequestForgotPasswordView(APIView):
         token = default_token_generator.make_token(user)
         context = {
             "username": user.username,
-            "reset_link": f"http://{os.environ['DOMAIN']}/reset_password/?uid={uid}&token={token}",
+            "reset_link": f"http://{os.environ['DOMAIN']}:3000/reset_password/?uid={uid}&token={token}",
         }
 
         html_content = render_to_string("email/reset_password.html", context=context)
