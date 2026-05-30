@@ -27,7 +27,7 @@ urlpatterns = [
     path("family/leave/", FamilyLeaveView.as_view(), name="family_leave"),
     path("lost_password/", RequestForgotPasswordView.as_view(), name="lost-password"),
     path(
-        "lost_password/confirm",
+        "lost_password/confirm/",
         ConfirmResetPasswordView.as_view(),
         name="confirm-password",
     ),

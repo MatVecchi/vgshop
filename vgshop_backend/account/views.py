@@ -251,7 +251,7 @@ class RequestForgotPasswordView(APIView):
         token = default_token_generator.make_token(user)
         context = {
             "username": user.username,
-            "reset_link": f"http://{os.environ['DOMAIN']}/reset-password/?uid={uid}&token={token}",
+            "reset_link": f"http://{os.environ['DOMAIN']}/reset_password/?uid={uid}&token={token}",
         }
 
         html_content = render_to_string("email/reset_password.html", context=context)
@@ -293,7 +293,7 @@ class ConfirmResetPasswordView(APIView):
     def post(self, request):
         serializer = ChangeLostPassword(data=request.data, context={"request": request})
         if serializer.is_valid():
-            user = serializer.data["user"]
+            user = serializer.validated_data["user"]
             user.set_password(serializer.validated_data["new_password"])
             user.save()
             return Response(

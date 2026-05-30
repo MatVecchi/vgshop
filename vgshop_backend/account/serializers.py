@@ -157,20 +157,30 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         required=True,
         style={"input_type": "password"},
-        validators=[django_validate_password],
+        
     )
     confirm_password = serializers.CharField(
         write_only=True,
         required=True,
         style={"input_type": "password"},
-        validators=[django_validate_password],
+        
     )
+
+    def verify_django_password(self, password):
+        try:
+            django_validate_password(
+                password=password, user=User(self.initial_data.get("username"))
+            )
+        except exceptions.ValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
+        return password
+
 
     def validate(self, attrs):
         data = super().validate(attrs)
         if data["new_password"] != data["confirm_password"]:
             raise serializers.ValidationError(
-                {"message": ["Le password non corrispondono !"]}
+                {"confirm_password": ["Le password non corrispondono !"]}
             )
         return data
 
@@ -197,8 +207,10 @@ class ChangeLostPassword(ResetPasswordSerializer):
         except Exception:
             raise serializers.ValidationError({"message": ["Link non valido !"]})
 
-        if not default_token_generator.check_token(data["token"]):
+        if not default_token_generator.check_token(user, data["token"]):
             raise serializers.ValidationError({"message": ["Token scaduto !"]})
+        
+        self.verify_django_password(data["new_password"])
 
         data["user"] = user
         return data
@@ -219,8 +231,11 @@ class ChangePasswordSerializer(ResetPasswordSerializer):
 
         if not request.user.check_password(data["old_password"]):
             raise serializers.ValidationError(
-                {"message": ["Vecchia password errata !"]}
+                {"old_password": ["Vecchia password errata !"]}
             )
-
+        
+        
+        self.verify_django_password(data["new_password"])
+        
         data["user"] = request.user
         return attrs

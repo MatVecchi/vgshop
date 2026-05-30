@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import useSWR from "swr";
 import Link from "next/dist/client/link";
@@ -33,6 +33,11 @@ import {
   PenIcon,
   Key,
   LockKeyhole,
+  MinusCircle,
+  PlusCircle,
+  UserRoundKey,
+  KeyRound,
+  RotateCw,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
 import CreditCardList from "@/components/CreditCardList/CreditCardList";
@@ -48,6 +53,7 @@ import Image from "next/image";
 import { useSWRConfig } from "swr";
 import GrainientBg from "@/components/GrainientBg/GrainientBg";
 import CashBackDialog from "@/components/CashBackDialog/CashBackDialog";
+import ResetPasswordFields from "@/components/ResetPasswordFields/ResetPasswordFields";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -509,7 +515,9 @@ export default function Account() {
                     dell'account
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-6"></CardContent>
+                <CardContent className="w-full max-w-[90%] mx-auto flex flex-col gap-6">
+                  <ResetPasswordFields forgot={false} />
+                </CardContent>
               </Card>
             </TabsContent>
             <TabsContent value="payments" className="flex flex-col gap-4">
