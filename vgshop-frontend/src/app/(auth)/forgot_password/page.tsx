@@ -64,7 +64,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Card className="w-full max-w-md border border-border/60 shadow-md bg-card/50 backdrop-blur-sm">
+    <Card className="w-full max-w-md border border-border/60 shadow-md bg-card/50 backdrop-blur-sm pb-0!">
       <CardHeader className="space-y-2 pt-8">
         <CardTitle className="text-2xl font-bold tracking-tight flex justify-center gap-5 items-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">

@@ -53,7 +53,7 @@ export function LoginCard() {
 
   return (
     <div className="flex items-center justify-center w-full mx-auto px-4">
-      <Card className="w-full max-w-md border border-border/60 shadow-md bg-card/50 backdrop-blur-sm">
+      <Card className="w-full max-w-md border border-border/60 shadow-md bg-card/50 backdrop-blur-sm pb-0!">
         <CardHeader className="space-y-2 text-center pt-8">
           <CardTitle className="text-2xl font-bold tracking-tight flex items-center justify-center gap-4 -ml-10">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">

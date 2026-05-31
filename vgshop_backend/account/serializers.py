@@ -41,6 +41,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
     isPublisher = serializers.BooleanField(write_only=True)
 
     class Meta:
@@ -56,12 +57,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "website",
             "isPublisher",
             "iban",
+            "confirm_password"
         ]
 
     @transaction.atomic
     def create(self, validated_data):
         is_publisher_value = validated_data.pop("isPublisher")
         password_value = validated_data.pop("password")
+        _ = validated_data.pop("confirm_password")
 
         piva = validated_data.get("piva", None)
         iban = validated_data.get("iban", None)
@@ -90,7 +93,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return user
 
-    def validate_password(self, password):
+    def verify_password(self, password):
         try:
             django_validate_password(
                 password=password, user=User(self.initial_data.get("username"))
@@ -98,6 +101,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         except exceptions.ValidationError as e:
             raise serializers.ValidationError(list(e.messages))
         return password
+
+
+    def validate_password(self, password):
+        return self.verify_password(password=password)
+    
+    def validate_confirm_passsword(self, password):
+        return self.verify_password(self, password=password)
 
     def validate_iban(self, iban):
         if iban == "" or iban is None:
@@ -113,7 +123,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if value == "" or value is None:
             return None
         return value
-
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if attrs["confirm_password"] != attrs["password"]:
+            raise serializers.ValidationError({"confirm_password":["Le password non corrispondono !"]})
+        return data
 
 class UserUpdateSerializer(UserSerializer):
     isPublisher = serializers.SerializerMethodField(
