@@ -484,7 +484,9 @@ export default function GameInfo({ params }: Props) {
 
                   <div className="flex items-center gap-2">
                     <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
-                    Aggiungi al carrello
+                    {game.release_date <= new Date().toLocaleDateString("it-IT")
+                      ? "Aggiungi al carrello"
+                      : "Preordina"}
                   </div>
                 </Button>
               ) : null}

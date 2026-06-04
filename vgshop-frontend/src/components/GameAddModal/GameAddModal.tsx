@@ -19,7 +19,19 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
-import { ChevronDownIcon } from "lucide-react";
+import {
+  BookOpen,
+  Calendar1,
+  ChevronDownIcon,
+  DollarSign,
+  Gamepad2,
+  Images,
+  Plus,
+  PlusCircle,
+  Tag,
+  Type,
+  VideoIcon,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -31,6 +43,9 @@ import { Spinner } from "../ui/spinner";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Separator } from "../ui/separator";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import { Textarea } from "../ui/textarea";
 
 export interface Tag {
   name: string;
@@ -95,6 +110,7 @@ export default function GameAddModal() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+    setErrorMessage({});
     setSubmitLoading(true);
     try {
       const formData = new FormData();
@@ -137,19 +153,30 @@ export default function GameAddModal() {
           <Button variant="outline">Pubblica Gioco</Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-md max-w-xl max-h-3/4 overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-w-[40%]! max-h-3/4 overflow-y-auto">
           <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>Registra il nuovo gioco</DialogTitle>
-              <DialogDescription>
+            <DialogHeader className="space-y-2 text-center pt-8">
+              <DialogTitle className="text-2xl font-bold tracking-tight flex items-center justify-center gap-4 -ml-10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Gamepad2 className="h-5 w-5" />
+                </div>
+                Pubblica gioco
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground px-4">
                 Inserisci le informazioni del nuovo gioco che vuoi registrare.
                 Clicca su registra per confermare.
               </DialogDescription>
             </DialogHeader>
-
-            <FieldGroup>
+            <Separator className="my-5" />
+            <FieldGroup className="mt-5">
               <Field>
-                <Label htmlFor="title">Titolo</Label>
+                <Label
+                  htmlFor="title"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                >
+                  <Type className="w-3.5 h-3.5 text-primary/80" />
+                  Titolo
+                </Label>
                 <Input
                   id="title"
                   name="title"
@@ -157,16 +184,18 @@ export default function GameAddModal() {
                   onChange={(e) => setTitle(e.target.value)}
                   value={title}
                 />
-                {errorMessage.username && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.username[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.title} />
               </Field>
 
               <FieldGroup className="flex flex-row">
                 <Field>
-                  <Label htmlFor="price">Prezzo</Label>
+                  <Label
+                    htmlFor="price"
+                    className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                  >
+                    <DollarSign className="w-3.5 h-3.5 text-primary/80" />
+                    Prezzo
+                  </Label>
                   <Input
                     id="price"
                     name="price"
@@ -182,15 +211,17 @@ export default function GameAddModal() {
                       );
                     }}
                   />
-                  {errorMessage.price && (
-                    <p className="text-sm text-red-500 text-destructive-foreground">
-                      {errorMessage.price[0]}
-                    </p>
-                  )}
+                  <ErrorMessage message={errorMessage.price} />
                 </Field>
 
                 <Field>
-                  <Label htmlFor="release_date">Data di rilascio</Label>
+                  <Label
+                    htmlFor="release_date"
+                    className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                  >
+                    <Calendar1 className="w-3.5 h-3.5 text-primary/80" />
+                    Data di rilascio
+                  </Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -216,32 +247,37 @@ export default function GameAddModal() {
                     </PopoverContent>
                   </Popover>
                 </Field>
-                {errorMessage.release_date && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.release_date[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.release_date} />
               </FieldGroup>
 
               <Field>
-                <Label htmlFor="description">Descrizione </Label>
-                <Input
+                <Label
+                  htmlFor="description"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-primary/80" />
+                  Descrizione
+                </Label>
+                <Textarea
                   id="description"
                   name="description"
                   placeholder="Inserisci qui la descrizione"
-                  type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="resize-none"
                 />
-                {errorMessage.description && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.description[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.description} />
               </Field>
 
               <Field>
-                <Label htmlFor="video">Link al video </Label>
+                <Label
+                  htmlFor="video"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                >
+                  <VideoIcon className="w-3.5 h-3.5 text-primary/80" />
+                  Link al trailer
+                </Label>
                 <Input
                   id="video"
                   name="video"
@@ -250,14 +286,16 @@ export default function GameAddModal() {
                   value={video}
                   onChange={(e) => setVideo(e.target.value)}
                 />
-                {errorMessage.video && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.video[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.video} />
               </Field>
               <Field>
-                <Label htmlFor="tag_list">Tags </Label>
+                <Label
+                  htmlFor="tag_list"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                >
+                  <Tag className="w-3.5 h-3.5 text-primary/80" />
+                  Categorie (Tags)
+                </Label>
                 <ToggleGroup
                   type="multiple"
                   size="default"
@@ -286,24 +324,19 @@ export default function GameAddModal() {
                     })
                   )}
                 </ToggleGroup>
-                {errorMessage.tag_list && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.tag_list[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.tag_list} />
               </Field>
 
               <Field>
-                <Label htmlFor="images">
-                  {" "}
-                  Immagini (La prima è la copertina){" "}
+                <Label
+                  htmlFor="images"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+                >
+                  <Images className="w-3.5 h-3.5 text-primary/80" />
+                  Immagini (* la prima immagine è la copertina)
                 </Label>
                 <ImagesDropZone files={images} onFilesChange={setImages} />
-                {errorMessage.uploaded_images && (
-                  <p className="text-sm text-red-500 text-destructive-foreground">
-                    {errorMessage.uploaded_images[0]}
-                  </p>
-                )}
+                <ErrorMessage message={errorMessage.uploaded_images} />
               </Field>
             </FieldGroup>
             <DialogFooter>
