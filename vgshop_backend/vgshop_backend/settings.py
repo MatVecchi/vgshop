@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     "family",
     "reviews",
     "django_filters",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -108,6 +110,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "vgshop_backend.wsgi.application"
+ASGI_APPLICATION = "vgshop_backend.asgi.application"
 
 
 # Database
@@ -180,8 +183,8 @@ REST_AUTH = {
 
 # smtp server per le email
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
@@ -192,4 +195,10 @@ EMAIL_HOST_USER = os.environ["SMTP_EMAIL"]
 EMAIL_HOST_PASSWORD = os.environ["SMTP_KEY"]
 
 # nome che compare nella mail
-DEFAULT_FROM_EMAIL = f'VGshop <{os.environ["SMTP_EMAIL"]}>'
+DEFAULT_FROM_EMAIL = f"VGshop <{os.environ['SMTP_EMAIL']}>"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}

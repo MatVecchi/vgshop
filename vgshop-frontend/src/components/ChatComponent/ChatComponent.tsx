@@ -17,10 +17,11 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 import { SendHorizontal, CheckCheck } from "lucide-react";
-import { ReactNode, useState, useRef } from "react";
+import { ReactNode, useState, useRef, useEffect } from "react";
 import { Virtuoso } from "react-virtuoso";
 import TextareaAutosize from "react-textarea-autosize";
 import api from "@/lib/api";
+import useSWR from "swr";
 
 const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -64,6 +65,10 @@ type ChatComponentProps = {
   setSize?: any;
   isLoading: boolean;
   mutate?: any;
+  addMessageToCache?: (message: any) => void;
+  markMessageAsReadInCache?: (message: any) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 };
 
 export default function ChatComponent({
@@ -74,11 +79,60 @@ export default function ChatComponent({
   setSize,
   isLoading,
   mutate,
+  addMessageToCache,
+  markMessageAsReadInCache,
+  isOpen,
+  setIsOpen,
 }: ChatComponentProps) {
   const [message, setMessage] = useState("");
+
+  const { data: me } = useSWR("/api/profile");
+
+  useEffect(() => {
+    if (!isOpen || !me) return;
+
+    const chatRoomName = [me.username, username].sort().join("_");
+    const wsUrl = `ws://localhost:8000/ws/chat/${chatRoomName}/`;
+
+    console.log(`Tentativo di connessione WebSocket a: ${wsUrl}`);
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log(`WebSocket connesso alla stanza: ${chatRoomName}`);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const incomingData = JSON.parse(event.data);
+
+        if (incomingData?.event === "new_message") {
+          if (addMessageToCache) {
+            addMessageToCache(incomingData.message);
+          }
+        } else if (incomingData?.event === "read_message") {
+          if (markMessageAsReadInCache) {
+            markMessageAsReadInCache(incomingData.message_id);
+          }
+        }
+      } catch (error) {
+        console.error("Errore nel parsing del messaggio WS");
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnesso");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [isOpen, username, me, addMessageToCache, markMessageAsReadInCache]);
+
   const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  if (!me) return;
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="hover:cursor-pointer">{children}</Button>
       </DialogTrigger>
@@ -209,16 +263,22 @@ export default function ChatComponent({
                 className="mt-auto"
                 variant="secondary"
                 onClick={async () => {
+                  const text = message.trim();
+                  if (!text) return;
+
                   if (messageRef.current) {
                     messageRef.current.value = "";
                   }
+
                   setMessage("");
-                  await api.post("/api/messages/", {
+
+                  const response = await api.post("/api/messages/", {
                     receiver: username,
-                    message: message,
+                    message: text,
                   });
-                  if (mutate) {
-                    mutate();
+
+                  if (addMessageToCache) {
+                    addMessageToCache(response.data);
                   }
                 }}
               >

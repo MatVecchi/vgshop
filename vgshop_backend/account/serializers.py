@@ -57,7 +57,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "website",
             "isPublisher",
             "iban",
-            "confirm_password"
+            "confirm_password",
         ]
 
     @transaction.atomic
@@ -102,10 +102,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(list(e.messages))
         return password
 
-
     def validate_password(self, password):
         return self.verify_password(password=password)
-    
+
     def validate_confirm_passsword(self, password):
         return self.verify_password(self, password=password)
 
@@ -123,12 +122,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if value == "" or value is None:
             return None
         return value
-    
+
     def validate(self, attrs):
         data = super().validate(attrs)
         if attrs["confirm_password"] != attrs["password"]:
-            raise serializers.ValidationError({"confirm_password":["Le password non corrispondono !"]})
+            raise serializers.ValidationError(
+                {"confirm_password": ["Le password non corrispondono !"]}
+            )
         return data
+
 
 class UserUpdateSerializer(UserSerializer):
     isPublisher = serializers.SerializerMethodField(
@@ -172,13 +174,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         required=True,
         style={"input_type": "password"},
-        
     )
     confirm_password = serializers.CharField(
         write_only=True,
         required=True,
         style={"input_type": "password"},
-        
     )
 
     def verify_django_password(self, password):
@@ -189,7 +189,6 @@ class ResetPasswordSerializer(serializers.Serializer):
         except exceptions.ValidationError as e:
             raise serializers.ValidationError(list(e.messages))
         return password
-
 
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -224,7 +223,7 @@ class ChangeLostPassword(ResetPasswordSerializer):
 
         if not default_token_generator.check_token(user, data["token"]):
             raise serializers.ValidationError({"message": ["Token scaduto !"]})
-        
+
         self.verify_django_password(data["new_password"])
 
         data["user"] = user
@@ -248,9 +247,8 @@ class ChangePasswordSerializer(ResetPasswordSerializer):
             raise serializers.ValidationError(
                 {"old_password": ["Vecchia password errata !"]}
             )
-        
-        
+
         self.verify_django_password(data["new_password"])
-        
+
         data["user"] = request.user
         return attrs
