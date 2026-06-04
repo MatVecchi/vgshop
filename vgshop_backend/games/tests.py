@@ -1,12 +1,6 @@
 from django.urls import reverse
-from django.contrib.auth.models import Group
-from account.models import User
-from games.models import Game, Tag
 from rest_framework import status
 from account.tests import CustomerSetUpTest, PublisherSetUpTest
-from rest_framework.test import APITestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
-import datetime
 
 
 class GameApiTest(CustomerSetUpTest, PublisherSetUpTest):
@@ -19,27 +13,41 @@ class GameApiTest(CustomerSetUpTest, PublisherSetUpTest):
         # risponde come paginator
         self.assertEqual(response.data["count"], len(self.publisher_games))
 
-    def _create_game(self):
-        self.login_user(self.publisher_username, self.publisher_password)
+    # test non banale che verifica il content based filtering
+    def have_common_tags(self, first, second):
+        return len(set(first) & set(second)) >= 1
 
-        new_game = {
-            "title": "Formula 1 2027",
-            "release_date": datetime.date.today(),
-            "description": "Gioco di Formula 1 del 2027",
-            "video": "https://www.youtube.com/watch?v=NnyCWsA6KSI",
-            "cover": SimpleUploadedFile(
-                name="F127_cover.png",
-                content=b"f1_fake_image",
-                content_type="image/png",
-            ),
-            "price": 59.99,
-            "publisher": self.publisher,
-            "uploaded_images": [],
-        }
-        response = self.client.post(
-            reverse("catalogue-list"), data=new_game, format="multipart"
+    def test_content_based_filtering(self):
+        self.login_user(self.customer_username, self.customer_password)
+
+        game_target = "Formula 1 2024"
+        response = self.client.get(
+            reverse("catalogue-detail", kwargs={"title": game_target})
         )
 
-        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        similar_games = response.data["similar_games"]
+        self.assertEqual(len(similar_games), 1)
+
+        first_similar_game = similar_games[0]
+        first_similar_game_tag_list = [
+            name for tag in first_similar_game["tag_list"] for key, name in tag.items()
+        ]
+
+        # simulo un semplice comportamento del recomendation system
+        content_filter_simulation = [
+            game.title
+            for game in self.publisher_games
+            if (
+                self.have_common_tags(
+                    game.tag_list.values_list("name", flat=True),
+                    first_similar_game_tag_list,
+                )
+                and game.title != game_target
+            )
+        ]
+
+        print(content_filter_simulation)
+
+        self.assertIn(first_similar_game["title"], content_filter_simulation)
