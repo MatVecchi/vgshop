@@ -229,7 +229,7 @@ export default function ReivewItem({ index, item, mine, mutate }: Prop) {
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
-                  type="button" // Importante: evita il submit del form al click
+                  type="button"
                   className="transition-transform hover:scale-110 focus:outline-none"
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHover(star)}

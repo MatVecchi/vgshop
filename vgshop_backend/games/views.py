@@ -49,7 +49,7 @@ class CataloguePaginator(PageNumberPagination):
 
 class GameModelViewSet(viewsets.ModelViewSet):
     """
-    Classe che definisce tutti i metodi GET, POST, PATHC, PUT, DELETE del modello Game
+    Classe che definisce tutti i metodi GET, POST, PATCH, PUT, DELETE del modello Game
     """
 
     queryset = Game.objects.distinct()
@@ -85,7 +85,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
     ordering_fields = ["price", "release_date", "title"]
     ordering = ["-release_date"]
 
-    # il retireve non usa la pk, ma usa il titolo (è unique)
+    # il retrieve non usa la pk, ma usa il titolo (è unique)
     lookup_field = "title"
     lookup_url_kwarg = "title"
 
