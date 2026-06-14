@@ -153,7 +153,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
             for item in cart_items:
                 publisher_wallet = get_object_or_404(Wallet, user=item.game.publisher )
-                publisher_wallet.credit+=item.game.price
+                publisher_wallet.credit += Decimal(item.game.price)
                 publisher_wallet.save()
 
             order = Order.objects.create(
