@@ -3,8 +3,13 @@ import useSWR from "swr";
 import { Spinner } from "../ui/spinner";
 import Link from "next/link";
 
+interface GameTitleItem {
+  title: string;
+  collection: string | null;
+}
+
 interface TitlesResponse {
-  titles: string[];
+  titles: GameTitleItem[];
 }
 
 export default function LibraryButton() {
@@ -18,7 +23,7 @@ export default function LibraryButton() {
   if (titlesError) return null;
   if (titlesIsLoading) return null;
 
-  const title = titles?.titles ? titles.titles[0] : null;
+  const title = titles?.titles ? titles.titles[0]?.title : null;
   return (
     <>
       <Link

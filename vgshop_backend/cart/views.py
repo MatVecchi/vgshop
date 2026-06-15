@@ -110,7 +110,7 @@ class OrderModelViewSet(
 
 
 class LibraryModelViewSet(
-    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin
+    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin
 ):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
     serializer_class = LibrarySerializer
@@ -129,5 +129,10 @@ class LibraryModelViewSet(
     @action(detail=False, methods=["GET"])
     def list_titles(self, request):
         queryset = self.get_queryset()
-        titles = [ item.game.title for item in queryset]
+        titles = [ {"title": item.game.title, "collection": item.collection.name if item.collection else None} for item in queryset]
         return Response( {"titles":titles}, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        if not kwargs.get('partial', False):
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)

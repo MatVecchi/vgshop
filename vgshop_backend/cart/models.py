@@ -124,8 +124,8 @@ class Collection(models.Model):
     E' aggiornata tramite l'acquisto di un carrello (e seguente trasformazione in un ordine).
     """
 
-    nome = models.CharField(
-        verbose_name=_("nome"),
+    name = models.CharField(
+        verbose_name=_("name"),
         null=False,
         blank=False,
     )
@@ -135,7 +135,7 @@ class Collection(models.Model):
         verbose_name_plural = _("Collections")
 
     def __str__(self):
-        return self.nome
+        return self.name
 
 class Library(models.Model):
     """

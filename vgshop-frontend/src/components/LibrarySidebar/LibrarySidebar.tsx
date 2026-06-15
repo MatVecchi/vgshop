@@ -18,6 +18,17 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { Gamepad2, Library, Inbox, ChevronDown } from "lucide-react";
 import useSWR from "swr";
 import { Spinner } from "../ui/spinner";
@@ -25,8 +36,21 @@ import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area"; // Assicurati di averlo installato: npx shadcn@latest add scroll-area
 import { Badge } from "../ui/badge";
 
+interface GameTitleItem {
+  title: string;
+  collection: string | null;
+}
+
 interface TitlesResponse {
+  titles: GameTitleItem[];
+}
+
+interface FamilyTitlesResponse {
   titles: string[];
+}
+
+interface CollectionsGrouped {
+  [key: string]: string[];
 }
 
 export function LibrarySidebar({ className }: { className?: string }) {
@@ -40,11 +64,26 @@ export function LibrarySidebar({ className }: { className?: string }) {
     data: familyGameData,
     error: familyGameError,
     isLoading: familyGameIsLoading,
-  } = useSWR<TitlesResponse>(`/api/family/dashboard/games/`);
+  } = useSWR<FamilyTitlesResponse>(`/api/family/dashboard/games/`);
 
   const hasGames = gameData?.titles && gameData.titles.length > 0;
   const hasFamilyGames =
     familyGameData?.titles && familyGameData.titles.length > 0;
+
+  const collectionsGrouped: CollectionsGrouped = {};
+  if (gameData?.titles) {
+    gameData.titles.forEach((item) => {
+      const colName = item.collection || "Senza Collezione";
+      if (!collectionsGrouped[colName]) {
+        collectionsGrouped[colName] = [];
+      }
+      collectionsGrouped[colName].push(item.title);
+    });
+  }
+
+  const gamesMap = new Map();
+  gameData?.titles.forEach((item) => gamesMap.set(item.title, true));
+  familyGameData?.titles.forEach((title) => gamesMap.set(title, true));
 
   return (
     <Sidebar variant="floating" className={className}>
@@ -61,89 +100,135 @@ export function LibrarySidebar({ className }: { className?: string }) {
 
       <SidebarContent>
         <ScrollArea className="h-full">
-          <Collapsible defaultOpen className="group/collapsible">
-            <SidebarGroup>
-              <SidebarGroupLabel className="px-4" asChild>
-                <CollapsibleTrigger>
-                  I tuoi titoli{" "}
-                  <ChevronDown className="-rotate-90 ml-auto transition-transform group-data-[state=open]/collapsible:rotate-0" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  {gameIsLoading ? (
-                    <div className="flex flex-col items-center justify-center p-8 gap-2 text-muted-foreground">
-                      <Spinner />
-                      <span className="text-xs">Caricamento...</span>
-                    </div>
-                  ) : gameError ? (
-                    <div className="p-4 text-xs text-red-500 bg-red-50 dark:bg-red-950/20 rounded-md mx-4">
-                      Errore nel caricamento
-                    </div>
-                  ) : !hasGames ? (
-                    <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
-                      <Inbox className="w-8 h-8 mb-2 opacity-50" />
-                      <p className="text-sm">Nessun gioco qui.</p>
-                    </div>
-                  ) : (
-                    <SidebarMenu className="px-2">
-                      {gameData?.titles.map((title, index) => (
-                        <SidebarMenuItem key={index}>
-                          <SidebarMenuButton asChild tooltip={title}>
-                            <Link href={`/library/${title}`}>
-                              <Gamepad2 className="w-4 h-4 shrink-0" />
-                              <span className="truncate">{title}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  )}
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-          {hasFamilyGames ? (
-            <Collapsible defaultOpen className="group/collapsible">
-              <SidebarGroup>
-                <SidebarGroupLabel className="px-4" asChild>
-                  <CollapsibleTrigger>
-                    Giochi condivisi{" "}
-                    <ChevronDown className="-rotate-90 ml-auto transition-transform group-data-[state=open]/collapsible:rotate-0" />
-                  </CollapsibleTrigger>
-                </SidebarGroupLabel>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    {familyGameIsLoading ? (
-                      <div className="flex flex-col items-center justify-center p-8 gap-2 text-muted-foreground">
-                        <Spinner />
-                        <span className="text-xs">Caricamento...</span>
-                      </div>
-                    ) : familyGameError ? (
-                      <div className="p-4 text-xs text-red-500 bg-red-50 dark:bg-red-950/20 rounded-md mx-4">
-                        Errore nel caricamento
-                      </div>
-                    ) : (
-                      <SidebarMenu className="px-2">
-                        {familyGameData?.titles.map((title, index) => (
-                          <SidebarMenuItem key={index}>
-                            <SidebarMenuButton asChild tooltip={title}>
-                              <Link href={`/library/family/${title}`}>
-                                <Gamepad2 className="w-4 h-4 shrink-0" />
-                                <span className="truncate">{title}</span>
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    )}
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
-          ) : (
-            <></>
-          )}
+          <ContextMenu>
+            {Object.entries(collectionsGrouped).map(
+              ([collectionName, titles]) => (
+                <Collapsible
+                  key={collectionName}
+                  defaultOpen
+                  className="group/collapsible"
+                >
+                  <SidebarGroup className="w-full min-w-0 overflow-hidden">
+                    <SidebarGroupLabel className="px-4" asChild>
+                      <CollapsibleTrigger>
+                        {collectionName}{" "}
+                        <ChevronDown className="-rotate-90 ml-auto transition-transform group-data-[state=open]/collapsible:rotate-0" />
+                      </CollapsibleTrigger>
+                    </SidebarGroupLabel>
+                    <CollapsibleContent className="w-full min-w-0 overflow-hidden">
+                      <SidebarGroupContent className="w-full min-w-0 overflow-hidden">
+                        {gameIsLoading ? (
+                          <div className="flex flex-col items-center justify-center p-8 gap-2 text-muted-foreground">
+                            <Spinner />
+                            <span className="text-xs">Caricamento...</span>
+                          </div>
+                        ) : gameError ? (
+                          <div className="p-4 text-xs text-red-500 bg-red-50 dark:bg-red-950/20 rounded-md mx-4">
+                            Errore nel caricamento
+                          </div>
+                        ) : !hasGames ? (
+                          <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
+                            <Inbox className="w-8 h-8 mb-2 opacity-50" />
+                            <p className="text-sm">Nessun gioco qui.</p>
+                          </div>
+                        ) : (
+                          <SidebarMenu className="w-full min-w-0 overflow-hidden px-2">
+                            {titles.map((title, index) => (
+                              <SidebarMenuItem
+                                key={index}
+                                className="w-full min-w-0 overflow-hidden"
+                              >
+                                <SidebarMenuButton
+                                  asChild
+                                  tooltip={title}
+                                  className="w-full min-w-0 overflow-hidden"
+                                >
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <ContextMenuTrigger>
+                                        {" "}
+                                        <Link
+                                          href={`/library/${title}`}
+                                          className="flex items-center gap-2 w-full min-w-0 pr-8"
+                                        >
+                                          <Gamepad2 className="w-4 h-4 shrink-0" />
+                                          <span className="truncate">
+                                            {title}
+                                          </span>
+                                        </Link>
+                                      </ContextMenuTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{title}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        )}
+                      </SidebarGroupContent>
+                    </CollapsibleContent>
+                  </SidebarGroup>
+                </Collapsible>
+              ),
+            )}
+
+            {hasFamilyGames ? (
+              <Collapsible defaultOpen className="group/collapsible">
+                <SidebarGroup className="w-full min-w-0 overflow-hidden">
+                  <SidebarGroupLabel className="px-4" asChild>
+                    <CollapsibleTrigger>
+                      Giochi condivisi{" "}
+                      <ChevronDown className="-rotate-90 ml-auto transition-transform group-data-[state=open]/collapsible:rotate-0" />
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                  <CollapsibleContent className="w-full min-w-0 overflow-hidden">
+                    <SidebarGroupContent className="w-full min-w-0 overflow-hidden">
+                      {familyGameIsLoading ? (
+                        <div className="flex flex-col items-center justify-center p-8 gap-2 text-muted-foreground">
+                          <Spinner />
+                          <span className="text-xs">Caricamento...</span>
+                        </div>
+                      ) : familyGameError ? (
+                        <div className="p-4 text-xs text-red-500 bg-red-50 dark:bg-red-950/20 rounded-md mx-4">
+                          Errore nel caricamento
+                        </div>
+                      ) : (
+                        <SidebarMenu className="px-2 w-full min-w-0 overflow-hidden">
+                          {familyGameData?.titles.map((title, index) => (
+                            <SidebarMenuItem
+                              key={index}
+                              className="w-full min-w-0 overflow-hidden"
+                            >
+                              <SidebarMenuButton
+                                asChild
+                                tooltip={title}
+                                className="w-full min-w-0 overflow-hidden"
+                              >
+                                <Link
+                                  href={`/library/family/${title}`}
+                                  className="flex items-center gap-2 w-full min-w-0 pr-8"
+                                >
+                                  <Gamepad2 className="w-4 h-4 shrink-0" />
+                                  <span className="truncate">{title}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      )}
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            ) : (
+              <></>
+            )}
+            <ContextMenuContent>
+              <ContextMenuItem>Aggiungi a una collezione</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </ScrollArea>
       </SidebarContent>
     </Sidebar>

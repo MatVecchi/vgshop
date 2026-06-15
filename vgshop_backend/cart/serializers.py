@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Library, CartItem, Order, OrderItem
+from .models import Library, CartItem, Order, OrderItem, Collection
 from games.serializers import GameSerializer
 from games.models import Game
 from django.shortcuts import get_object_or_404
@@ -179,7 +179,38 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
 class LibrarySerializer(serializers.ModelSerializer):
     game = GameSerializer(read_only=True)
+    collection = serializers.CharField(allow_null=True, required=False)
 
     class Meta:
         model = Library
-        fields = ["game"]
+        fields = ["game", "collection"]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["collection"] = instance.collection.name if instance.collection else None
+        return representation
+
+    def update(self, instance, validated_data):
+        user = self.context["request"].user
+
+        if "collection" in validated_data:
+            collection_name = validated_data.pop("collection")
+            old_collection = instance.collection
+
+            if collection_name:
+                collection_name = collection_name.strip()
+                if not collection_name:
+                    instance.collection = None
+                else:
+                    collection, created = Collection.objects.get_or_create(name=collection_name)
+                    instance.collection = collection
+            else:
+                instance.collection = None
+
+            instance.save()
+
+            if old_collection and old_collection != instance.collection:
+                if not Library.objects.filter(collection=old_collection).exists():
+                    old_collection.delete()
+
+        return instance
