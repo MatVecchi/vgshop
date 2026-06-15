@@ -69,6 +69,12 @@ export function DepositDialog() {
     isLoading: isLoadingCards,
   } = useSWR("/credit_cards/");
 
+  const {
+    data: user,
+    error: userError,
+    isLoading: userIsLoading,
+  } = useSWR("/api/profile");
+
   const handleCardSelect = (id: string) => {
     const selectedCard: CreditCard = cardsList.find(
       (card: CreditCard) => card.id.toString() === id,
@@ -129,6 +135,8 @@ export function DepositDialog() {
       setSubmitLoading(false);
     }
   };
+
+  if (!user || user.piva || userError || userIsLoading) return null;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

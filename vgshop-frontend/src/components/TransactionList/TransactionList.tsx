@@ -119,6 +119,16 @@ export default function TransactionList() {
               </Link>
             </EmptyContent>
           </Empty>
+        ) : totalPages === 0 ? (
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>Non ci sono Transazioni</EmptyTitle>{" "}
+              <EmptyDescription>
+                Esegui delle operazioni sul saldo VGshop per visualizzare le
+                transazioni
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
           transactions && (
             <>

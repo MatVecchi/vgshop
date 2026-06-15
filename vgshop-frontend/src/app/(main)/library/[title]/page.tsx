@@ -43,7 +43,7 @@ export default function Library({ params }: Props) {
   if (!title || gameError || !gameData) {
     return (
       <>
-        <div className="max-w-7xl flex-1 mx-auto p-4">
+        <div className="max-w-7xl flex-1 mx-auto p-4 pt-26">
           <h2 className="uppercase text-4xl font-bold">I tuoi giochi</h2>
           <div className="flex-1">
             <Empty>
@@ -74,7 +74,7 @@ export default function Library({ params }: Props) {
             game: gameData.game,
             error: gameError,
             isLoading: gameIsLoading,
-            fromPanel:false
+            fromPanel: false,
           }}
         />
       </div>

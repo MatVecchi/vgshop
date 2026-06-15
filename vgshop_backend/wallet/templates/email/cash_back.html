@@ -1,0 +1,104 @@
+{% extends "email/base.html" %} 
+{% block title %} Conferma Ritiro{% endblock title %} 
+{% block content %}
+<tr>
+  <td style="padding: 30px 30px 15px 30px">
+    <h2 style="margin: 0 0 10px 0; color: #ffffff; font-size: 20px">
+      Conferma di ritiro - Grazie per il tuo sostegno a VGshop !
+    </h2>
+    <p style="margin: 0; color: #94a3b8; font-size: 15px; line-height: 1.5">
+      Il tuo ritiro è avvenuto un successo, congratulazioni per le vendite!
+    </p>
+  </td>
+</tr>
+
+<tr>
+  <td style="padding: 20px 30px 40px 30px">
+    <table
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      style="
+        background-color: #0f121d;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid #2d3748;
+      "
+    >
+      <tr>
+        <td
+          style="
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          "
+        >
+          RIEPILOGO DEPOSITO
+        </td>
+        <td
+          align="right"
+          style="color: #38bdf8; font-size: 22px; font-weight: 800"
+        >
+          €{{ movement | floatformat:2 }}
+        </td>
+      </tr>
+
+      <tr>
+        <td
+          style="
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          "
+        >
+          IBAN
+        </td>
+        <td
+          align="right"
+          style="
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          "
+        >
+          {{ iban }}
+        </td>
+      </tr>
+
+      <tr>
+        <td
+          style="
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          "
+        >
+          Partita Iva
+        </td>
+        <td
+          align="right"
+          style="
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          "
+        >
+          {{ piva }}
+        </td>
+      </tr>
+
+      <tr>
+        <p style="margin: 0; color: #94a3b8; font-size: 15px; line-height: 1.5">
+          data di deposito: {{date}}
+        </p>
+      </tr>
+    </table>
+  </td>
+</tr>
+{% endblock content %}

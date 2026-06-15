@@ -10,7 +10,7 @@ from .serializers import (
     DepositSerializer,
 )
 from .models import Transaction, CreditCard, WalletCard, Wallet
-from account.permissions import IsInCustomerGroup
+from account.permissions import IsInCustomerGroup, IsInPublisherGroup
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter
 from django.db import transaction
@@ -20,6 +20,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+import datetime
 
 
 class TransactionPaginator(PageNumberPagination):
@@ -29,7 +31,7 @@ class TransactionPaginator(PageNumberPagination):
 class WalletModelViewset(
     viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin
 ):
-    permission_classes = [IsAuthenticated, IsInCustomerGroup]
+    
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = TransactionPaginator
     filter_backends = [OrderingFilter]
@@ -37,9 +39,17 @@ class WalletModelViewset(
     ordering = ["-date"]
 
     def get_serializer_class(self):
-        if self.action in ["list"]:
+        if self.action in ["list", "get_cash_back", "get_credit"]:
             return TransactionSerializer
         return DepositSerializer
+    
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated]
+        if self.action in ["create"]:
+            permission_classes += [IsInCustomerGroup]
+        elif self.action in ["get_cash_back"]:
+            permission_classes += [IsInPublisherGroup]
+        return [permission() for permission in permission_classes]
 
     # carico il wallet dell'utente loggato e tutte le sue carte passando per la tabella intermedia con i related names
     def get_queryset(self):
@@ -48,8 +58,69 @@ class WalletModelViewset(
 
     @action(detail=False, methods=["GET"], url_path="wallet/credit")
     def get_credit(self, request):
-        wallet = Wallet.objects.get(user = request.user)
+        wallet = get_object_or_404(Wallet, user=request.user)
         return Response({"credit": wallet.credit})
+    
+    @action(detail=False, methods=["GET"], url_path="wallet/cash_back")
+    @transaction.atomic
+    def get_cash_back(self, request):
+        wallet = get_object_or_404(Wallet, user=request.user)
+        cash_back_amount = wallet.credit
+        if cash_back_amount <= 0:
+            return Response({"message": "Il conto è vuoto !"}, status=status.HTTP_400_BAD_REQUEST) 
+        
+        try:
+            transaction = Transaction.objects.create(
+                wallet=wallet, movement=-cash_back_amount
+            )
+            wallet.credit = 0
+            wallet.save()
+        except Exception as e:
+            raise serializers.ValidationError("Errore nel ritiro, riprova")
+
+        context = {
+            "movement": cash_back_amount,
+            "date": datetime.datetime.today(),
+            "piva": request.user.piva,
+            "iban": request.user.iban
+        }
+
+        html_content = render_to_string('email/cash_back.html', context)
+        text_content = strip_tags(html_content)
+
+        msg = EmailMultiAlternatives(
+            subject="Conferma avvenuto ritiro - Grazie per il tuo sostegno!",
+            body=text_content,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[request.user.email]  
+        )
+
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+
+        return Response({"message": "Ritiro avvenuto con successo !"})
+    
+    def perform_create(self, serializer):
+        data = super().perform_create(serializer)
+        completed_transaction = serializer.instance
+        context = {
+            "movement": completed_transaction.movement,
+            "date": completed_transaction.date,
+        }
+
+        html_content = render_to_string('email/deposit.html', context)
+        text_content = strip_tags(html_content)
+
+        msg = EmailMultiAlternatives(
+            subject="Conferma avvenuto deposito - Grazie per il tuo sostegno!",
+            body=text_content,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[self.request.user.email]  
+        )
+
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+        return data
 
 
 class CreditCardModelViewSet(
@@ -99,34 +170,3 @@ class CreditCardModelViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-
-class DepositView(APIView):
-    permission_classes = [IsAuthenticated, IsInCustomerGroup] 
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request):
-        serializer = DepositSerializer(data = request.data, context = {"request":request})
-        if serializer.is_valid():
-            serializer.save()
-
-            completed_transaction = serializer.instance
-            context = {
-                "movement": completed_transaction.movement,
-                "date": completed_transaction.date,
-            }
-
-            html_content = render_to_string('email/deposit.html', context)
-            text_content = strip_tags(html_content)
-
-            msg = EmailMultiAlternatives(
-                subject="Conferma avvenuto deposito - Grazie per il tuo sostegno!",
-                body=text_content,
-                from_email=settings.EMAIL_HOST_USER,
-                to=[request.user.email]  
-            )
-
-            msg.attach_alternative(html_content, "text/html")
-            msg.send(fail_silently=False)
-            
-            return Response({"message":"Deposito effettuato con successo !"} , status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

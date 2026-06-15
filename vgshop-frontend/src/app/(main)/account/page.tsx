@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import useSWR from "swr";
 import Link from "next/dist/client/link";
@@ -33,6 +33,11 @@ import {
   PenIcon,
   Key,
   LockKeyhole,
+  MinusCircle,
+  PlusCircle,
+  UserRoundKey,
+  KeyRound,
+  RotateCw,
 } from "lucide-react";
 import OrderList from "@/components/OrderList/OrderList";
 import CreditCardList from "@/components/CreditCardList/CreditCardList";
@@ -47,6 +52,8 @@ import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
 import { useSWRConfig } from "swr";
 import GrainientBg from "@/components/GrainientBg/GrainientBg";
+import CashBackDialog from "@/components/CashBackDialog/CashBackDialog";
+import ResetPasswordFields from "@/components/ResetPasswordFields/ResetPasswordFields";
 
 export default function Account() {
   const { data, error, mutate } = useSWR("/api/profile/");
@@ -56,8 +63,9 @@ export default function Account() {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [piva, setPiva] = useState<string>("");
-  const [website, setWebsite] = useState<string>("");
+  const [piva, setPiva] = useState<string | null>(null);
+  const [iban, setIban] = useState<string | null>(null);
+  const [website, setWebsite] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
@@ -72,8 +80,9 @@ export default function Account() {
     setFirstName(profilo.first_name || "");
     setLastName(profilo.last_name || "");
     setEmail(profilo.email || "");
-    setPiva(profilo.piva || "");
-    setWebsite(profilo.website || "");
+    setPiva(profilo.piva || null);
+    setIban(profilo.iban || null);
+    setWebsite(profilo.website || null);
     setImage(null);
   };
 
@@ -108,6 +117,7 @@ export default function Account() {
 
   const handleConfirm = async () => {
     setUpdateLoading(true);
+    setErrorMessage({});
     try {
       const formData = new FormData();
       formData.append("username", username);
@@ -120,8 +130,9 @@ export default function Account() {
       }
 
       if (data.piva) {
-        formData.append("piva", piva);
-        formData.append("website", website);
+        formData.append("piva", piva ? piva : "");
+        formData.append("iban", iban ? iban : "");
+        formData.append("website", website ? website : "");
       }
 
       const response = await api.patch(`/api/update/`, formData, {
@@ -147,7 +158,9 @@ export default function Account() {
     }
   };
 
-  const { data: creditValue } = useSWR("/transactions/wallet/credit");
+  const { data: creditValue, error: creditValueError } = useSWR(
+    "/transactions/wallet/credit",
+  );
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -179,7 +192,7 @@ export default function Account() {
             defaultValue="info"
             orientation="vertical"
           >
-            <TabsList className="h-auto! max-h-96">
+            <TabsList className=" min-h-96">
               <TabsTrigger className="hover:cursor-pointer" value="info">
                 <Info className="inline-block mr-2" />
                 Informazioni
@@ -407,26 +420,52 @@ export default function Account() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
-                      <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                        <Building className="w-4 h-4" /> Partita IVA
-                      </span>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          value={piva}
-                          onChange={(e) => setPiva(e.target.value)}
-                        />
-                      ) : (
-                        <p className="text-base font-semibold border-b pb-1 pl-1 text-primary">
-                          {piva}
-                        </p>
-                      )}
-                      {errorMessage.piva && (
-                        <p className="text-xs text-red-500">
-                          {errorMessage.piva[0]}
-                        </p>
-                      )}
+                    <div className="flex flex-col sm:flex-row gap-4 sm:col-span-2 mt-2 w-full">
+                      {/* Blocco Partita IVA */}
+                      <div className="flex flex-col gap-1.5 w-full sm:w-1/2">
+                        <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                          <Building className="w-4 h-4" /> Partita IVA
+                        </span>
+                        {isEditing ? (
+                          <Input
+                            type="text"
+                            value={piva ? piva : ""}
+                            onChange={(e) => setPiva(e.target.value)}
+                          />
+                        ) : (
+                          <p className="text-base font-semibold border-b pb-1 pl-1 text-primary min-h-[33px]">
+                            {piva || "-"}
+                          </p>
+                        )}
+                        {errorMessage.piva && (
+                          <p className="text-xs text-red-500">
+                            {errorMessage.piva[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Blocco IBAN */}
+                      <div className="flex flex-col gap-1.5 w-full sm:w-1/2">
+                        <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                          <CreditCard className="w-4 h-4" /> IBAN
+                        </span>
+                        {isEditing ? (
+                          <Input
+                            type="text"
+                            value={iban ? iban : ""}
+                            onChange={(e) => setIban(e.target.value)}
+                          />
+                        ) : (
+                          <p className="text-base font-semibold border-b pb-1 pl-1 text-primary min-h-[33px]">
+                            {iban || "-"}
+                          </p>
+                        )}
+                        {errorMessage.iban && (
+                          <p className="text-xs text-red-500">
+                            {errorMessage.iban[0]}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5 sm:col-span-2 mt-2">
@@ -436,7 +475,7 @@ export default function Account() {
                       {isEditing ? (
                         <Input
                           type="url"
-                          value={website}
+                          value={website ? website : ""}
                           onChange={(e) => setWebsite(e.target.value)}
                         />
                       ) : (
@@ -476,7 +515,9 @@ export default function Account() {
                     dell'account
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-6"></CardContent>
+                <CardContent className="w-full max-w-[90%] mx-auto flex flex-col gap-6">
+                  <ResetPasswordFields forgot={false} />
+                </CardContent>
               </Card>
             </TabsContent>
             <TabsContent value="payments" className="flex flex-col gap-4">
@@ -492,10 +533,18 @@ export default function Account() {
                 </CardHeader>
                 <CardContent className="flex">
                   <p className="text-5xl font-medium">
-                    {creditValue?.credit.toFixed(2) || "0.00"} €
+                    {creditValueError
+                      ? "-.--"
+                      : creditValue?.credit.toFixed(2) || "0.00"}{" "}
+                    €
                   </p>
                   <div className="ml-auto flex flex-col gap-2">
-                    <DepositDialog />
+                    {!creditValueError && (
+                      <>
+                        <CashBackDialog />
+                        <DepositDialog />
+                      </>
+                    )}
                     <TransactionList />
                   </div>
                 </CardContent>

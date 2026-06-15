@@ -14,12 +14,11 @@ class UserGameInteractionDataset(Dataset):
             dtype=torch.float32,
         )
 
-        print(self.targets)
+        # print(self.targets)
 
-        self.tags_per_game = {
-            game_id: torch.tensor(tags, dtype=torch.float32)
-            for game_id, tags in tags_per_game.items()
-        }
+        self.tags_per_sample = [
+            torch.tensor(tags, dtype=torch.float32) for tags in tags_per_game
+        ]
 
     @staticmethod
     def _calc_interest(star, in_lib, w_stars=5, w_lib=1):
@@ -28,7 +27,8 @@ class UserGameInteractionDataset(Dataset):
 
         star = 3 if star == 0 else star
         norm_stars = (star - 1) / 4
-        return (in_lib * w_lib) + (norm_stars * w_stars)
+        interest = (in_lib * w_lib) + (norm_stars * w_stars)
+        return interest / (w_lib + w_stars)
 
     def __len__(self):
         return len(self.users)
@@ -36,7 +36,7 @@ class UserGameInteractionDataset(Dataset):
     def __getitem__(self, index):
         user = self.users[index]
         game = self.games[index]
-        tags = self.tags_per_game[game.item()]
+        tags = self.tags_per_sample[index]
         target = self.targets[index]
 
         return user, game, tags, target

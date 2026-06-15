@@ -16,7 +16,13 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { format } from "date-fns";
-import { Banknote, Check, ChevronDownIcon, PiggyBank } from "lucide-react";
+import {
+  Banknote,
+  Check,
+  ChevronDownIcon,
+  EqualApproximatelyIcon,
+  PiggyBank,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -52,6 +58,7 @@ import { Textarea } from "../ui/textarea";
 import { Calendar } from "../ui/calendar";
 import { useRouter } from "next/navigation";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import { GameGridCarousel } from "../GameGridCarousel/GameGridCarousel";
 
 interface Props {
   params: {
@@ -236,14 +243,6 @@ export default function GameInfo({ params }: Props) {
     }
   };
 
-  if (isLoading) return <Spinner />;
-  if (error)
-    return (
-      <div className="p-8 text-center text-destructive">
-        Errore nel caricamento
-      </div>
-    );
-
   const handleSubmit = async (title: string) => {
     setSubmitLoading(true);
     setErrorMessage(""); // Resetta l'errore precedente
@@ -282,10 +281,12 @@ export default function GameInfo({ params }: Props) {
   if (isLoading) return <Spinner />;
   if (error)
     return (
-      <div className="p-8 text-center text-destructive">
+      <div className="p-8 pt-20 text-center text-destructive">
         Errore nel caricamento
       </div>
     );
+
+  const similar_games = game.similar_games ? game.similar_games : [];
 
   return (
     <div className="min-h-screen bg-slate-950 p-0  text-foreground font-sans">
@@ -483,7 +484,9 @@ export default function GameInfo({ params }: Props) {
 
                   <div className="flex items-center gap-2">
                     <ShoppingCart className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
-                    Aggiungi al carrello
+                    {game.release_date <= new Date().toLocaleDateString("en-US")
+                      ? "Aggiungi al carrello"
+                      : "Preordina"}
                   </div>
                 </Button>
               ) : null}
@@ -848,6 +851,23 @@ export default function GameInfo({ params }: Props) {
             </CardHeader>
           </Card>
         </div>
+
+        {similar_games.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-50 mb-2">
+              <EqualApproximatelyIcon className="h-5 w-5 text-primary" />
+              Giochi simili a questo
+            </h2>
+            <GameGridCarousel
+              params={{
+                games: similar_games,
+                error: error,
+                isLoading: isLoading,
+                game_per_page: 5,
+              }}
+            />
+          </div>
+        )}
 
         <div className="mt-10">
           <ReviewSection params={{ gameTitle: game.title }} />

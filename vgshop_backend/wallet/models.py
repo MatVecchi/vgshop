@@ -39,7 +39,7 @@ class Wallet(models.Model):
 
 class Transaction(models.Model):
     """
-    Modello che implementa le transazioni eseguite solo ed unicamente relative al deposito wallet
+    Modello che implementa le transazioni eseguite solo ed unicamente relative al deposito/ritiro wallet
     """
 
     wallet = models.ForeignKey(

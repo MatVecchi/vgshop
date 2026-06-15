@@ -1,6 +1,6 @@
 "use client";
 import { useDropzone } from "react-dropzone";
-import { Upload, X } from "lucide-react";
+import { Images, Plus, PlusCircle, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Label } from "../ui/label";
@@ -43,7 +43,14 @@ export function ImagesDropZone({
         <input {...getInputProps()} />
         <p className="text-center">Trascina le immagini qui</p>
       </div>
-      <Label htmlFor="title">Immagini Caricate</Label>
+      <Label
+        htmlFor="uploaded_images"
+        className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90 flex items-center gap-1.5"
+      >
+        <Images className="w-3.5 h-3.5 text-primary/80" />
+        <PlusCircle className="w-3.5 h-3.5 text-green-600!" />
+        Immagini caricate
+      </Label>
       <div className="grid grid-cols-3 gap-2 justify-items-center">
         {files.map((item, i) => (
           <div

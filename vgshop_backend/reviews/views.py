@@ -77,6 +77,7 @@ class ReviewViewSet(
             list_result = super().list(request, *args, **kwargs)
             queryset = self.get_queryset()
             total_reviews = queryset.count()
+            
             if total_reviews > 0:
                 counts = queryset.values("stars").annotate(total=Count("stars"))
                 stats = {i: 0 for i in range(1, 6)}

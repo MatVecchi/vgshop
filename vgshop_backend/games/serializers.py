@@ -166,7 +166,7 @@ class GameUpdateSerializer(GameRegisterSerializer):
     def update(self, instance, validated_data):
         new_images = validated_data.pop("uploaded_images", [])
         keep_images = validated_data.pop("keep_images", [])
-        print("KEEP: \n\n\n\n\n", keep_images)
+        
         tag_list = validated_data.pop("tag_list", None)
 
         instance = super().update(instance, validated_data)

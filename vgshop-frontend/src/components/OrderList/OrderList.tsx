@@ -102,9 +102,24 @@ export default function OrderList() {
 
   const pageNumbers = calculatePages();
 
+  if (totalPages === 0)
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>Non ci sono ordini</EmptyTitle>
+          <EmptyDescription>
+            Quando compri un gioco il tuo ordine verrà registrato qui !
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Link href={"/explore/"}>
+            <Button variant="default"> Esplora catalogo</Button>
+          </Link>
+        </EmptyContent>
+      </Empty>
+    );
   return (
     <>
-      {/* Lista delle Card */}
       <div className="space-y-2">
         {orders.results.map((order: OrderInfo, index: number) => (
           <Card
