@@ -4,7 +4,7 @@ from faker import Faker
 from django.utils import timezone
 from games.factories import GameFactory
 from account.factories import UserFactory
-from .models import CartItem, Order, OrderItem, Library
+from .models import CartItem, Order, OrderItem, Library, Collection
 
 faker = Faker(locale="it_IT")
 
@@ -23,13 +23,16 @@ class OrderFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     payment_method = factory.Iterator(Order.PaymentMethods.values)
     
+    class Params:
+        start_date = None
+
     @factory.lazy_attribute
     def date(self):
-        return faker.date_time_between(
-            start_date=self.user.date_joined, 
-            end_date='now',
-            tzinfo=timezone.get_current_timezone()
-        )
+        s_date = self.start_date if self.start_date else self.user.date_joined.date()
+        e_date = timezone.now().date()
+        if s_date > e_date:
+            return e_date
+        return faker.date_between(start_date=s_date, end_date=e_date)
 
 class OrderItemFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -38,6 +41,12 @@ class OrderItemFactory(factory.django.DjangoModelFactory):
     order = factory.SubFactory(OrderFactory)
     game = factory.SubFactory(GameFactory)
 
+class CollectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Collection
+
+    name = factory.Faker("word")
+
 class LibraryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Library
@@ -45,3 +54,4 @@ class LibraryFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     game = factory.SubFactory(GameFactory)
+    collection = factory.SubFactory(CollectionFactory)

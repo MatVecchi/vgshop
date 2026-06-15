@@ -1,6 +1,8 @@
 import os
 import shutil
 import random
+import datetime
+from django.utils import timezone
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -8,7 +10,7 @@ from games.factories import GameFactory, TagFactory, GameImageFactory
 from account.factories import UserFactory
 from friends.factories import FriendFactory, MessageFactory
 from family.factories import FamilyFactory
-from cart.factories import CartItemFactory, LibraryFactory, OrderFactory, OrderItemFactory
+from cart.factories import CartItemFactory, LibraryFactory, OrderFactory, OrderItemFactory, CollectionFactory
 from reviews.factories import ReviewFactory
 from wallet.factories import WalletFactory, WalletCardFactory, TransactionFactory
 from wallet.models import Wallet
@@ -94,7 +96,6 @@ class Command(BaseCommand):
 
             self.stdout.write(self.style.SUCCESS(f"\nFinished seeding {10 * multiplier} games."))
             
-            # Ensure unique lists of users and games to prevent duplicate seeding and UNIQUE constraint failures
             users = list(set(users))
             games = list(set(games))
 
@@ -163,6 +164,8 @@ class Command(BaseCommand):
                     else:
                         card_purchases.append(game)
                 
+                user_collections = [CollectionFactory() for _ in range(random.randint(1, 4))]
+
                 def chunk_list(lst, min_size=1, max_size=3):
                     chunks = []
                     i = 0
@@ -177,20 +180,34 @@ class Command(BaseCommand):
                 
                 wallet_orders_info = []
                 for chunk in wallet_chunks:
-                    order = OrderFactory(user=user, payment_method="W")
+                    max_release_date = max(game.release_date for game in chunk)
+                    start_date = max(user.date_joined.date(), max_release_date)
+
+                    order = OrderFactory(user=user, payment_method="W", start_date=start_date)
                     total_price = 0
                     for game in chunk:
                         OrderItemFactory(order=order, game=game)
-                        LibraryFactory(user=user, game=game)
+                        LibraryFactory(
+                            user=user,
+                            game=game,
+                            collection=random.choice(user_collections) if random.random() < 0.7 else None
+                        )
                         total_price += game.price
                         self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s library via Wallet Order"))
                     wallet_orders_info.append(total_price)
                     
                 for chunk in card_chunks:
-                    order = OrderFactory(user=user, payment_method="C")
+                    max_release_date = max(game.release_date for game in chunk)
+                    start_date = max(user.date_joined.date(), max_release_date)
+
+                    order = OrderFactory(user=user, payment_method="C", start_date=start_date)
                     for game in chunk:
                         OrderItemFactory(order=order, game=game)
-                        LibraryFactory(user=user, game=game)
+                        LibraryFactory(
+                            user=user,
+                            game=game,
+                            collection=random.choice(user_collections) if random.random() < 0.7 else None
+                        )
                         self.stdout.write(self.style.SUCCESS(f"Added {game.title} to {user.username}'s library via Card Order"))
 
                 self.stdout.write("\nCreating reviews...")
@@ -248,6 +265,61 @@ class Command(BaseCommand):
                 for _ in range(num_cards):
                     WalletCardFactory(wallet=wallet)
                     self.stdout.write(self.style.SUCCESS(f"Added credit card to {user.username}'s wallet"))
+
+            self.stdout.write("\nCreating wallets for publishers...")
+            from django.contrib.auth import get_user_model
+            from games.models import Game
+            from cart.models import OrderItem
+            from decimal import Decimal
+            
+            User = get_user_model()
+            publishers = User.objects.filter(Q(piva__isnull=False) | Q(groups__name="Publisher")).distinct()
+            
+            for publisher in publishers:
+                publisher_games = Game.objects.filter(publisher=publisher)
+                sales = OrderItem.objects.filter(game__in=publisher_games)
+                total_earnings = sum(Decimal(sale.game.price) for sale in sales)
+                
+                if total_earnings > 0:
+                    withdrawal_amount = Decimal(random.randint(0, int(total_earnings)))
+                else:
+                    withdrawal_amount = Decimal(0)
+                
+                withdrawals = []
+                if withdrawal_amount > 0:
+                    num_withdrawals = random.randint(1, 4)
+                    if num_withdrawals == 1 or withdrawal_amount < num_withdrawals:
+                        withdrawals.append(withdrawal_amount)
+                    else:
+                        temp_amount = withdrawal_amount
+                        for _ in range(num_withdrawals - 1):
+                            limit = int(temp_amount - (num_withdrawals - len(withdrawals)))
+                            if limit > 1:
+                                w = Decimal(random.randint(1, limit))
+                            else:
+                                w = Decimal(1)
+                            withdrawals.append(w)
+                            temp_amount -= w
+                        withdrawals.append(temp_amount)
+                
+                final_credit = total_earnings - withdrawal_amount
+                
+                publisher_wallet, created = Wallet.objects.get_or_create(
+                    user=publisher,
+                    defaults={'credit': final_credit}
+                )
+                if not created:
+                    publisher_wallet.credit = final_credit
+                    publisher_wallet.save()
+                
+                self.stdout.write(self.style.SUCCESS(f"Created/updated wallet for publisher {publisher.username} with credit {final_credit}"))
+                
+                for w_amt in withdrawals:
+                    TransactionFactory(
+                        wallet=publisher_wallet,
+                        movement=-w_amt
+                    )
+                    self.stdout.write(self.style.SUCCESS(f"Created withdrawal transaction of {w_amt} to IBAN for {publisher.username}"))
                     
             self.stdout.write(self.style.SUCCESS("\nSuccessfully seeded all relations!"))
 

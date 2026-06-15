@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import User
 from games.models import Game
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.db.models import UniqueConstraint
 
@@ -63,7 +64,7 @@ class Order(models.Model):
     date = models.DateField(
         verbose_name=_("order_date"),
         auto_now=False,
-        auto_now_add=True,
+        default=timezone.now,
         null=False,
         blank=False,
     )
@@ -180,4 +181,5 @@ class Library(models.Model):
         ]
 
     def __str__(self):
-        return self.user.username + " - " + self.game.title + " - " + self.collection.nome
+        collection_name = self.collection.name if self.collection else "No Collection"
+        return f"{self.user.username} - {self.game.title} - {collection_name}"
