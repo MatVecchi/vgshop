@@ -1,8 +1,7 @@
 from friends.views import are_friends
 from account.permissions import IsInCustomerGroup
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,16 +14,15 @@ from account.serializers import (
     ChangePasswordSerializer,
     RequestForgotPassword,
 )
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from account.models import User
 from wallet.models import Wallet
 from django.db import transaction
 from family.models import Family
-from friends.models import Friend
 from django.shortcuts import get_object_or_404
-from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -35,10 +33,53 @@ from django.utils.encoding import force_bytes
 import os
 
 
-class LoginView(APIView):
-    permission_classes = [AllowAny]
+def get_user_from_token(raw_token):
+    try:
+        token = AccessToken(raw_token)
+        return User.objects.get(id=token["user_id"])
+    except (User.DoesNotExist, Exception):
+        return None
 
-    def post(self, request):
+
+class AccountViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    # Permessi specifici per ogni azione (default: IsAuthenticated)
+    permission_map = {
+        "login": [AllowAny],
+        "register": [AllowAny],
+        "token_refresh": [AllowAny],
+        "lost_password": [AllowAny],
+        "confirm_password": [AllowAny],
+        "logout": [IsAuthenticated],
+        "profile": [IsAuthenticated],
+        "username": [IsAuthenticated],
+        "update_profile": [IsAuthenticated],
+        "reset_password": [IsAuthenticated],
+    }
+
+    serializer_map = {
+        "login": UserSerializer,
+        "register": UserRegisterSerializer,
+        "token_refresh": TokenRefreshSerializer,
+        "lost_password": RequestForgotPassword,
+        "confirm_password": ChangeLostPassword,
+        "logout": UserSerializer,
+        "profile": UserSerializer,
+        "username": UserProfileSerializer,
+        "update_profile": UserUpdateSerializer,
+        "reset_password": ChangePasswordSerializer,
+    }
+
+    def get_permissions(self):
+        permission_classes = self.permission_map.get(self.action, [IsAuthenticated])
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        return self.serializer_map.get(self.action, None)
+
+    def login(self, request):
         try:
             username = request.data.get("username")
             password = request.data.get("password")
@@ -48,7 +89,7 @@ class LoginView(APIView):
                 refresh = RefreshToken.for_user(user)
                 response = Response(
                     {
-                        "user": UserSerializer(user, context={"request": request}).data,
+                        "user": self.get_serializer(user, context={"request": request}).data,
                         "message": "Login successful !",
                     }
                 )
@@ -84,19 +125,15 @@ class LoginView(APIView):
             return Response(
                 {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
-        except Exception as e:
+        except Exception:
             return Response(
                 {"message": "Server error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-
-class RegisterView(APIView):
-    permission_classes = [AllowAny]
-
     @transaction.atomic
-    def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.save()
@@ -108,11 +145,7 @@ class RegisterView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class TokenRefreshView(TokenRefreshView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
+    def token_refresh(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
         if not refresh_token:
@@ -121,10 +154,9 @@ class TokenRefreshView(TokenRefreshView):
                 {"error": "Refresh token missing"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
-        request.data["refresh"] = refresh_token
+        serializer = self.get_serializer(data={"refresh": refresh_token})
 
         try:
-            serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
         except (InvalidToken, TokenError):
             print("Token non valido o scaduto")
@@ -157,11 +189,7 @@ class TokenRefreshView(TokenRefreshView):
 
         return response
 
-
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
+    def logout(self, request):
         response = Response(
             {"message": "Logout successful !"}, status=status.HTTP_200_OK
         )
@@ -170,81 +198,62 @@ class LogoutView(APIView):
         response.delete_cookie("is_logged_in")
         return response
 
+    # --- PROFILO ---
 
-def get_user_from_token(raw_token):
-    try:
-        token = AccessToken(raw_token)
-        return User.objects.get(id=token["user_id"])
-    except (User.DoesNotExist, Exception):
-        return None
-
-
-class UsernameView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def get(self, request):
+    def username(self, request):
         user = request.user
-        serializer = UserProfileSerializer(user, context={"request": request})
+        serializer = self.get_serializer(user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def get(self, request):
+    def profile(self, request):
         user = request.user
-        serializer = UserSerializer(user, context={"request": request})
+        serializer = self.get_serializer(user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class ProfileUpdateView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def patch(self, request):
+    def update_profile(self, request):
         user = request.user
-        serializer = UserUpdateSerializer(
+        serializer = self.get_serializer(
             instance=user, data=request.data, partial=True
         )
 
         if serializer.is_valid():
             serializer.save()
             return Response(
-                UserUpdateSerializer(user, context={"request": request}).data,
+                self.get_serializer(user, context={"request": request}).data,
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # --- PASSWORD ---
 
-# Da sostituire direttamente con confirm lost password --> sono uguali
-class ResetPasswordView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request):
-        passwords = request.data
-        serializer = ChangePasswordSerializer(
-            data=passwords, context={"request": request}
-        )
+    def _modify_password(self, request, serializer_class, get_user):
+        serializer = serializer_class(data=request.data, context={"request": request})
         if serializer.is_valid():
-            user = request.user
+            user = get_user(serializer)
             user.set_password(serializer.validated_data["new_password"])
             user.save()
             return Response(
                 {"message": "Password cambiata con successo !"},
                 status=status.HTTP_200_OK,
             )
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def reset_password(self, request):
+        return self._modify_password(
+            request=request,
+            serializer_class=self.get_serializer_class(),
+             get_user=lambda _: request.user
+        )
+    
+    def confirm_password(self, request):
+       return self._modify_password(
+           request=request,
+           serializer_class=self.get_serializer_class(),
+           get_user = lambda serializer: serializer.validated_data["user"]
+       )
+    
 
-class RequestForgotPasswordView(APIView):
-    permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def change_password_email(self, user):
+    def _change_password_email(self, user):
         email = user.email
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -266,14 +275,14 @@ class RequestForgotPasswordView(APIView):
         msg.attach_alternative(html_content, "text/html")
         msg.send(fail_silently=False)
 
-    def post(self, request):
-        serializer = RequestForgotPassword(
+    def lost_password(self, request):
+        serializer = self.get_serializer(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
             try:
                 user = User.objects.get(username=serializer.validated_data["username"])
-                self.change_password_email(user)
+                self._change_password_email(user)
             except Exception:
                 pass
 
@@ -286,21 +295,6 @@ class RequestForgotPasswordView(APIView):
         )
 
 
-class ConfirmResetPasswordView(APIView):
-    permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request):
-        serializer = ChangeLostPassword(data=request.data, context={"request": request})
-        if serializer.is_valid():
-            user = serializer.validated_data["user"]
-            user.set_password(serializer.validated_data["new_password"])
-            user.save()
-            return Response(
-                {"message": "Password cambiata con successo !"},
-                status=status.HTTP_200_OK,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FamilyJoinView(APIView):

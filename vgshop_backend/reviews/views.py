@@ -96,7 +96,7 @@ class ReviewViewSet(
                 status=exc.status_code,
             )
 
-    @action(detail=False, methods=["GET"])
+    
     def my_reviews(self, request):
         reviews = self.get_queryset()
         paginator = ReviewPaginator()
