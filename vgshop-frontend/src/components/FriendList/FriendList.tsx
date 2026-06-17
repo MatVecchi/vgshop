@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import {
@@ -172,7 +173,7 @@ export default function FriendList() {
                         {user?.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <p className="font-semibold uppercase">{user.username}</p>
+                    <Link href={`/friend/${user.id}/`} className="font-semibold uppercase">{user.username}</Link>
                     {user.status &&
                     user.status === Status.PENDING &&
                     user.is_sender ? (

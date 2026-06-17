@@ -31,12 +31,12 @@ class FriendCreateSerializer(serializers.ModelSerializer):
         other_user = User.objects.get(
             username=validated_data["second_friend"]["username"]
         )
-        
+
         friend = Friend.objects.filter(
-            Q(first_friend=user, second_friend=other_user) |
-            Q(first_friend=other_user, second_friend=user)
+            Q(first_friend=user, second_friend=other_user)
+            | Q(first_friend=other_user, second_friend=user)
         ).first()
-        
+
         if friend:
             if friend.status == Friend.Status.DECLINED:
                 friend.first_friend = user
@@ -44,11 +44,9 @@ class FriendCreateSerializer(serializers.ModelSerializer):
                 friend.status = Friend.Status.PENDING
                 friend.save()
             return friend
-            
+
         friend = Friend.objects.create(
-            first_friend=user,
-            second_friend=other_user,
-            status=Friend.Status.PENDING
+            first_friend=user, second_friend=other_user, status=Friend.Status.PENDING
         )
         return friend
 
@@ -92,6 +90,7 @@ class FriendGetSerializer(serializers.ModelSerializer):
 
         # Serialize friend's details
         friend_data = UserProfileSerializer(friend, context=self.context).data
+        friend_data["id"] = friend.id
 
         # Flatten friend's data (username, profile_image) into the representation
         representation.update(friend_data)
@@ -101,22 +100,21 @@ class FriendGetSerializer(serializers.ModelSerializer):
 
         return representation
 
+
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.CharField(
-        source="sender.username", read_only=True
-    )
-    receiver = serializers.CharField(
-        source="receiver.username", read_only=True
-    )
+    sender = serializers.CharField(source="sender.username", read_only=True)
+    receiver = serializers.CharField(source="receiver.username", read_only=True)
+
     class Meta:
         model = Message
-        fields = ["id","date", "status", "message", "receiver", "sender"]
+        fields = ["id", "date", "status", "message", "receiver", "sender"]
+
 
 class MessageCreateSerializer(serializers.ModelSerializer):
     receiver = serializers.SlugRelatedField(
-        slug_field="username", 
-        queryset=User.objects.all()
+        slug_field="username", queryset=User.objects.all()
     )
+
     class Meta:
         model = Message
         fields = ["receiver", "message"]
@@ -127,13 +125,12 @@ class MessageCreateSerializer(serializers.ModelSerializer):
             message = Message.objects.create(
                 sender=self.context["request"].user,
                 receiver=validated_data["receiver"],
-                message=validated_data["message"]
+                message=validated_data["message"],
             )
             return message
         except IntegrityError:
             raise serializers.ValidationError("Messaggio già inviato")
-            
-        
+
 
 class MessageReadSerializer(serializers.ModelSerializer):
     class Meta:
