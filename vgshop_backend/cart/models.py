@@ -177,7 +177,7 @@ class Library(models.Model):
         verbose_name = _("Library")
         verbose_name_plural = _("Librarys")
         constraints = [
-            UniqueConstraint(fields=["user", "game", "collection"], name="unique_in_library_game")
+            UniqueConstraint(fields=["user", "game"], name="unique_in_library_game")
         ]
 
     def __str__(self):
