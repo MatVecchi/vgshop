@@ -49,7 +49,7 @@ class CataloguePaginator(PageNumberPagination):
 
 class GameModelViewSet(viewsets.ModelViewSet):
     """
-    Classe che definisce tutti i metodi GET, POST, PATCH, PUT, DELETE del modello Game
+    Classe che definisce tutti i metodi GET, POST, PATCH, PUT del modello Game
     """
 
     queryset = Game.objects.distinct()
@@ -63,7 +63,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
         return GameSerializer
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "tag_list", "recent"]:
+        if self.action in ["list", "retrieve", "tag_list", "recent", "recomended"]:
             permission_classes = [AllowAny]
         elif self.action == "create":
             permission_classes = [IsAuthenticated, IsInPublisherGroup]
@@ -111,13 +111,12 @@ class GameModelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["GET"])
-    def recent(self, request):
+    def recomended(self, request):
         tag = request.GET.get("tag_list", None)
         recent = True
 
         if request.user.is_authenticated:
             user = request.user
-            k = 10
             owned = Library.objects.filter(user=user).values_list("game", flat=True)
             not_owned = Game.objects.distinct()
             if tag:
@@ -143,11 +142,22 @@ class GameModelViewSet(viewsets.ModelViewSet):
                 games = [score[0] for score in scores][:5]
 
         if recent:
-            games = self.get_queryset().order_by("-release_date")
+            games = self._get_recent()
             if tag:
                 games = games.filter(tag_list=tag)
             games = games[:5]
 
+        serializer = self.get_serializer(games, many=True, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def _get_recent(self):
+        games = self.get_queryset().order_by("-release_date")
+        return games
+
+    @action(detail=False, methods=["GET"])
+    def recent(self, request):
+        games = self._get_recent()
+        games = games[:10]
         serializer = self.get_serializer(games, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -156,6 +166,11 @@ class GameModelViewSet(viewsets.ModelViewSet):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response(
+            {"message": "Metodo non valido"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
 
 class PublisherDashboard(viewsets.GenericViewSet, mixins.ListModelMixin):

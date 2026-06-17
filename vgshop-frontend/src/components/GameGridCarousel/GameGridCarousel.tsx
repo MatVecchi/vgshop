@@ -36,35 +36,14 @@ export function GameGridCarousel({ params }: Props) {
         Errore nel caricamento dei giochi
       </div>
     );
-  if (params.games?.length == 0) return <p>Nessun Gioco disponibile.</p>;
-
-  // Funzione per raggruppare i games a blocchi di 6
-  // Usiamo un fallback all'array vuoto se games non è ancora disponibile
-  const itemsToProcess = params.games ?? [];
-  const chunkedItems = [];
-  const game_per_page = params.game_per_page ? params.game_per_page : 15;
-
-  for (let i = 0; i < itemsToProcess.length; i += game_per_page) {
-    chunkedItems.push(itemsToProcess.slice(i, i + game_per_page));
-  }
+  if (params.games?.length == 0 || !params.games)
+    return <p>Nessun Gioco disponibile.</p>;
 
   return (
-    <Carousel style={{ width: "100%", margin: "0 auto" }}>
-      <CarouselContent>
-        {chunkedItems.map((group, index) => (
-          <CarouselItem key={index}>
-            <div
-              className={`grid grid-cols-5 ${game_per_page > 5 ? "grid-rows-2" : "grid-rows-1"} gap-2 gap-y-3 p-4`}
-            >
-              {group.map((game) => (
-                <GameCard key={game.id} params={{ game }} />
-              ))}
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+    <div className={`grid grid-cols-5  "grid-rows-2" gap-2 gap-y-3 p-4`}>
+      {params.games.map((game) => (
+        <GameCard key={game.id} params={{ game }} />
+      ))}
+    </div>
   );
 }

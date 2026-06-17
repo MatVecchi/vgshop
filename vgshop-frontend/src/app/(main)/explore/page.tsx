@@ -38,7 +38,7 @@ export default function Explore() {
     data: popularGames,
     error: errorPopularGames,
     isLoading: isLoadingPopularGames,
-  } = useSWR<Game[]>("games/catalogue/recent");
+  } = useSWR<Game[]>("games/catalogue/recomended/");
 
   return (
     <div>
@@ -48,9 +48,9 @@ export default function Explore() {
         </h2>
         <BigGameCarousel
           params={{
-            games: newGames,
-            error: errorNewGames,
-            isLoading: isLoadingNewGames,
+            games: popularGames,
+            error: errorPopularGames,
+            isLoading: isLoadingPopularGames,
           }}
         />
       </div>
@@ -70,9 +70,9 @@ export default function Explore() {
         </h2>
         <GameGridCarousel
           params={{
-            games: popularGames,
-            error: errorPopularGames,
-            isLoading: isLoadingPopularGames,
+            games: newGames,
+            error: errorNewGames,
+            isLoading: isLoadingNewGames,
           }}
         />
       </div>
