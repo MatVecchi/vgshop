@@ -111,7 +111,7 @@ export function DepositDialog() {
       );
       formData.append("cvv", cvv);
 
-      const response = await api.post("/transactions/deposit", formData, {
+      const response = await api.post("/transactions/deposit/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

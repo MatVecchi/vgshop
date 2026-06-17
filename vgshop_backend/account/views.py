@@ -283,9 +283,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             try:
                 user = User.objects.get(username=serializer.validated_data["username"])
                 self._change_password_email(user)
-            except Exception:
+            except Exception as e:
                 pass
-
         return Response(
             {
                 "message": [
