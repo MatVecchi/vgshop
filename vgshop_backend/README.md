@@ -67,3 +67,4 @@ Il backend del progetto è realizzato con le seguenti tecnologie e librerie chia
 - **SimpleJWT**: Pacchetto di autenticazione per gestire i token JSON Web Token (JWT).
 - **python-dotenv**: Per caricare le configurazioni sensibili dal file `.env` nelle variabili d'ambiente.
 - **Pillow**: Per la gestione e l'elaborazione dei file media (immagini dei giochi e profili utenti).
+- **PyTorch**: Utilizzato per il modello Machine Learning utilizzato nel reccomendation system.

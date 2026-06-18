@@ -33,6 +33,8 @@ Prima di procedere con l'installazione, è necessario avere installato sul dispo
 
 Per eseguire l'applicazione in locale, bisogna avviare separatamente il server Backend e il server Frontend, seguendo le istruzioni dettagliate nelle apposite sottocartelle.
 
+---
+
 ## Funzionalità Principali del Progetto
 
 Il sistema include diverse applicazioni integrate (app Django):
@@ -47,3 +49,11 @@ Il sistema include diverse applicazioni integrate (app Django):
 - Funzionalità di **gruppo familiare** per la condivisione o gestione dei contenuti.
 - Algoritmo interno per suggerire giochi consigliati in base alle **preferenze** degli utenti.
 - **Chat** in tempo reale integrata per la comunicazione istantanea tra amici o supporto utenti tramite **WebSocket**.
+
+---
+
+## Struttura database
+
+Di seguito è mostrato lo schema ER del database utilizzato da VGShop:
+
+![Schema ER Database](er.png)
