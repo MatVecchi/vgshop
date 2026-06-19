@@ -98,19 +98,21 @@ class Command(BaseCommand):
             
             users = list(set(users))
             games = list(set(games))
+            created_friendships = {user.username:set() for user in users}
 
             self.stdout.write("\nGenerating relations (Friends, Families, Cart, Library, Reviews, Wallet)...")
             for user in users:
                 self.stdout.write(f"\nProcessing user: {user.username}")
 
                 self.stdout.write("Creating friends...")
-                possible_friends = [u for u in users if u != user]
+                possible_friends = [u for u in users if (u != user and user not in created_friendships[u.username])]
                 num_friends = random.randint(0, min(20, len(possible_friends)))
                 friends = random.sample(possible_friends, num_friends)
                 for friend in friends:
                     FriendFactory(first_friend=user, second_friend=friend)
                     self.stdout.write(self.style.SUCCESS(f"Created friendship between {user.username} and {friend.username}"))
-                    
+                    created_friendships[user.username].add(friend.username)
+
                     num_messages = random.randint(0, 30)
                     for _ in range(num_messages):
                         if random.choice([True, False]):
