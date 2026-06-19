@@ -20,6 +20,9 @@ def content_based_similarity(target_game: Game, user):
         not_owned_games = not_owned_games.exclude(id__in=owned)
 
     not_owned_games = list(not_owned_games)
+    if not not_owned_games:
+        return []
+    
     all_tags_per_game = []
 
     for game in not_owned_games:
