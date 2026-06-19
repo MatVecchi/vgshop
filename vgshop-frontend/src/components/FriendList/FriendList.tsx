@@ -44,7 +44,6 @@ import Chat from "@/components/Chat/Chat";
 export enum Status {
   PENDING = "P",
   ACCEPTED = "A",
-  DECLINED = "D",
 }
 
 const USER_PER_PAGE: number = 15;
@@ -68,13 +67,11 @@ export default function FriendList() {
   const isSearching = debouncedValue.trim() !== "";
   const displayList = isSearching
     ? friends
-    : data?.results
-        ?.filter((user: any) => user.status !== Status.DECLINED)
-        .sort((first: any, second: any) => {
-          if (first.status == second.status) return 0;
-          if (first.status == Status.PENDING) return 1;
-          else return -1;
-        });
+    : data?.results.sort((first: any, second: any) => {
+        if (first.status == second.status) return 0;
+        if (first.status == Status.PENDING) return 1;
+        else return -1;
+      });
   const isLoadingSearch = isSearching && !friends && !errFriends;
   const totalPages = Math.ceil(data?.count / USER_PER_PAGE);
 
@@ -173,7 +170,12 @@ export default function FriendList() {
                         {user?.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <Link href={`/friend/${user.id}/`} className="font-semibold uppercase">{user.username}</Link>
+                    <Link
+                      href={`/friend/${user.id}/`}
+                      className="font-semibold uppercase"
+                    >
+                      {user.username}
+                    </Link>
                     {user.status &&
                     user.status === Status.PENDING &&
                     user.is_sender ? (
