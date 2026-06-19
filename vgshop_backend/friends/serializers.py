@@ -62,7 +62,7 @@ class FriendUpdateSerializer(serializers.ModelSerializer):
 
         status = self.instance.status
         if status != Friend.Status.PENDING:
-            return serializers.ValidationError("Azione non consentita")
+            raise serializers.ValidationError("Azione non consentita")
         return value
 
 
