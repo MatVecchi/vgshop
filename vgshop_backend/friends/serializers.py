@@ -1,4 +1,3 @@
-from friends.views import are_friends
 from django.db import IntegrityError
 from django.db.models import Q
 from account.serializers import UserSerializer, UserProfileSerializer
@@ -28,6 +27,8 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        from friends.views import are_friends
+        
         user = self.context["request"].user
         other_user = User.objects.get(
             username=validated_data["second_friend"]["username"]

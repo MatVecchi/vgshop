@@ -105,7 +105,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"\nProcessing user: {user.username}")
 
                 self.stdout.write("Creating friends...")
-                possible_friends = [u for u in users if (u != user and user not in created_friendships[u.username])]
+                possible_friends = [u for u in users if (u != user and user.username not in created_friendships[u.username])]
                 num_friends = random.randint(0, min(20, len(possible_friends)))
                 friends = random.sample(possible_friends, num_friends)
                 for friend in friends:
