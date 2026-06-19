@@ -62,7 +62,7 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         return (
             Friend.objects.filter(first_friend=user)
             | Friend.objects.filter(second_friend=user)
-        ).exclude(status=Friend.Status.DECLINED)
+        )
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -81,12 +81,10 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         if search:
             friends_1 = (
                 Friend.objects.filter(first_friend=user)
-                .exclude(status=Friend.Status.DECLINED)
                 .values_list("second_friend", flat=True)
             )
             friends_2 = (
                 Friend.objects.filter(second_friend=user)
-                .exclude(status=Friend.Status.DECLINED)
                 .values_list("first_friend", flat=True)
             )
 
