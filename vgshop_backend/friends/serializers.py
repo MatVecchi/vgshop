@@ -32,19 +32,6 @@ class FriendCreateSerializer(serializers.ModelSerializer):
             username=validated_data["second_friend"]["username"]
         )
 
-        friend = Friend.objects.filter(
-            Q(first_friend=user, second_friend=other_user)
-            | Q(first_friend=other_user, second_friend=user)
-        ).first()
-
-        if friend:
-            if friend.status == Friend.Status.DECLINED:
-                friend.first_friend = user
-                friend.second_friend = other_user
-                friend.status = Friend.Status.PENDING
-                friend.save()
-            return friend
-
         friend = Friend.objects.create(
             first_friend=user, second_friend=other_user, status=Friend.Status.PENDING
         )
@@ -72,14 +59,12 @@ class FriendGetSerializer(serializers.ModelSerializer):
         fields = ["status"]
 
     def to_representation(self, instance):
-        # Get serialized id and status
         representation = super().to_representation(instance)
 
         request = self.context.get("request")
         if not request:
             return representation
 
-        # Determine which user is the "friend" relative to the requester
         user = request.user
         if instance.first_friend == user:
             friend = instance.second_friend
@@ -88,14 +73,11 @@ class FriendGetSerializer(serializers.ModelSerializer):
             friend = instance.first_friend
             is_sender = False
 
-        # Serialize friend's details
         friend_data = UserProfileSerializer(friend, context=self.context).data
         friend_data["id"] = friend.id
 
-        # Flatten friend's data (username, profile_image) into the representation
         representation.update(friend_data)
 
-        # Add a flag to distinguish if the request was sent or received by the current user
         representation["is_sender"] = is_sender
 
         return representation
