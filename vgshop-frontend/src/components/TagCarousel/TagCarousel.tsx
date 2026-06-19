@@ -44,7 +44,7 @@ export function TagCarousel() {
             className="pl-4 basis-full sm:basis-1/3 md:basis-1/4 lg:basis-1/5 "
           >
             <div className="p-2">
-              <Link href={`/explore/${tag.name}`}>
+              <Link href={`/explore/${encodeURIComponent(tag.name)}`}>
                 <Card className="group relative overflow-hidden border-none transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-purple-900/20 bg-gradient-to-br from-[#5a189a] to-[#3c096c]">
                   <div className="absolute h-full inset-0 bg-gradient-to-br from-[#7b2cbf] via-[#9d4edd] to-[#5a189a] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:200%_100%] opacity-0 group-hover:opacity-100 animate-shimmer transition-opacity" />
