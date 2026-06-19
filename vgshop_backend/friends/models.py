@@ -10,7 +10,6 @@ class Friend(models.Model):
     class Status(models.TextChoices):
         PENDING = ("P",)
         ACCEPTED = ("A",)
-        DECLINED = "D"
 
     first_friend = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="friends_sent"
@@ -24,7 +23,7 @@ class Friend(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["first_friend", "second_friend", "date"],
+                fields=["first_friend", "second_friend"],
                 name="unique_friendship",
             )
         ]
