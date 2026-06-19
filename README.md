@@ -22,8 +22,8 @@ La struttura del progetto è organizzata come segue:
 
 Prima di procedere con l'installazione, è necessario avere installato sul dispositivo:
 
-- **Node.js** (v18.0.0 o superiore consigliata)
-- **Python** (v3.10 o superiore consigliata)
+- **Node.js** (v24.0.0 o superiore consigliata)
+- **Python** (v3.14 o superiore consigliata)
 - Un gestore di pacchetti Node come **npm** (incluso con Node.js), **yarn**, o **pnpm**.
 - Avere installato tramite **pip** il pacchetto **pipenv**
 
