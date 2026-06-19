@@ -90,7 +90,9 @@ class AccountViewSet(viewsets.ModelViewSet):
                 refresh = RefreshToken.for_user(user)
                 response = Response(
                     {
-                        "user": self.get_serializer(user, context={"request": request}).data,
+                        "user": self.get_serializer(
+                            user, context={"request": request}
+                        ).data,
                         "message": "Login successful !",
                     }
                 )
@@ -213,9 +215,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     def update_profile(self, request):
         user = request.user
-        serializer = self.get_serializer(
-            instance=user, data=request.data, partial=True
-        )
+        serializer = self.get_serializer(instance=user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -243,16 +243,15 @@ class AccountViewSet(viewsets.ModelViewSet):
         return self._modify_password(
             request=request,
             serializer_class=self.get_serializer_class(),
-             get_user=lambda _: request.user
+            get_user=lambda _: request.user,
         )
-    
+
     def confirm_password(self, request):
-       return self._modify_password(
-           request=request,
-           serializer_class=self.get_serializer_class(),
-           get_user = lambda serializer: serializer.validated_data["user"]
-       )
-    
+        return self._modify_password(
+            request=request,
+            serializer_class=self.get_serializer_class(),
+            get_user=lambda serializer: serializer.validated_data["user"],
+        )
 
     def _change_password_email(self, user):
         email = user.email
@@ -295,17 +294,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         )
 
 
-
-
 class FamilyJoinView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
 
     def put(self, request, family_code):
-        raw_token = request.COOKIES.get("access_token")
-        if not raw_token:
-            return Response(
-                {"message": "Token not found"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+
         family = get_object_or_404(Family, code=family_code)
         if User.objects.filter(family=family).count() >= 5:
             return Response(
@@ -318,9 +311,7 @@ class FamilyJoinView(APIView):
                 {"message": "Family not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = FamilyJoinSerializer(
-            user, data={"id": family.id}, partial=True
-        )
+        serializer = FamilyJoinSerializer(user, data={"id": family.id}, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -336,13 +327,7 @@ class FamilyLeaveView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
 
     def delete(self, request):
-        raw_token = request.COOKIES.get("access_token")
-        if not raw_token:
-            return Response(
-                {"message": "Token not found"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = UserRegisterSerializer(
+        serializer = FamilyJoinSerializer(
             request.user, data={"family": None}, partial=True
         )
         if serializer.is_valid():
