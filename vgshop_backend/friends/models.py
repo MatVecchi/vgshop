@@ -4,6 +4,7 @@ from random import choices
 from email.policy import default
 from django.db import models
 from account.models import User
+from django.db.models.functions import Least, Greatest
 
 
 class Friend(models.Model):
@@ -23,7 +24,8 @@ class Friend(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["first_friend", "second_friend"],
+                Least("first_friend", "second_friend"),
+                Greatest("first_friend", "second_friend"),
                 name="unique_friendship",
             )
         ]
