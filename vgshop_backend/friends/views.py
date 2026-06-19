@@ -59,9 +59,8 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if self.action == "update_partial":
             return Friend.objects.filter(second_friend=user)
-        return (
-            Friend.objects.filter(first_friend=user)
-            | Friend.objects.filter(second_friend=user)
+        return Friend.objects.filter(first_friend=user) | Friend.objects.filter(
+            second_friend=user
         )
 
     def get_serializer_class(self):
@@ -79,13 +78,11 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if search:
-            friends_1 = (
-                Friend.objects.filter(first_friend=user)
-                .values_list("second_friend", flat=True)
+            friends_1 = Friend.objects.filter(first_friend=user).values_list(
+                "second_friend", flat=True
             )
-            friends_2 = (
-                Friend.objects.filter(second_friend=user)
-                .values_list("first_friend", flat=True)
+            friends_2 = Friend.objects.filter(second_friend=user).values_list(
+                "first_friend", flat=True
             )
 
             users_not_friends = (
