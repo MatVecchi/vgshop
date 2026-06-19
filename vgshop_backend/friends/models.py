@@ -29,26 +29,39 @@ class Friend(models.Model):
         ]
         verbose_name_plural = "Friends"
 
+    def __str__(self):
+        return (
+            self.first_friend.username
+            + " - "
+            + self.second_friend.username
+            + " / "
+            + self.status
+        )
+
+
 class Message(models.Model):
     class Status(models.TextChoices):
         SENT = "S"
         READ = "R"
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver")
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="receiver"
+    )
     message = EncryptedTextField(
         verbose_name="description",
         null=False,
         blank=False,
     )
-    date = models.DateTimeField(auto_now_add=True, null=False,blank=False)
-    status = models.CharField(default=Status.SENT, choices=Status, null=False, blank=False)
+    date = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    status = models.CharField(
+        default=Status.SENT, choices=Status, null=False, blank=False
+    )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["sender", "receiver", "date"], 
-                name="unique_message"
+                fields=["sender", "receiver", "date"], name="unique_message"
             )
         ]
         verbose_name_plural = "Messages"
