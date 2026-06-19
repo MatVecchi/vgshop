@@ -13,6 +13,7 @@ from account.serializers import (
     ChangeLostPassword,
     ChangePasswordSerializer,
     RequestForgotPassword,
+    FamilyJoinSerializer,
 )
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -317,8 +318,8 @@ class FamilyJoinView(APIView):
                 {"message": "Family not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = UserRegisterSerializer(
-            user, data={"family": family.id}, partial=True
+        serializer = FamilyJoinSerializer(
+            user, data={"id": family.id}, partial=True
         )
         if serializer.is_valid():
             serializer.save()

@@ -1,3 +1,4 @@
+from family.models import Family
 from rest_framework import serializers
 from account.models import User
 from django.core import exceptions
@@ -252,3 +253,23 @@ class ChangePasswordSerializer(ResetPasswordSerializer):
 
         data["user"] = request.user
         return attrs
+
+
+class FamilyJoinSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = Family
+        fields = ["id"]
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        family_id = validated_data.get("id")
+        try:
+            family_obj = Family.objects.get(id=family_id)
+            instance.family = family_obj
+            instance.save()
+        except Family.DoesNotExist:
+            pass
+        return instance
+
