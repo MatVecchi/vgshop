@@ -22,11 +22,14 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 
-def are_friends(user, friend):
+def are_friends(user, friend, extended=False):
     return Friend.objects.filter(
         Q(first_friend=user, second_friend=friend, status=Friend.Status.ACCEPTED)
         | Q(first_friend=friend, second_friend=user, status=Friend.Status.ACCEPTED)
-    ).exists()
+    ).exists() or (extended and Friend.objects.filter(
+        Q(first_friend=user, second_friend=friend, status=Friend.Status.PENDING)
+        | Q(first_friend=friend, second_friend=user, status=Friend.Status.PENDING)
+    ).exists())
 
 
 class CataloguePaginator(PageNumberPagination):

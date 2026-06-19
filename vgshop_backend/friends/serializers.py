@@ -1,3 +1,4 @@
+from friends.views import are_friends
 from django.db import IntegrityError
 from django.db.models import Q
 from account.serializers import UserSerializer, UserProfileSerializer
@@ -31,6 +32,9 @@ class FriendCreateSerializer(serializers.ModelSerializer):
         other_user = User.objects.get(
             username=validated_data["second_friend"]["username"]
         )
+
+        if are_friends(user, other_user, extended=True):
+            raise serializers.ValidationError("Amicizia già presente")
 
         friend = Friend.objects.create(
             first_friend=user, second_friend=other_user, status=Friend.Status.PENDING
