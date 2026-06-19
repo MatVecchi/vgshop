@@ -1,20 +1,17 @@
-import FriendLibrarySidebar from "@/components/FriendLibrarySidebar/FriendLibrarySidebar"; 
+import FriendLibrarySidebar from "@/components/FriendLibrarySidebar/FriendLibrarySidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { use } from "react";
 
-
 interface Props {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: string }>;
   children: React.ReactNode;
 }
 
-export default function LibraryLayout({
-  params,
-  children,
-}: Props) {
-  const id = use(params).id;
-  
+export default function LibraryLayout({ params, children }: Props) {
+  const stringId = use(params).id;
+  const id = parseInt(stringId, 10);
+
   return (
     <TooltipProvider>
       <SidebarProvider defaultOpen={false}>

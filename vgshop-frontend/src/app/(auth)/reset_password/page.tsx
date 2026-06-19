@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from "react";
 import ResetPasswordFields from "@/components/ResetPasswordFields/ResetPasswordFields";
 import {
   Card,
@@ -9,17 +9,10 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { KeyRound } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordConfirm() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const uid = searchParams.get("uid");
   const router = useRouter();
-
-  if (!uid || !token) {
-    router.push("/login");
-  }
 
   return (
     <Card className="w-full max-w-md border border-border/60 shadow-md bg-card/50 backdrop-blur-sm">
@@ -37,7 +30,15 @@ export default function ForgotPasswordConfirm() {
       </CardHeader>
 
       <CardContent className="pb-8 px-6">
-        <ResetPasswordFields forgot={true} uid={uid} token={token} />
+        <Suspense
+          fallback={
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              Caricamento modulo...
+            </div>
+          }
+        >
+          <ResetPasswordFields forgot={true} />
+        </Suspense>
       </CardContent>
     </Card>
   );

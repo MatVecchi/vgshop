@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { MinusCircle, PlusCircle, RotateCw, KeyRound } from "lucide-react";
 import api from "@/lib/api";
@@ -12,11 +12,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   forgot: boolean;
-  token?: string | null;
-  uid?: string | null;
 };
 
-export default function ResetPasswordFields({ forgot, token, uid }: Props) {
+export default function ResetPasswordFields({ forgot }: Props) {
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -25,8 +23,17 @@ export default function ResetPasswordFields({ forgot, token, uid }: Props) {
     {},
   );
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const uid = searchParams.get("uid");
 
   const submitURL = `/api/${forgot ? "lost_password/confirm/" : "reset_password/"}`;
+
+  useEffect(() => {
+    if (forgot && (!uid || !token)) {
+      router.push("/login");
+    }
+  }, [forgot, uid, token, router]);
 
   const handleReset = () => {
     if (!forgot) {
@@ -99,6 +106,14 @@ export default function ResetPasswordFields({ forgot, token, uid }: Props) {
     !newPassword ||
     !confirmPassword ||
     (!forgot && !oldPassword);
+
+  if (forgot && (!uid || !token)) {
+    return (
+      <div className="text-center py-4">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <form className="w-full max-w-full mx-auto" onSubmit={handleSubmit}>

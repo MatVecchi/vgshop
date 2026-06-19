@@ -144,7 +144,7 @@ export default function FamilyTab() {
             <Separator />
             <div className="min-h-20 flex flex-col gap-3 justify-center items-center">
               {members?.length > 0 ? (
-                members.map((member) => {
+                members.map((member: any) => {
                   return (
                     <div
                       key={member.id}
