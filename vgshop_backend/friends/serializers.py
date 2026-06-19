@@ -34,7 +34,7 @@ class FriendCreateSerializer(serializers.ModelSerializer):
             username=validated_data["second_friend"]["username"]
         )
 
-        if are_friends(user, other_user):
+        if are_friends(user, other_user, extended=True):
             raise serializers.ValidationError("Amicizia già presente")
 
         friend = Friend.objects.create(
