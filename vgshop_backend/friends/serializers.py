@@ -1,3 +1,4 @@
+from friends.views import are_friends
 from django.db import IntegrityError
 from django.db.models import Q
 from account.serializers import UserSerializer, UserProfileSerializer
