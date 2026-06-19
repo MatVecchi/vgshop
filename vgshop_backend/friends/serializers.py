@@ -5,6 +5,7 @@ from django.db import transaction
 from rest_framework import serializers
 from account.models import User
 from friends.models import Friend, Message
+from friends.views import are_friends
 
 
 class FriendSerializer(serializers.ModelSerializer):
@@ -31,6 +32,9 @@ class FriendCreateSerializer(serializers.ModelSerializer):
         other_user = User.objects.get(
             username=validated_data["second_friend"]["username"]
         )
+
+        if are_friends(user, other_user):
+            raise serializers.ValidationError("Amicizia già presente")
 
         friend = Friend.objects.create(
             first_friend=user, second_friend=other_user, status=Friend.Status.PENDING
