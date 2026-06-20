@@ -57,3 +57,5 @@ Il sistema include diverse applicazioni integrate (app Django):
 Di seguito è mostrato lo schema ER del database utilizzato da VGShop:
 
 ![Schema ER Database](er.png)
+
+**Nota:** per questioni semplificative ad ogni utente pre-esistente è stata assegnata la password `password123`, in modo da agevolare la fase di testing
