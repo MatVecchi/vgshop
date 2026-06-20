@@ -79,7 +79,7 @@ export function LoginCard() {
               <Input
                 id="username"
                 type="text"
-                placeholder="es. mario_rossi"
+                placeholder="MarioRossi"
                 className="w-full h-10 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary"
                 onChange={(e) => setUsername(e.target.value)}
                 required

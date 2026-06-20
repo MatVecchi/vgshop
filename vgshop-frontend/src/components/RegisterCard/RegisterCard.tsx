@@ -153,7 +153,7 @@ export function RegisterCard() {
             </Label>
             <Input
               id="name"
-              placeholder="Mario.Rossi"
+              placeholder="MarioRossi"
               value={username}
               required
               onChange={(e) => setUsername(e.target.value)}
