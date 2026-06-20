@@ -10,6 +10,7 @@ from django.db import transaction
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
+import re
 
 # Cero un serializer per la classe user
 # Preso un oggetto Model: User lo trasforma in un JSON leggibile da react
@@ -118,6 +119,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if piva == "" or piva is None:
             return None
         return piva
+    
+    def validate_username(self, value):
+        if re.search(r'[^a-zA-Z0-9]', value):
+            raise serializers.ValidationError(
+                "Lo username può contenere solo lettere e numeri, senza spazi o caratteri speciali."
+            )
+        return value
 
     def validate_website(self, value):
         if value == "" or value is None:
@@ -143,6 +151,13 @@ class UserUpdateSerializer(UserSerializer):
 
     def verify_is_publisher(self, obj):
         return obj.groups.filter(name="Publisher").exists()
+    
+    def validate_username(self, value):
+        if re.search(r'[^a-zA-Z0-9]', value):
+            raise serializers.ValidationError(
+                "Lo username può contenere solo lettere e numeri, senza spazi o caratteri speciali."
+            )
+        return value
 
     @transaction.atomic
     def update(self, instance, validated_data):

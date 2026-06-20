@@ -125,6 +125,7 @@ class LibraryModelViewSet(
     serializer_class = LibrarySerializer
 
     lookup_url_kwarg = "game_title"
+    lookup_value_regex = r"[^/]+"
 
     def get_queryset(self):
         if self.action in ["get_friend_library", "list_friend_titles"]:

@@ -88,6 +88,7 @@ class GameModelViewSet(viewsets.ModelViewSet):
     # il retrieve non usa la pk, ma usa il titolo (è unique)
     lookup_field = "title"
     lookup_url_kwarg = "title"
+    lookup_value_regex = r"[^/]+"
 
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = CataloguePaginator

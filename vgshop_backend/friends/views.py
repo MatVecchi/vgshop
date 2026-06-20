@@ -41,6 +41,7 @@ class FriendsModelViewSet(viewsets.ModelViewSet):
     pagination_class = CataloguePaginator
     search_fields = ["first_friend__username", "second_friend__username"]
     lookup_field = "username"
+    lookup_value_regex = r"[^/]+"
 
     def get_object(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
