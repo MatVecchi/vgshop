@@ -327,15 +327,18 @@ class FamilyLeaveView(APIView):
     permission_classes = [IsAuthenticated, IsInCustomerGroup]
 
     def delete(self, request):
-        serializer = FamilyJoinSerializer(
-            request.user, data={"family": None}, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
+        user = request.user
+        
+        if not user.family:
             return Response(
-                {"message": "Family left successfully !"}, status=status.HTTP_200_OK
+                {"message": "Non fai parte di nessuna famiglia !"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
+            
+        user.family = None
+        user.save()
+        
         return Response(
-            {"message": "Family left failed", "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
+            {"message": "Family left successfully !"}, 
+            status=status.HTTP_200_OK
         )
