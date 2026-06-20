@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from django.core.files.base import ContentFile
 from account.factories import UserFactory
 from .models import Tag, GameImage, Game
+import re
 
 load_dotenv()
 
@@ -110,7 +111,9 @@ class GameFactory(factory.django.DjangoModelFactory):
 
     class Params:
         game_info = factory.LazyFunction(fetch_igdb_game)
-        publisher_name = factory.LazyAttribute(lambda o: o.game_info.get("publisher") or faker.company())
+        publisher_name = factory.LazyAttribute(
+            lambda o: re.sub(r'[^a-zA-Z0-9]', '', o.game_info.get("publisher") or faker.company())
+        )
         publisher_logo = factory.LazyAttribute(lambda o: o.game_info.get("publisher_logo") or faker.image_url())
         
     title = factory.LazyAttribute(lambda o: o.game_info.get("title") or faker.sentence())
